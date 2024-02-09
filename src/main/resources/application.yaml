@@ -1,0 +1,11 @@
+management:
+  endpoint:
+    prometheus.enabled: true
+    health.probes.enabled: true
+    health.show-details: always
+  endpoints.web:
+    base-path: /internal
+    exposure.include: prometheus
+  health:
+    livenessstate.enabled: true
+    readinessState.enabled: true
