@@ -1,1 +1,1 @@
-rootProject.name = "meroppfolging-bartackend"
+rootProject.name = "meroppfolging-backend"
