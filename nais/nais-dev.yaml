@@ -40,3 +40,8 @@ spec:
   ingresses:
     - "https://meroppfolging-backend.intern.dev.nav.no"
   leaderElection: true
+  tokenx:
+    enabled: true
+  env:
+    - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
+      value: meroppfolging-frontend-client-id

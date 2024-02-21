@@ -1,3 +1,8 @@
+spring:
+  main.banner-mode: 'off'
+  profiles:
+    active: default
+
 management:
   endpoint:
     prometheus.enabled: true
@@ -9,3 +14,9 @@ management:
   health:
     livenessstate.enabled: true
     readinessState.enabled: true
+
+no.nav.security.jwt:
+  issuer:
+    tokenx:
+      discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
+      accepted_audience: ${TOKEN_X_CLIENT_ID}

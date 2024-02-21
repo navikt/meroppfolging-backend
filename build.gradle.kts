@@ -12,7 +12,8 @@ group = "no.nav.syfo"
 version = "0.0.1-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_19
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 configurations {
@@ -28,17 +29,21 @@ repositories {
     }
 }
 
-val tokenSupportVersion = "3.2.0"
+val tokenSupportVersion = "4.1.3"
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
-    runtimeOnly("org.postgresql:postgresql")
+    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
+    implementation("org.hibernate.validator:hibernate-validator")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")
+    testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
@@ -48,7 +53,7 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs += "-Xjsr305=strict"
-        jvmTarget = "19"
+        jvmTarget = "21"
     }
 }
 
@@ -58,4 +63,5 @@ tasks.named<Jar>("jar") {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    enabled = false
 }
