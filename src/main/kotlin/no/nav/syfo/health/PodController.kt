@@ -1,4 +1,4 @@
-package no.nav.syfo
+package no.nav.syfo.health
 
 import no.nav.security.token.support.core.api.Unprotected
 import org.springframework.http.MediaType

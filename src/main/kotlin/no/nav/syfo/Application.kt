@@ -1,11 +1,13 @@
 package no.nav.syfo
 
+import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class MeroppfolgingBackendApplication
+@EnableJwtTokenValidation
+class Application
 
 fun main(args: Array<String>) {
-    runApplication<MeroppfolgingBackendApplication>(*args)
+    runApplication<Application>(*args)
 }

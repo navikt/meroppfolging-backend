@@ -39,3 +39,8 @@ spec:
   ingresses:
     - "https://meroppfolging-backend.intern.nav.no"
   leaderElection: true
+  tokenx:
+    enabled: true
+  env:
+    - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
+      value: "prod-gcp:team-esyfo:meroppfolging-frontend"
