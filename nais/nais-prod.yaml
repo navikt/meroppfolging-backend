@@ -43,4 +43,4 @@ spec:
     enabled: true
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
-      value: meroppfolging-frontend-client-id
+      value: "prod-gcp:team-esyfo:meroppfolging-frontend"
