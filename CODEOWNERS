@@ -1,4 +1,4 @@
 * @navikt/team-esyfo
 
-# Set empty owners on package.json and package-lock.json to avoid that github adds team-esyfo as reviewer on all automergeable prs from Dependabot
+# Set empty owners on build.gradle.kts to avoid that github adds team-esyfo as reviewer on all automergeable prs from Dependabot
 build.gradle.kts
