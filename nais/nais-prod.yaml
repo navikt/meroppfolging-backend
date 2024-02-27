@@ -41,6 +41,10 @@ spec:
   leaderElection: true
   tokenx:
     enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: meroppfolging-frontend
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
       value: "prod-gcp:team-esyfo:meroppfolging-frontend"
