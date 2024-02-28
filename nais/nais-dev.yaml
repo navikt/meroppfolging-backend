@@ -41,6 +41,17 @@ spec:
   leaderElection: true
   tokenx:
     enabled: true
+  gcp:
+    sqlInstances:
+    - name: meroppfolging-backend-db-instance
+      type: POSTGRES_15
+      diskAutoresize: true
+      diskType: SSD
+      databases:
+        - name: meroppfolging-backend-db
+          envVarPrefix: db
+      insights:
+        enabled: true
   accessPolicy:
     inbound:
       rules:
