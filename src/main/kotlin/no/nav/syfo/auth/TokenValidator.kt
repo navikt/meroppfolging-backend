@@ -1,4 +1,4 @@
-package no.nav.syfo
+package no.nav.syfo.auth
 
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
