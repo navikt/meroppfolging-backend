@@ -15,6 +15,8 @@ management:
     livenesstate.enabled: true
     readinessState.enabled: true
 
+logging.config: "classpath:logback.xml"
+
 no.nav.security.jwt:
   issuer:
     tokenx:
