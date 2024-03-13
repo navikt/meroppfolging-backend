@@ -10,9 +10,9 @@ management:
     health.show-details: always
   endpoints.web:
     base-path: /internal
-    exposure.include: prometheus
+    exposure.include: health,prometheus
   health:
-    livenessstate.enabled: true
+    livenesstate.enabled: true
     readinessState.enabled: true
 
 no.nav.security.jwt:
