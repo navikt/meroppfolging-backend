@@ -20,6 +20,7 @@ repositories {
 }
 
 val tokenSupportVersion = "4.1.3"
+val logstashLogbackEncoderVersion = "7.4"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
@@ -32,6 +33,7 @@ dependencies {
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("org.hibernate.validator:hibernate-validator")
     implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")
