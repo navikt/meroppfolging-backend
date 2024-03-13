@@ -6,6 +6,7 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.getIssuerToken
 import no.nav.syfo.auth.TokenValidator
+import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
@@ -20,6 +21,7 @@ class SykmeldingControllerV1(
     @Value("\${MEROPPFOLGING_FRONTEND_CLIENT_ID}")
     val merOppfolgingFrontendClientId: String,
     val tokenValidationContextHolder: TokenValidationContextHolder,
+    val isOppfolgingstilfelleClient: IsOppfolgingstilfelleClient,
 ) {
     lateinit var tokenValidator: TokenValidator
 
@@ -32,7 +34,7 @@ class SykmeldingControllerV1(
     @ResponseBody
     fun isSykmeldt(): Boolean {
         tokenValidator.validateTokenXClaims()
-        val issuerToken = getIssuerToken(tokenValidationContextHolder, TokenUtil.TokenIssuer.TOKENX)
-        return true
+        val token = getIssuerToken(tokenValidationContextHolder, TokenUtil.TokenIssuer.TOKENX)
+        return isOppfolgingstilfelleClient.isSykmeldt(token)
     }
 }

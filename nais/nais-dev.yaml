@@ -45,6 +45,14 @@ spec:
     inbound:
       rules:
         - application: meroppfolging-frontend
+    outbound:
+      rules:
+        - application: isoppfolgingstilfelle
+          namespace: teamsykefravr
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
       value: "dev-gcp:team-esyfo:meroppfolging-frontend"
+    - name: ISOPPFOLGINGSTILFELLE_URL
+      value: http://isoppfolgingstilfelle.teamsykefravr
+    - name: ISOPPFOLGINGSTILFELLE_ID
+      value: dev-gcp:teamsykefravr:isoppfolgingstilfelle
