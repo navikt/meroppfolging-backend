@@ -12,7 +12,7 @@ management:
     base-path: /internal
     exposure.include: health,prometheus
   health:
-    livenesstate.enabled: true
+    livenessState.enabled: true
     readinessState.enabled: true
 
 logging.config: "classpath:logback.xml"
