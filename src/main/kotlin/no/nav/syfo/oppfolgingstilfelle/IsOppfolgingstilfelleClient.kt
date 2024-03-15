@@ -17,6 +17,8 @@ import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 
+const val ISOPPFOLGINGSTILFELLE_PATH = "/api/v1/arbeidstaker/oppfolgingstilfelle"
+
 @Service
 class IsOppfolgingstilfelleClient(
     private val tokenDingsClient: TokendingsClient,
@@ -55,7 +57,7 @@ class IsOppfolgingstilfelleClient(
 
     private fun getResponse(httpEntity: HttpEntity<*>): ResponseEntity<List<Oppfolgingstilfelle>> {
         return RestTemplate().exchange(
-            "$baseUrl/api/v1/arbeidstaker/oppfolgingstilfelle",
+            "$baseUrl$ISOPPFOLGINGSTILFELLE_PATH",
             HttpMethod.GET,
             httpEntity,
             object : ParameterizedTypeReference<List<Oppfolgingstilfelle>>() {},
