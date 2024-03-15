@@ -1,10 +1,12 @@
-package no.nav.syfo.senoppfolging
+package no.nav.syfo.sykmelding
 
 import jakarta.annotation.PostConstruct
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.syfo.auth.TokenUtil
+import no.nav.syfo.auth.TokenUtil.getIssuerToken
 import no.nav.syfo.auth.TokenValidator
-import no.nav.syfo.logger
+import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
@@ -13,24 +15,26 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
-@RequestMapping("/api/v1")
-class SenOppfolgingControllerV1(
+@RequestMapping("/api/v1/sykmelding")
+@ProtectedWithClaims(issuer = "tokenx", combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
+class SykmeldingControllerV1(
     @Value("\${MEROPPFOLGING_FRONTEND_CLIENT_ID}")
     val merOppfolgingFrontendClientId: String,
     val tokenValidationContextHolder: TokenValidationContextHolder,
+    val isOppfolgingstilfelleClient: IsOppfolgingstilfelleClient,
 ) {
     lateinit var tokenValidator: TokenValidator
-    private val log = logger()
 
     @PostConstruct
     fun init() {
         tokenValidator = TokenValidator(tokenValidationContextHolder, merOppfolgingFrontendClientId)
     }
 
-    @GetMapping("/mer", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/sykmeldt", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
-    @ProtectedWithClaims(issuer = "tokenx", combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
-    fun getMer(): String {
-        return "mer"
+    fun isSykmeldt(): Boolean {
+        tokenValidator.validateTokenXClaims()
+        val token = getIssuerToken(tokenValidationContextHolder, TokenUtil.TokenIssuer.TOKENX)
+        return isOppfolgingstilfelleClient.isSykmeldt(token)
     }
 }
