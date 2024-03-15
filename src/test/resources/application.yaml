@@ -5,3 +5,10 @@ no.nav.security.jwt:
       accepted_audience: meroppfolging-backend-client-id
 
 MEROPPFOLGING_FRONTEND_CLIENT_ID: 'meroppfolging-frontend-client-id'
+
+token.x.client.id: "tokenx-client-id"
+token.x.private.jwk: "tokenx-jwk"
+token.x.token.endpoint: "https://tokenx-endpoint"
+
+isoppfolgingstilfelle.url: "http://isoppfolgingstilfelle"
+isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
