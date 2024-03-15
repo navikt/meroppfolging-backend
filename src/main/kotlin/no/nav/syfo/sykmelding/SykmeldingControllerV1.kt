@@ -30,7 +30,7 @@ class SykmeldingControllerV1(
         tokenValidator = TokenValidator(tokenValidationContextHolder, merOppfolgingFrontendClientId)
     }
 
-    @GetMapping("/is-sykmeldt", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/sykmeldt", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
     fun isSykmeldt(): Boolean {
         tokenValidator.validateTokenXClaims()
