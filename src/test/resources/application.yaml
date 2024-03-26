@@ -12,3 +12,6 @@ token.x.token.endpoint: "https://tokenx-endpoint"
 
 isoppfolgingstilfelle.url: "http://isoppfolgingstilfelle"
 isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
+
+veilarbregistrering.url: "http://veilarbregistrering"
+veilarbregistrering.id: "local:paw:veilarbregistrering"
