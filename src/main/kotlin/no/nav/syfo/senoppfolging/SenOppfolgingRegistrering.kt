@@ -1,6 +1,6 @@
 package no.nav.syfo.senoppfolging
 
-data class SykmeldtRegistrering(
+data class SenOppfolgingRegistrering(
     val besvarelse: Besvarelse,
     val teksterForBesvarelse: List<TekstForSporsmal>,
 )

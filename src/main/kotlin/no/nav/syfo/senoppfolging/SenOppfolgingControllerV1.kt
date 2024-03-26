@@ -7,7 +7,8 @@ import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.logger
-import no.nav.syfo.veilarbregistrering.StartRegistrationDTO
+import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
+import no.nav.syfo.veilarbregistrering.StatusDTO
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -19,13 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/senoppfolging")
 @ProtectedWithClaims(issuer = "tokenx", combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
 class SenOppfolgingControllerV1(
     @Value("\${MEROPPFOLGING_FRONTEND_CLIENT_ID}")
     val merOppfolgingFrontendClientId: String,
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val veilarbregistreringClient: VeilarbregistreringClient,
+    val isOppfolgingstilfelleClient: IsOppfolgingstilfelleClient,
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
@@ -35,21 +37,27 @@ class SenOppfolgingControllerV1(
         tokenValidator = TokenValidator(tokenValidationContextHolder, merOppfolgingFrontendClientId)
     }
 
-    @GetMapping("/startregistration", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/status", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
-    fun startRegistration(): StartRegistrationDTO {
+    fun status(): StatusDTO {
         tokenValidator.validateTokenXClaims()
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
-        return veilarbregistreringClient.startRegistration(token)
+        val startRegistration = veilarbregistreringClient.startRegistration(token)
+        val sykmeldt = isOppfolgingstilfelleClient.isSykmeldt(token)
+        log.info(
+            "veilarbregistrering type [${startRegistration.registreringType},${startRegistration.formidlingsgruppe}," +
+                "${startRegistration.servicegruppe},${startRegistration.rettighetsgruppe},$sykmeldt]",
+        )
+        return StatusDTO(startRegistration.registreringType, sykmeldt)
     }
 
-    @PostMapping("/create")
+    @PostMapping("/submit")
     @ResponseBody
     fun create(
-        @RequestBody sykmeldtRegistrering: SykmeldtRegistrering,
+        @RequestBody senOppfolgingRegistrering: SenOppfolgingRegistrering,
     ) {
         tokenValidator.validateTokenXClaims()
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
-        veilarbregistreringClient.completeRegistration(token, sykmeldtRegistrering)
+        veilarbregistreringClient.completeRegistration(token, senOppfolgingRegistrering)
     }
 }
