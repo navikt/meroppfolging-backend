@@ -42,12 +42,12 @@ class SenOppfolgingControllerV1(
         tokenValidator.validateTokenXClaims()
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val startRegistration = veilarbregistreringClient.startRegistration(token)
-        val sykmeldt = isOppfolgingstilfelleClient.isSykmeldt(token)
+        val isSykmeldt = isOppfolgingstilfelleClient.isSykmeldt(token)
         log.info(
             "veilarbregistrering type [${startRegistration.registreringType},${startRegistration.formidlingsgruppe}," +
-                "${startRegistration.servicegruppe},${startRegistration.rettighetsgruppe},$sykmeldt]",
+                "${startRegistration.servicegruppe},${startRegistration.rettighetsgruppe},$isSykmeldt]",
         )
-        return StatusDTO(startRegistration.registreringType, sykmeldt)
+        return StatusDTO(startRegistration.registreringType, isSykmeldt)
     }
 
     @PostMapping("/submit")
