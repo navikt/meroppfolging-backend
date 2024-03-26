@@ -1,9 +1,11 @@
 package no.nav.syfo.veilarbregistrering
 
 import no.nav.syfo.NAV_CALL_ID_HEADER
+import no.nav.syfo.NAV_CONSUMER_ID
 import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.auth.tokendings.TokendingsClient
 import no.nav.syfo.createCallId
+import no.nav.syfo.createNavConsumerId
 import no.nav.syfo.logger
 import no.nav.syfo.oppfolgingstilfelle.RequestUnauthorizedException
 import no.nav.syfo.senoppfolging.SykmeldtRegistrering
@@ -69,6 +71,7 @@ class VeilarbregistreringClient(
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, bearerHeader(exchangedToken))
         headers.add(NAV_CALL_ID_HEADER, createCallId())
+        headers.add(NAV_CONSUMER_ID, createNavConsumerId())
         return HttpEntity<Any>(headers)
     }
 
@@ -79,6 +82,7 @@ class VeilarbregistreringClient(
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, bearerHeader(exchangedToken))
         headers.add(NAV_CALL_ID_HEADER, createCallId())
+        headers.add(NAV_CONSUMER_ID, createNavConsumerId())
         return HttpEntity<Any>(sykmeldtRegistrering, headers)
     }
 
