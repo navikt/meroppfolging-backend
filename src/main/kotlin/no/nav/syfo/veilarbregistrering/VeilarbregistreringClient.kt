@@ -67,17 +67,9 @@ class VeilarbregistreringClient(
         }
     }
 
-    private fun createHttpEntity(exchangedToken: String): HttpEntity<*> {
-        val headers = HttpHeaders()
-        headers.add(HttpHeaders.AUTHORIZATION, bearerHeader(exchangedToken))
-        headers.add(NAV_CALL_ID_HEADER, createCallId())
-        headers.add(NAV_CONSUMER_ID, createNavConsumerId())
-        return HttpEntity<Any>(headers)
-    }
-
     private fun createHttpEntity(
         exchangedToken: String,
-        sykmeldtRegistrering: SykmeldtRegistrering,
+        sykmeldtRegistrering: SykmeldtRegistrering? = null,
     ): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, bearerHeader(exchangedToken))
