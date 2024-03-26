@@ -15,7 +15,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.auth.tokendings.TokendingsClient
 import no.nav.syfo.senoppfolging.Besvarelse
-import no.nav.syfo.senoppfolging.SykmeldtRegistrering
+import no.nav.syfo.senoppfolging.SenOppfolgingRegistrering
 import no.nav.syfo.veilarbregistrering.StartRegistrationDTO
 import no.nav.syfo.veilarbregistrering.StartRegistrationType
 import no.nav.syfo.veilarbregistrering.VEILARBREGISTRERING_COMPLETE_PATH
@@ -32,7 +32,7 @@ class VeilarbregistreringClientTest : FunSpec(
         val userToken = "token123"
         val veilarbregistreringClient = VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp)
 
-        val sykmeldtRegistrering = SykmeldtRegistrering(Besvarelse(), listOf())
+        val senOppfolgingRegistrering = SenOppfolgingRegistrering(Besvarelse(), listOf())
         val startRegistrationDTO =
             StartRegistrationDTO(
                 StartRegistrationType.SYKMELDT_REGISTRERING,
@@ -52,7 +52,7 @@ class VeilarbregistreringClientTest : FunSpec(
             veilarbregistreringServer.stubCompleteRegistration(
                 exchangedToken,
             )
-            veilarbregistreringClient.completeRegistration(userToken, sykmeldtRegistrering)
+            veilarbregistreringClient.completeRegistration(userToken, senOppfolgingRegistrering)
             veilarbregistreringServer.verifyCompleteRegistration()
         }
 

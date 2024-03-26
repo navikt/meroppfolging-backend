@@ -8,7 +8,7 @@ import no.nav.syfo.createCallId
 import no.nav.syfo.createNavConsumerId
 import no.nav.syfo.logger
 import no.nav.syfo.oppfolgingstilfelle.RequestUnauthorizedException
-import no.nav.syfo.senoppfolging.SykmeldtRegistrering
+import no.nav.syfo.senoppfolging.SenOppfolgingRegistrering
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -51,14 +51,14 @@ class VeilarbregistreringClient(
 
     fun completeRegistration(
         token: String,
-        sykmeldtRegistrering: SykmeldtRegistrering,
+        senOppfolgingRegistrering: SenOppfolgingRegistrering,
     ) {
         val exchangedToken =
             tokenDingsClient.exchangeToken(
                 token,
                 targetApp,
             )
-        val httpEntity = createHttpEntity(exchangedToken, sykmeldtRegistrering)
+        val httpEntity = createHttpEntity(exchangedToken, senOppfolgingRegistrering)
 
         try {
             RestTemplate().postForEntity("$baseUrl${VEILARBREGISTRERING_COMPLETE_PATH}", httpEntity, String::class.java)
@@ -69,13 +69,13 @@ class VeilarbregistreringClient(
 
     private fun createHttpEntity(
         exchangedToken: String,
-        sykmeldtRegistrering: SykmeldtRegistrering? = null,
+        senOppfolgingRegistrering: SenOppfolgingRegistrering? = null,
     ): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, bearerHeader(exchangedToken))
         headers.add(NAV_CALL_ID_HEADER, createCallId())
         headers.add(NAV_CONSUMER_ID, createNavConsumerId())
-        return HttpEntity<Any>(sykmeldtRegistrering, headers)
+        return HttpEntity<Any>(senOppfolgingRegistrering, headers)
     }
 
     private fun handleException(
