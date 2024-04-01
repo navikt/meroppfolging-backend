@@ -23,7 +23,7 @@ val tokenSupportVersion = "4.1.4"
 val logstashLogbackEncoderVersion = "7.4"
 val kotestVersion = "5.8.1"
 val mockkVersion = "1.13.10"
-val wiremockVersion = "3.5.1"
+val wiremockVersion = "3.5.2"
 val wiremockKotestExtensionVersion = "3.0.1"
 
 dependencies {
