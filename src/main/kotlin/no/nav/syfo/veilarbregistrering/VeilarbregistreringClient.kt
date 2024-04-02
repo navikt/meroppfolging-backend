@@ -60,15 +60,11 @@ class VeilarbregistreringClient(
             )
         val httpEntity = createHttpEntity(exchangedToken, senOppfolgingRegistrering)
 
-        log.info("Are going to send this stuff to veilarbregistrering $httpEntity")
-
-        /*
         try {
             RestTemplate().postForEntity("$baseUrl${VEILARBREGISTRERING_COMPLETE_PATH}", httpEntity, String::class.java)
         } catch (e: RestClientResponseException) {
             handleException(e, httpEntity)
         }
-         */
     }
 
     private fun createHttpEntity(
