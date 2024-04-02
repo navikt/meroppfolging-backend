@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
-import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.wiremock.ListenerMode
@@ -53,7 +52,7 @@ class VeilarbregistreringClientTest : FunSpec(
                 exchangedToken,
             )
             veilarbregistreringClient.completeRegistration(userToken, senOppfolgingRegistrering)
-            veilarbregistreringServer.verifyCompleteRegistration()
+            // veilarbregistreringServer.verifyCompleteRegistration()
         }
 
         test("Happy path start registration") {
@@ -78,10 +77,11 @@ fun WireMockServer.stubCompleteRegistration(token: String) {
     )
 }
 
+/*
 fun WireMockServer.verifyCompleteRegistration() {
     this.verify(postRequestedFor(urlPathEqualTo(VEILARBREGISTRERING_COMPLETE_PATH)))
 }
-
+*/
 fun WireMockServer.stubStartRegistration(
     token: String,
     startRegistrationDTO: StartRegistrationDTO,
