@@ -52,7 +52,7 @@ class SenOppfolgingControllerV1(
 
     @PostMapping("/submit")
     @ResponseBody
-    fun create(
+    fun submit(
         @RequestBody senOppfolgingRegistrering: SenOppfolgingRegistrering,
     ) {
         tokenValidator.validateTokenXClaims()
