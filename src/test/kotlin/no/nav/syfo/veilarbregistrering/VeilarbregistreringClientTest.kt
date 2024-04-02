@@ -14,13 +14,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.auth.tokendings.TokendingsClient
-import no.nav.syfo.senoppfolging.Besvarelse
-import no.nav.syfo.senoppfolging.SenOppfolgingRegistrering
-import no.nav.syfo.veilarbregistrering.StartRegistrationDTO
-import no.nav.syfo.veilarbregistrering.StartRegistrationType
+import no.nav.syfo.senoppfolging.domain.Besvarelse
+import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
 import no.nav.syfo.veilarbregistrering.VEILARBREGISTRERING_COMPLETE_PATH
 import no.nav.syfo.veilarbregistrering.VEILARBREGISTRERING_START_PATH
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
+import no.nav.syfo.veilarbregistrering.domain.StartRegistrationDTO
+import no.nav.syfo.veilarbregistrering.domain.StartRegistrationType
 import org.springframework.http.HttpHeaders
 
 class VeilarbregistreringClientTest : FunSpec(

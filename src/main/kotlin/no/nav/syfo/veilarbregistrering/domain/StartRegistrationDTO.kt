@@ -1,4 +1,4 @@
-package no.nav.syfo.veilarbregistrering
+package no.nav.syfo.veilarbregistrering.domain
 
 data class StartRegistrationDTO(
     val registreringType: StartRegistrationType,

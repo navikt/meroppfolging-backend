@@ -8,6 +8,8 @@ import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.logger
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
+import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
+import no.nav.syfo.senoppfolging.domain.StatusDTO
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType

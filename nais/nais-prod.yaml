@@ -61,4 +61,4 @@ spec:
     - name: VEILARBREGISTRERING_URL
       value: http://veilarbregistrering.paw
     - name: VEILARBREGISTRERING_ID
-      value: dev-gcp:paw:veilarbregistrering
+      value: prod-gcp:paw:veilarbregistrering

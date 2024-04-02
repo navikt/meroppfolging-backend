@@ -1,4 +1,4 @@
-package no.nav.syfo.senoppfolging
+package no.nav.syfo.senoppfolging.domain
 
 data class SenOppfolgingRegistrering(
     val besvarelse: Besvarelse,
