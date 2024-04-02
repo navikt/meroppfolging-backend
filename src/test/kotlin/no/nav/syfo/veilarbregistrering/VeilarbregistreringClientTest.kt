@@ -64,6 +64,22 @@ class VeilarbregistreringClientTest : FunSpec(
             val result = veilarbregistreringClient.startRegistration(userToken)
             result shouldBe startRegistrationDTO
         }
+
+        test("StartRegistration with only mandatory fields") {
+            val startRegistrationDTOWithNulls =
+                StartRegistrationDTO(
+                    StartRegistrationType.SYKMELDT_REGISTRERING,
+                    null,
+                    null,
+                    null,
+                )
+            veilarbregistreringServer.stubStartRegistration(
+                exchangedToken,
+                startRegistrationDTOWithNulls,
+            )
+            val result = veilarbregistreringClient.startRegistration(userToken)
+            result shouldBe startRegistrationDTOWithNulls
+        }
     },
 )
 
