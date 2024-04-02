@@ -23,6 +23,12 @@ spec:
     initialDelay: 10
     periodSeconds: 5
     timeout: 5
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_15
+        databases:
+          - name: meroppfolging-backend-db-instance
+        diskAutoresize: true
   prometheus:
     enabled: true
     path: /internal/prometheus
