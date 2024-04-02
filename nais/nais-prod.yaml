@@ -49,6 +49,8 @@ spec:
       rules:
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
+        - application: veilarbregistrering
+          namespace: paw
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
       value: "prod-gcp:team-esyfo:meroppfolging-frontend"
@@ -56,3 +58,7 @@ spec:
       value: http://isoppfolgingstilfelle.teamsykefravr
     - name: ISOPPFOLGINGSTILFELLE_ID
       value: prod-gcp:teamsykefravr:isoppfolgingstilfelle
+    - name: VEILARBREGISTRERING_URL
+      value: http://veilarbregistrering.paw
+    - name: VEILARBREGISTRERING_ID
+      value: prod-gcp:paw:veilarbregistrering
