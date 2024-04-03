@@ -7,6 +7,7 @@ import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.logger
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
 import no.nav.syfo.senoppfolging.domain.StatusDTO
@@ -29,6 +30,7 @@ class SenOppfolgingControllerV1(
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val veilarbregistreringClient: VeilarbregistreringClient,
     val isOppfolgingstilfelleClient: IsOppfolgingstilfelleClient,
+    val metric: Metric,
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
@@ -60,5 +62,6 @@ class SenOppfolgingControllerV1(
         tokenValidator.validateTokenXClaims()
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         veilarbregistreringClient.completeRegistration(token, senOppfolgingRegistrering)
+        metric.countSenOppfolgingSubmitted()
     }
 }
