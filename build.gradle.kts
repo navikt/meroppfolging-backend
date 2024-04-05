@@ -22,6 +22,7 @@ repositories {
 val tokenSupportVersion = "4.1.4"
 val logstashLogbackEncoderVersion = "7.4"
 val kotestVersion = "5.8.1"
+val springKotestExtensionVersion = "1.1.3"
 val mockkVersion = "1.13.10"
 val wiremockVersion = "3.5.2"
 val wiremockKotestExtensionVersion = "3.0.1"
@@ -31,6 +32,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+
     implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.kafka:spring-kafka")
@@ -41,12 +44,14 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
+    testImplementation("io.kotest.extensions:kotest-extensions-spring:$springKotestExtensionVersion")
+    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:$wiremockKotestExtensionVersion")
     testImplementation("com.h2database:h2")
     testImplementation("org.wiremock:wiremock-standalone:$wiremockVersion")
-    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:$wiremockKotestExtensionVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
 }
 

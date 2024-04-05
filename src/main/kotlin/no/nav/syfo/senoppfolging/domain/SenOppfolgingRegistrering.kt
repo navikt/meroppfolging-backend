@@ -6,13 +6,13 @@ data class SenOppfolgingRegistrering(
 )
 
 data class Besvarelse(
-    val utdanning: UtdanningSvar? = null,
-    val utdanningBestatt: UtdanningBestattSvar? = null,
-    val utdanningGodkjent: UtdanningGodkjentSvar? = null,
-    val andreForhold: AndreForholdSvar? = null,
-    val sisteStilling: SisteStillingSvar? = null,
-    val fremtidigSituasjon: FremtidigSituasjonSvar? = null,
-    val tilbakeIArbeid: TilbakeIArbeidSvar? = null,
+    val utdanning: UtdanningSvar,
+    val utdanningBestatt: UtdanningBestattSvar,
+    val utdanningGodkjent: UtdanningGodkjentSvar,
+    val andreForhold: AndreForholdSvar,
+    val sisteStilling: SisteStillingSvar,
+    val fremtidigSituasjon: FremtidigSituasjonSvar,
+    val tilbakeIArbeid: TilbakeIArbeidSvar,
 )
 
 data class TekstForSporsmal(

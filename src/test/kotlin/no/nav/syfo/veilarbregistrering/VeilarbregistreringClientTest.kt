@@ -14,8 +14,15 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.auth.tokendings.TokendingsClient
+import no.nav.syfo.senoppfolging.domain.AndreForholdSvar
 import no.nav.syfo.senoppfolging.domain.Besvarelse
+import no.nav.syfo.senoppfolging.domain.FremtidigSituasjonSvar
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
+import no.nav.syfo.senoppfolging.domain.SisteStillingSvar
+import no.nav.syfo.senoppfolging.domain.TilbakeIArbeidSvar
+import no.nav.syfo.senoppfolging.domain.UtdanningBestattSvar
+import no.nav.syfo.senoppfolging.domain.UtdanningGodkjentSvar
+import no.nav.syfo.senoppfolging.domain.UtdanningSvar
 import no.nav.syfo.veilarbregistrering.VEILARBREGISTRERING_COMPLETE_PATH
 import no.nav.syfo.veilarbregistrering.VEILARBREGISTRERING_START_PATH
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
@@ -32,7 +39,19 @@ class VeilarbregistreringClientTest : FunSpec(
         val userToken = "token123"
         val veilarbregistreringClient = VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp, mockk(relaxed = true))
 
-        val senOppfolgingRegistrering = SenOppfolgingRegistrering(Besvarelse(), listOf())
+        val senOppfolgingRegistrering =
+            SenOppfolgingRegistrering(
+                Besvarelse(
+                    utdanning = UtdanningSvar.INGEN_UTDANNING,
+                    utdanningBestatt = UtdanningBestattSvar.JA,
+                    utdanningGodkjent = UtdanningGodkjentSvar.NEI,
+                    andreForhold = AndreForholdSvar.NEI,
+                    sisteStilling = SisteStillingSvar.INGEN_SVAR,
+                    fremtidigSituasjon = FremtidigSituasjonSvar.USIKKER,
+                    tilbakeIArbeid = TilbakeIArbeidSvar.JA_FULL_STILLING,
+                ),
+                listOf(),
+            )
         val startRegistrationDTO =
             StartRegistrationDTO(
                 StartRegistrationType.SYKMELDT_REGISTRERING,
