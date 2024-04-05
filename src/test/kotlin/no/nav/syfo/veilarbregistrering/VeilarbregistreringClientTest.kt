@@ -30,7 +30,7 @@ class VeilarbregistreringClientTest : FunSpec(
         val exchangedToken = "123abc"
         val targetApp = "meroppfolging-backend-test"
         val userToken = "token123"
-        val veilarbregistreringClient = VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp)
+        val veilarbregistreringClient = VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp, mockk(relaxed = true))
 
         val senOppfolgingRegistrering = SenOppfolgingRegistrering(Besvarelse(), listOf())
         val startRegistrationDTO =

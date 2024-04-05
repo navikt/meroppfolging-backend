@@ -7,6 +7,7 @@ import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.auth.tokendings.TokendingsClient
 import no.nav.syfo.createCallId
 import no.nav.syfo.logger
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.RequestUnauthorizedException
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
 import no.nav.syfo.veilarbregistrering.domain.StartRegistrationDTO
@@ -27,6 +28,7 @@ class VeilarbregistreringClient(
     private val tokenDingsClient: TokendingsClient,
     @Value("\${veilarbregistrering.url}") private val baseUrl: String,
     @Value("\${veilarbregistrering.id}") private var targetApp: String,
+    private val metric: Metric,
 ) {
     private val log = logger()
 
@@ -63,6 +65,7 @@ class VeilarbregistreringClient(
 
         try {
             RestTemplate().postForEntity("$baseUrl${VEILARBREGISTRERING_COMPLETE_PATH}", httpEntity, String::class.java)
+            metric.countCallVeilarbregistreringComplete()
         } catch (e: RestClientResponseException) {
             handleException(e, httpEntity)
         }
