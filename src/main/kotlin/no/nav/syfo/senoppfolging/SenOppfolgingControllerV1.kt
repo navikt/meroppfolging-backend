@@ -6,11 +6,13 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.auth.TokenValidator
+import no.nav.syfo.auth.getFnr
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
 import no.nav.syfo.senoppfolging.domain.StatusDTO
+import no.nav.syfo.varsel.VarselService
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -30,6 +32,7 @@ class SenOppfolgingControllerV1(
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val veilarbregistreringClient: VeilarbregistreringClient,
     val isOppfolgingstilfelleClient: IsOppfolgingstilfelleClient,
+    val varselService: VarselService,
     val metric: Metric,
 ) {
     lateinit var tokenValidator: TokenValidator
@@ -49,7 +52,7 @@ class SenOppfolgingControllerV1(
         val isSykmeldt = isOppfolgingstilfelleClient.isSykmeldt(token)
         log.info(
             "veilarbregistrering type [${startRegistration.registreringType},${startRegistration.formidlingsgruppe}," +
-                "${startRegistration.servicegruppe},${startRegistration.rettighetsgruppe},$isSykmeldt]",
+                    "${startRegistration.servicegruppe},${startRegistration.rettighetsgruppe},$isSykmeldt]",
         )
         return StatusDTO(startRegistration.registreringType, isSykmeldt)
     }
@@ -63,5 +66,12 @@ class SenOppfolgingControllerV1(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         veilarbregistreringClient.completeRegistration(token, senOppfolgingRegistrering)
         metric.countSenOppfolgingSubmitted()
+    }
+
+    @PostMapping("/visit")
+    @ResponseBody
+    fun visit() {
+        val innloggetFnr = tokenValidator.validateTokenXClaims().getFnr()
+        varselService.ferdigstillMerOppfolgingVarsel(innloggetFnr)
     }
 }
