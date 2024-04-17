@@ -2,6 +2,15 @@ spring:
   main.banner-mode: 'off'
   profiles:
     active: default
+  flyway:
+    enabled: true
+    locations:
+      - "classpath:db/migration"
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?user=${DB_USERNAME}&password=${DB_PASSWORD}
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 5
 
 management:
   endpoint:

@@ -1,5 +1,6 @@
 package no.nav.syfo.senoppfolging.domain
 
+// DTO'er som brukes mot veilarbregistrering, må ikke endres
 data class SenOppfolgingRegistrering(
     val besvarelse: Besvarelse,
     val teksterForBesvarelse: List<TekstForSporsmal>,
