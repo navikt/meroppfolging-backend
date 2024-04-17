@@ -15,3 +15,11 @@ isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
 
 veilarbregistrering.url: "http://veilarbregistrering"
 veilarbregistrering.id: "local:paw:veilarbregistrering"
+
+kafka.brokers: localhost://9092
+kafka.truststore.path: /truststore
+kafka.keystore.path: /keystore
+kafka.credstore.password: /credstore/password
+kafka.schema.registry.user: "kafka.schema.registry.user"
+kafka.schema.registry.password: "kafka.schema.registry.password"
+kafka.schema.registry: "kafka.schema.registry"

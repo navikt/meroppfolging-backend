@@ -1,6 +1,7 @@
 package no.nav.syfo.auth
 
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.security.token.support.core.jwt.JwtTokenClaims
 
 object TokenUtil {
     @JvmStatic
@@ -18,4 +19,8 @@ object TokenUtil {
     object TokenIssuer {
         const val TOKENX = "tokenx"
     }
+}
+
+fun JwtTokenClaims.getFnr(): String {
+    return this.getStringClaim("pid")
 }

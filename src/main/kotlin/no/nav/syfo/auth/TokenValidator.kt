@@ -19,10 +19,6 @@ class TokenValidator(
         }
         return claims
     }
-
-    fun getFnrFromIdportenTokenX(claims: JwtTokenClaims): String {
-        return claims.getStringClaim("pid")
-    }
 }
 
 class NoAccess(override val message: String) : AbstractApiError(
