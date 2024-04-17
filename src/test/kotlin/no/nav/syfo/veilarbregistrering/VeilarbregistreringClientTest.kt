@@ -1,4 +1,4 @@
-package no.nav.syfo.isoppfolgingstilfelle
+package no.nav.syfo.veilarbregistrering
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -14,11 +14,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.auth.tokendings.TokendingsClient
+import no.nav.syfo.config.kafka.jacksonMapper
 import no.nav.syfo.senoppfolging.domain.Besvarelse
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
-import no.nav.syfo.veilarbregistrering.VEILARBREGISTRERING_COMPLETE_PATH
-import no.nav.syfo.veilarbregistrering.VEILARBREGISTRERING_START_PATH
-import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
 import no.nav.syfo.veilarbregistrering.domain.StartRegistrationDTO
 import no.nav.syfo.veilarbregistrering.domain.StartRegistrationType
 import org.springframework.http.HttpHeaders
@@ -30,7 +28,8 @@ class VeilarbregistreringClientTest : FunSpec(
         val exchangedToken = "123abc"
         val targetApp = "meroppfolging-backend-test"
         val userToken = "token123"
-        val veilarbregistreringClient = VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp, mockk(relaxed = true))
+        val veilarbregistreringClient =
+            VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp, mockk(relaxed = true))
 
         val senOppfolgingRegistrering = SenOppfolgingRegistrering(Besvarelse(), listOf())
         val startRegistrationDTO =
@@ -108,7 +107,7 @@ fun WireMockServer.stubStartRegistration(
             .willReturn(
                 aResponse()
                     .withBody(
-                        objectMapper.writeValueAsString(
+                        jacksonMapper().writeValueAsString(
                             startRegistrationDTO,
                         ),
                     )

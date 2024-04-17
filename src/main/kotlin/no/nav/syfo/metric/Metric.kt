@@ -7,20 +7,20 @@ import org.springframework.stereotype.Component
 
 @Component
 class Metric
-    @Autowired
-    constructor(
-        private val registry: MeterRegistry,
-    ) {
-        fun countSenOppfolgingSubmitted() = countEvent("sen_oppfolging_submitted")
+@Autowired
+constructor(
+    private val registry: MeterRegistry,
+) {
+    fun countSenOppfolgingSubmitted() = countEvent("sen_oppfolging_submitted")
 
-        fun countCallVeilarbregistreringComplete() = countEvent("call_veilarbregistrering_complete")
+    fun countCallVeilarbregistreringComplete() = countEvent("call_veilarbregistrering_complete")
 
-        fun countEvent(name: String) {
-            registry.counter(
-                metricPrefix(name),
-                Tags.of("type", "info"),
-            ).increment()
-        }
-
-        private fun metricPrefix(name: String) = "meroppfolging_backend_$name"
+    fun countEvent(name: String) {
+        registry.counter(
+            metricPrefix(name),
+            Tags.of("type", "info"),
+        ).increment()
     }
+
+    private fun metricPrefix(name: String) = "meroppfolging_backend_$name"
+}

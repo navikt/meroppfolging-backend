@@ -41,12 +41,16 @@ class VeilarbregistreringClient(
         val httpEntity = createHttpEntity(exchangedToken)
 
         try {
-            return RestTemplate().exchange(
+            val responseBody = RestTemplate().exchange(
                 "$baseUrl$VEILARBREGISTRERING_START_PATH",
                 HttpMethod.GET,
                 httpEntity,
                 StartRegistrationDTO::class.java,
-            ).body ?: throw IllegalStateException("Can't do this")
+            ).body
+
+            checkNotNull(responseBody) { "Response body is null" }
+
+            return responseBody
         } catch (e: RestClientResponseException) {
             handleException(e, httpEntity)
         }

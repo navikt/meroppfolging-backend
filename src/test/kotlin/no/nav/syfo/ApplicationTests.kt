@@ -5,6 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(classes = [LocalApplication::class])
 class ApplicationTests {
+    @Suppress("EmptyFunctionBlock")
     @Test
     fun contextLoads() {
     }

@@ -29,6 +29,7 @@ class GlobalExceptionHandler {
 
                 ResponseEntity(ApiError(ex.reason), ex.httpStatus)
             }
+
             is JwtTokenInvalidClaimException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
             is JwtTokenUnauthorizedException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
             is HttpMediaTypeNotAcceptableException -> createResponseEntity(HttpStatus.NOT_ACCEPTABLE)
@@ -40,7 +41,8 @@ class GlobalExceptionHandler {
     }
 }
 
-private fun createResponseEntity(status: HttpStatus): ResponseEntity<Any> = ResponseEntity(ApiError(status.reasonPhrase), status)
+private fun createResponseEntity(status: HttpStatus): ResponseEntity<Any> =
+    ResponseEntity(ApiError(status.reasonPhrase), status)
 
 private data class ApiError(val reason: String)
 

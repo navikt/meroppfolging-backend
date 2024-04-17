@@ -2,9 +2,11 @@ package no.nav.syfo.varsel
 
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
+import org.springframework.kafka.KafkaException
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 import java.util.*
+import java.util.concurrent.ExecutionException
 
 @Component
 class EsyfovarselProducer(
@@ -23,8 +25,11 @@ class EsyfovarselProducer(
                     hendelse,
                 ),
             ).get()
-        } catch (e: Exception) {
-            log.error("Exception was thrown when attempting to send varsel to esyfovarsel. ${e.message}")
+        } catch (e: ExecutionException) {
+            log.error("ExecutionException was thrown when attempting to send varsel to esyfovarsel. ${e.message}")
+            throw e
+        } catch (e: KafkaException) {
+            log.error("KafkaException was thrown when attempting to send varsel to esyfovarsel. ${e.message}")
             throw e
         }
     }
