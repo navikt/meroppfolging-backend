@@ -3,10 +3,13 @@ package no.nav.syfo.besvarelse.database
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 import no.nav.syfo.domain.PersonIdentNumber
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
+import java.sql.Date
 import java.sql.Timestamp
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -87,5 +90,32 @@ class ResponseDao(
                 .addValue("response_id", besvarelseUuid)
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql)
         return uuid
+    }
+
+    @Suppress("SwallowedException")
+    fun find(personIdent: PersonIdentNumber, formType: FormType, from: LocalDate): List<QuestionResponse> {
+        val query = """
+            SELECT 
+                question.question_type,
+                question.question_text,
+                question.answer_type,
+                question.answer_text
+            FROM QUESTION_RESPONSE question
+            JOIN FORM_RESPONSE form ON question.response_id = form.uuid
+            WHERE form.person_ident = :person_ident
+            AND form.form_type = :form_type
+            AND form.created_at > :from_date
+        """.trimIndent()
+
+        val namedParameters = MapSqlParameterSource()
+            .addValue("person_ident", personIdent.value)
+            .addValue("form_type", formType.name)
+            .addValue("from_date", Date.valueOf(from))
+
+        return try {
+            namedParameterJdbcTemplate.query(query, namedParameters, QuestionResponseRowMapper())
+        } catch (e: EmptyResultDataAccessException) {
+            emptyList()
+        }
     }
 }
