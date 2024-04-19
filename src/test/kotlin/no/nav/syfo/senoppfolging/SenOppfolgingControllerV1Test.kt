@@ -5,14 +5,18 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import junit.framework.TestCase.assertEquals
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.besvarelse.database.ResponseDao
+import no.nav.syfo.besvarelse.database.domain.FormType
+import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.senoppfolging.domain.AndreForholdSvar
 import no.nav.syfo.senoppfolging.domain.Besvarelse
 import no.nav.syfo.senoppfolging.domain.FremtidigSituasjonSvar
+import no.nav.syfo.senoppfolging.domain.ResponseStatus
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingDTOV1
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingQuestionTypeV1
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingQuestionV1
@@ -55,6 +59,7 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
                 this.tokenValidator = tokenValidator
             }
 
+        val ansattFnr = "12345678910"
         val senOppfolgingRegistrering =
             SenOppfolgingRegistrering(
                 besvarelse =
@@ -112,7 +117,6 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
         }
 
         describe("Submits form") {
-            val ansattFnr = "12345678910"
 
             it("Should ferdigstill SM_MER_VEILEDNING varsel when visiting page") {
 
@@ -162,6 +166,33 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
                 verify(exactly = 0) {
                     veilarbregistreringClient.completeRegistration(any(), any())
                 }
+            }
+        }
+
+        describe("Get status") {
+            it("Should return TRENGER_IKKE_OPPFOLGING when user has answered Nei") {
+                every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
+                every { responseDao.find(any(), FormType.SEN_OPPFOLGING_V1, any()) } returns listOf(
+                    QuestionResponse(SenOppfolgingQuestionTypeV1.ONSKER_OPPFOLGING.name, "", "NEI", "Nei")
+                )
+                val status = controller.status()
+                assertEquals(ResponseStatus.TRENGER_IKKE_OPPFOLGING, status.responseStatus)
+            }
+
+            it("Should return TRENGER_OPPFOLGING when user has answered Ja") {
+                every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
+                every { responseDao.find(any(), FormType.SEN_OPPFOLGING_V1, any()) } returns listOf(
+                    QuestionResponse(SenOppfolgingQuestionTypeV1.ONSKER_OPPFOLGING.name, "", "JA", "Ja")
+                )
+                val status = controller.status()
+                assertEquals(ResponseStatus.TRENGER_OPPFOLGING, status.responseStatus)
+            }
+
+            it("Should return NO_RESPONSE when user hasn't answered") {
+                every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
+                every { responseDao.find(any(), FormType.SEN_OPPFOLGING_V1, any()) } returns emptyList()
+                val status = controller.status()
+                assertEquals(ResponseStatus.NO_RESPONSE, status.responseStatus)
             }
         }
     },
