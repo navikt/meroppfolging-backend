@@ -14,5 +14,8 @@ fun jacksonMapper() = jacksonObjectMapper().apply {
 
 class JacksonKafkaSerializer : Serializer<Any> {
     override fun serialize(topic: String?, data: Any?): ByteArray = jacksonMapper().writeValueAsBytes(data)
-    override fun close() {}
+
+    @Suppress("EmptyFunctionBlock")
+    override fun close() {
+    }
 }

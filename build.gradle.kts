@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.2.4"
     id("io.spring.dependency-management") version "1.1.4"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.spring") version "1.9.23"
 }
@@ -25,6 +25,7 @@ val kotestVersion = "5.8.1"
 val mockkVersion = "1.13.10"
 val wiremockVersion = "3.5.2"
 val wiremockKotestExtensionVersion = "3.0.1"
+val detektVersion = "1.23.6"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
@@ -48,6 +49,8 @@ dependencies {
     testImplementation("org.wiremock:wiremock-standalone:$wiremockVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:$wiremockKotestExtensionVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
+
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
@@ -67,4 +70,9 @@ tasks.named<Jar>("jar") {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+detekt {
+    config.from("detekt-config.yml")
+    buildUponDefaultConfig = true
 }

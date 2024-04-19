@@ -46,6 +46,7 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
             val ansattFnr = "123456789"
 
             it("Should ferdigstill SM_MER_VEILEDNING varsel when visiting page") {
+
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
 
                 val request = MockHttpServletRequest()
@@ -57,8 +58,8 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
                     esyfovarselProducer.sendVarselTilEsyfovarsel(
                         match {
                             it is ArbeidstakerHendelse && it.arbeidstakerFnr == ansattFnr &&
-                                    it.type == HendelseType.SM_MER_VEILEDNING &&
-                                    it.ferdigstill == true
+                                it.type == HendelseType.SM_MER_VEILEDNING &&
+                                it.ferdigstill == true
                         },
                     )
                 }

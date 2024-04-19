@@ -18,6 +18,6 @@ class EsyfovarselKafkaConfig(
         DefaultKafkaProducerFactory(kafkaConfig.commonKafkaAivenProducerConfig())
 
     @Bean
-    fun esyfovarselKafkaTemplate(producerFactory: ProducerFactory<String, EsyfovarselHendelse>): KafkaTemplate<String, EsyfovarselHendelse> =
-        KafkaTemplate(producerFactory)
+    fun esyfovarselKafkaTemplate(producerFactory: ProducerFactory<String, EsyfovarselHendelse>):
+        KafkaTemplate<String, EsyfovarselHendelse> = KafkaTemplate(producerFactory)
 }

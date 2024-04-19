@@ -52,7 +52,7 @@ class SenOppfolgingControllerV1(
         val isSykmeldt = isOppfolgingstilfelleClient.isSykmeldt(token)
         log.info(
             "veilarbregistrering type [${startRegistration.registreringType},${startRegistration.formidlingsgruppe}," +
-                    "${startRegistration.servicegruppe},${startRegistration.rettighetsgruppe},$isSykmeldt]",
+                "${startRegistration.servicegruppe},${startRegistration.rettighetsgruppe},$isSykmeldt]",
         )
         return StatusDTO(startRegistration.registreringType, isSykmeldt)
     }

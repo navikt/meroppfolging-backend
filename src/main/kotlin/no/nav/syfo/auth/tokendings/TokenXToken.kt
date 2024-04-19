@@ -6,4 +6,8 @@ import java.time.LocalDateTime
 data class TokenXToken(
     val accessToken: String,
     val expires: LocalDateTime,
-) : Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+}
