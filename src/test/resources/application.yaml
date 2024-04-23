@@ -15,6 +15,7 @@ isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
 
 veilarbregistrering.url: "http://veilarbregistrering"
 veilarbregistrering.id: "local:paw:veilarbregistrering"
+send.to.veilarbregistrering.toggle: "true"
 
 kafka.brokers: localhost://9092
 kafka.truststore.path: /truststore

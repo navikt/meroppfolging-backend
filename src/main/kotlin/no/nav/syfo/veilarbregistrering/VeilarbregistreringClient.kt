@@ -28,6 +28,7 @@ class VeilarbregistreringClient(
     private val tokenDingsClient: TokendingsClient,
     @Value("\${veilarbregistrering.url}") private val baseUrl: String,
     @Value("\${veilarbregistrering.id}") private var targetApp: String,
+    @Value("\${send.to.veilarbregistrering.toggle}") private var sendToVeilarbregistreringToggle: Boolean,
     private val metric: Metric,
 ) {
     private val log = logger()
@@ -60,18 +61,26 @@ class VeilarbregistreringClient(
         token: String,
         senOppfolgingRegistrering: SenOppfolgingRegistrering,
     ) {
-        val exchangedToken =
-            tokenDingsClient.exchangeToken(
-                token,
-                targetApp,
-            )
-        val httpEntity = createHttpEntity(exchangedToken, senOppfolgingRegistrering)
+        if (sendToVeilarbregistreringToggle) {
+            val exchangedToken =
+                tokenDingsClient.exchangeToken(
+                    token,
+                    targetApp,
+                )
+            val httpEntity = createHttpEntity(exchangedToken, senOppfolgingRegistrering)
 
-        try {
-            RestTemplate().postForEntity("$baseUrl${VEILARBREGISTRERING_COMPLETE_PATH}", httpEntity, String::class.java)
-            metric.countCallVeilarbregistreringComplete()
-        } catch (e: RestClientResponseException) {
-            handleException(e, httpEntity)
+            try {
+                RestTemplate().postForEntity(
+                    "$baseUrl${VEILARBREGISTRERING_COMPLETE_PATH}",
+                    httpEntity,
+                    String::class.java,
+                )
+                metric.countCallVeilarbregistreringComplete()
+            } catch (e: RestClientResponseException) {
+                handleException(e, httpEntity)
+            }
+        } else {
+            log.info("sendToVeilarbregistreringToggle is toggled of, not sending form to veilarbregistrering")
         }
     }
 

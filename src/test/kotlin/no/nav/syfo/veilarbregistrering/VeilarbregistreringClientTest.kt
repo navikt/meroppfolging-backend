@@ -29,7 +29,7 @@ class VeilarbregistreringClientTest : FunSpec(
         val targetApp = "meroppfolging-backend-test"
         val userToken = "token123"
         val veilarbregistreringClient =
-            VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp, mockk(relaxed = true))
+            VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp, true, mockk(relaxed = true))
 
         val senOppfolgingRegistrering = SenOppfolgingRegistrering(Besvarelse(), listOf())
         val startRegistrationDTO =
@@ -45,6 +45,7 @@ class VeilarbregistreringClientTest : FunSpec(
 
         beforeTest {
             every { tokendingsClient.exchangeToken(userToken, targetApp) } returns exchangedToken
+            veilarbregistreringServer.resetAll()
         }
 
         test("Happy path complete registration") {
@@ -79,6 +80,18 @@ class VeilarbregistreringClientTest : FunSpec(
             val result = veilarbregistreringClient.startRegistration(userToken)
             result shouldBe startRegistrationDTOWithNulls
         }
+
+        test("Should not complete registration when toggle is false") {
+
+            val veilarbregistreringClientWithToggleOff =
+                VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp, false, mockk(relaxed = true))
+
+            veilarbregistreringServer.stubCompleteRegistration(
+                exchangedToken,
+            )
+            veilarbregistreringClientWithToggleOff.completeRegistration(userToken, senOppfolgingRegistrering)
+            veilarbregistreringServer.verifyCompleteRegistrationNotCalled()
+        }
     },
 )
 
@@ -95,6 +108,10 @@ fun WireMockServer.stubCompleteRegistration(token: String) {
 
 fun WireMockServer.verifyCompleteRegistration() {
     this.verify(postRequestedFor(urlPathEqualTo(VEILARBREGISTRERING_COMPLETE_PATH)))
+}
+
+fun WireMockServer.verifyCompleteRegistrationNotCalled() {
+    this.verify(0, postRequestedFor(urlPathEqualTo(VEILARBREGISTRERING_COMPLETE_PATH)))
 }
 
 fun WireMockServer.stubStartRegistration(
