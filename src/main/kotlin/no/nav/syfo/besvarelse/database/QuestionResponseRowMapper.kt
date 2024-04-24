@@ -12,8 +12,8 @@ class QuestionResponseRowMapper : RowMapper<QuestionResponse> {
         return QuestionResponse(
             questionType = rs.getString("question_type"),
             questionText = rs.getString("question_text"),
-            answerType = rs.getString("question_type"),
-            answerText = rs.getString("question_text"),
+            answerType = rs.getString("answer_type"),
+            answerText = rs.getString("answer_text"),
         )
     }
 }
