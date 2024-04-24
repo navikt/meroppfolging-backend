@@ -62,3 +62,5 @@ spec:
       value: http://veilarbregistrering.paw
     - name: VEILARBREGISTRERING_ID
       value: prod-gcp:paw:veilarbregistrering
+    - name: SEND_TO_VEILARBREGISTRERING_TOGGLE
+      value: "true"
