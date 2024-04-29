@@ -15,8 +15,16 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.auth.tokendings.TokendingsClient
 import no.nav.syfo.config.kafka.jacksonMapper
+import no.nav.syfo.senoppfolging.domain.AndreForholdSvar
 import no.nav.syfo.senoppfolging.domain.Besvarelse
+import no.nav.syfo.senoppfolging.domain.FremtidigSituasjonSvar
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
+import no.nav.syfo.senoppfolging.domain.SisteStillingSvar
+import no.nav.syfo.senoppfolging.domain.TekstForSporsmal
+import no.nav.syfo.senoppfolging.domain.TilbakeIArbeidSvar
+import no.nav.syfo.senoppfolging.domain.UtdanningBestattSvar
+import no.nav.syfo.senoppfolging.domain.UtdanningGodkjentSvar
+import no.nav.syfo.senoppfolging.domain.UtdanningSvar
 import no.nav.syfo.veilarbregistrering.domain.StartRegistrationDTO
 import no.nav.syfo.veilarbregistrering.domain.StartRegistrationType
 import org.springframework.http.HttpHeaders
@@ -31,7 +39,55 @@ class VeilarbregistreringClientTest : FunSpec(
         val veilarbregistreringClient =
             VeilarbregistreringClient(tokendingsClient, baseUrl, targetApp, true, mockk(relaxed = true))
 
-        val senOppfolgingRegistrering = SenOppfolgingRegistrering(Besvarelse(), listOf())
+        val senOppfolgingRegistrering =
+            SenOppfolgingRegistrering(
+                besvarelse = Besvarelse(
+                    utdanning = UtdanningSvar.INGEN_UTDANNING,
+                    utdanningBestatt = UtdanningBestattSvar.JA,
+                    utdanningGodkjent = UtdanningGodkjentSvar.NEI,
+                    andreForhold = AndreForholdSvar.NEI,
+                    sisteStilling = SisteStillingSvar.INGEN_SVAR,
+                    fremtidigSituasjon = FremtidigSituasjonSvar.USIKKER,
+                    tilbakeIArbeid = TilbakeIArbeidSvar.JA_FULL_STILLING,
+                ),
+                teksterForBesvarelse = listOf(
+                    TekstForSporsmal(
+                        "utdanning",
+                        "Hva er din høyeste fullførte utdanning?",
+                        "Høyere utdanning (1 til 4 år)",
+                    ),
+                    TekstForSporsmal(
+                        "utdanningBestatt",
+                        "Er utdanningen din bestått?",
+                        "Ja",
+                    ),
+                    TekstForSporsmal(
+                        "utdanningGodkjent",
+                        "Er utdanningen din godkjent i Norge?",
+                        "Ja",
+                    ),
+                    TekstForSporsmal(
+                        "andreForhold",
+                        "Er det noe annet enn helsen din som NAV bør ta hensyn til?",
+                        "Nei",
+                    ),
+                    TekstForSporsmal(
+                        "sisteStilling",
+                        "-",
+                        "-",
+                    ),
+                    TekstForSporsmal(
+                        "fremtidigSituasjon",
+                        "Hva tenker du om din fremtidige situasjon?",
+                        "Jeg trenger ny jobb",
+                    ),
+                    TekstForSporsmal(
+                        "tilbakeIArbeid",
+                        "Tror du at du kommer tilbake i jobb før du har vært sykmeldt i 52 uker?",
+                        "Ingen svar",
+                    ),
+                ),
+            )
         val startRegistrationDTO =
             StartRegistrationDTO(
                 StartRegistrationType.SYKMELDT_REGISTRERING,

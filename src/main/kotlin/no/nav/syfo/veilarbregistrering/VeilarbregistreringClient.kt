@@ -80,7 +80,10 @@ class VeilarbregistreringClient(
                 handleException(e, httpEntity)
             }
         } else {
-            log.info("sendToVeilarbregistreringToggle is toggled of, not sending form to veilarbregistrering")
+            log.info(
+                "sendToVeilarbregistreringToggle is toggled of, " +
+                    "not sending form to veilarbregistrering $senOppfolgingRegistrering"
+            )
         }
     }
 
