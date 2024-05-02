@@ -19,7 +19,6 @@ import no.nav.syfo.senoppfolging.domain.ResponseStatus
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingDTOV1
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingQuestionTypeV1
 import no.nav.syfo.senoppfolging.domain.SenOppfolgingQuestionV1
-import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
 import no.nav.syfo.senoppfolging.domain.StatusDTO
 import no.nav.syfo.varsel.VarselService
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
@@ -81,17 +80,6 @@ class SenOppfolgingControllerV1(
     fun visit() {
         val innloggetFnr = tokenValidator.validateTokenXClaims().getFnr()
         varselService.ferdigstillMerOppfolgingVarsel(innloggetFnr)
-    }
-
-    @PostMapping("/submit")
-    @ResponseBody
-    fun submit(
-        @RequestBody senOppfolgingRegistrering: SenOppfolgingRegistrering,
-    ) {
-        tokenValidator.validateTokenXClaims()
-        val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
-        veilarbregistreringClient.completeRegistration(token, senOppfolgingRegistrering)
-        metric.countSenOppfolgingSubmitted()
     }
 
     @PostMapping("/submitform")
