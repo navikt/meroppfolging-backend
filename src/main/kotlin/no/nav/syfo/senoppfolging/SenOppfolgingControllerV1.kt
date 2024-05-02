@@ -70,7 +70,8 @@ class SenOppfolgingControllerV1(
         )
         log.info(
             "veilarbregistrering type [${startRegistration.registreringType},${startRegistration.formidlingsgruppe}," +
-                "${startRegistration.servicegruppe},${startRegistration.rettighetsgruppe},$isSykmeldt]",
+                "${startRegistration.servicegruppe},${startRegistration.rettighetsgruppe}," +
+                "$isSykmeldt,${response.toResponseStatus()}]",
         )
         return StatusDTO(startRegistration.registreringType, isSykmeldt, response.toResponseStatus())
     }
