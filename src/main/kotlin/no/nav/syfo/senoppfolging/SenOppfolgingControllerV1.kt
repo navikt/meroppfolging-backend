@@ -49,6 +49,7 @@ class SenOppfolgingControllerV1(
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
+    private val cutoffDate = LocalDate.now().minusMonths(3)
 
     @PostConstruct
     fun init() {
@@ -65,7 +66,7 @@ class SenOppfolgingControllerV1(
         val response = responseDao.find(
             PersonIdentNumber(personIdent),
             FormType.SEN_OPPFOLGING_V1,
-            LocalDate.now().minusMonths(3)
+            cutoffDate,
         )
         log.info(
             "veilarbregistrering type [${startRegistration.registreringType},${startRegistration.formidlingsgruppe}," +
@@ -99,6 +100,16 @@ class SenOppfolgingControllerV1(
     ) {
         val personident = tokenValidator.validateTokenXClaims().getFnr()
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
+
+        val response = responseDao.find(
+            PersonIdentNumber(personident),
+            FormType.SEN_OPPFOLGING_V1,
+            cutoffDate,
+        )
+
+        if (response.isNotEmpty()) {
+            throw AlreadyRespondedException()
+        }
 
         responseDao.saveFormResponse(
             PersonIdentNumber(personident),
