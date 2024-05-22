@@ -24,7 +24,7 @@ val logstashLogbackEncoderVersion = "7.4"
 val kotestVersion = "5.9.0"
 val springKotestExtensionVersion = "1.1.3"
 val mockkVersion = "1.13.11"
-val wiremockVersion = "3.5.4"
+val wiremockVersion = "3.6.0"
 val wiremockKotestExtensionVersion = "3.0.1"
 val detektVersion = "1.23.6"
 
