@@ -13,6 +13,9 @@ token.x.token.endpoint: "https://tokenx-endpoint"
 isoppfolgingstilfelle.url: "http://isoppfolgingstilfelle"
 isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
 
+syfobehandlendeenhet.url: "http://syfobehandlendeenhet"
+syfobehandlendeenhet.id: "local:teamsykefravr:syfobehandlendeenhet"
+
 veilarbregistrering.url: "http://veilarbregistrering"
 veilarbregistrering.id: "local:paw:veilarbregistrering"
 send.to.veilarbregistrering.toggle: "true"
@@ -24,3 +27,13 @@ kafka.credstore.password: /credstore/password
 kafka.schema.registry.user: "kafka.schema.registry.user"
 kafka.schema.registry.password: "kafka.schema.registry.password"
 kafka.schema.registry: "kafka.schema.registry"
+
+azure:
+  app:
+    client:
+      id: "client-id"
+      secret: "client-secret"
+  openid:
+    config:
+      token:
+        endpoint: "https://token-endpoint"

@@ -48,6 +48,14 @@ spec:
   leaderElection: true
   tokenx:
     enabled: true
+  azure:
+    application:
+      allowAllUsers: true
+      enabled: true
+      tenant: trygdeetaten.no
+      claims:
+        extra:
+          - "NAVident"
   accessPolicy:
     inbound:
       rules:
@@ -55,6 +63,8 @@ spec:
     outbound:
       rules:
         - application: isoppfolgingstilfelle
+          namespace: teamsykefravr
+        - application: syfobehandlendeenhet
           namespace: teamsykefravr
         - application: veilarbregistrering
           namespace: paw
@@ -65,6 +75,10 @@ spec:
       value: http://isoppfolgingstilfelle.teamsykefravr
     - name: ISOPPFOLGINGSTILFELLE_ID
       value: dev-gcp:teamsykefravr:isoppfolgingstilfelle
+    - name: SYFOBEHANDLENDEENHET_ID
+      value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
+    - name: SYFOBEHANDLENDEENHET_URL
+      value: "http://syfobehandlendeenhet.teamsykefravr"
     - name: VEILARBREGISTRERING_URL
       value: http://veilarbregistrering.paw
     - name: VEILARBREGISTRERING_ID

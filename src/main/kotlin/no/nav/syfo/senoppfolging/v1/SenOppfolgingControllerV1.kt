@@ -1,5 +1,3 @@
-package no.nav.syfo.senoppfolging
-
 import jakarta.annotation.PostConstruct
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
@@ -14,12 +12,13 @@ import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
-import no.nav.syfo.senoppfolging.domain.OnskerOppfolgingSvar
-import no.nav.syfo.senoppfolging.domain.ResponseStatus
-import no.nav.syfo.senoppfolging.domain.SenOppfolgingDTOV1
-import no.nav.syfo.senoppfolging.domain.SenOppfolgingQuestionTypeV1
-import no.nav.syfo.senoppfolging.domain.SenOppfolgingQuestionV1
-import no.nav.syfo.senoppfolging.domain.StatusDTO
+import no.nav.syfo.senoppfolging.AlreadyRespondedException
+import no.nav.syfo.senoppfolging.v1.domain.OnskerOppfolgingSvar
+import no.nav.syfo.senoppfolging.v1.domain.ResponseStatus
+import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingDTOV1
+import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingQuestionTypeV1
+import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingQuestionV1
+import no.nav.syfo.senoppfolging.v1.domain.StatusDTO
 import no.nav.syfo.varsel.VarselService
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
 import org.springframework.beans.factory.annotation.Value
