@@ -1,3 +1,5 @@
+package no.nav.syfo.senoppfolging.v1
+
 import jakarta.annotation.PostConstruct
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
