@@ -1,6 +1,5 @@
 package no.nav.syfo.senoppfolging.v1
 
-import SenOppfolgingControllerV1
 import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.clearAllMocks
 import io.mockk.every
