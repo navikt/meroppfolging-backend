@@ -56,7 +56,7 @@ class SenOppfolgingControllerV2(
     fun status(): SenOppfolgingStatusDTOV2 {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         TokenUtil.getIssuerToken(tokenValidationContextHolder, TokenUtil.TokenIssuer.TOKENX)
-        val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet()
+        val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
         log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
         val response = responseDao.find(
             PersonIdentNumber(personIdent),

@@ -1,6 +1,9 @@
 package no.nav.syfo.behandlendeenhet
 
+import no.nav.syfo.MEROPPFOLGING_BACKEND_CONSUMER_ID
 import no.nav.syfo.NAV_CALL_ID_HEADER
+import no.nav.syfo.NAV_CONSUMER_ID_HEADER
+import no.nav.syfo.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.auth.azuread.AzureAdClient
 import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
@@ -27,9 +30,9 @@ class BehandlendeEnhetClient(
 ) {
     private val log = logger()
 
-    fun getBehandlendeEnhet(): BehandlendeEnhet {
+    fun getBehandlendeEnhet(personIdent: String): BehandlendeEnhet {
         val exchangedToken = azureAdClient.getSystemToken(targetApp)
-        val httpEntity = createHttpEntity(exchangedToken)
+        val httpEntity = createHttpEntity(exchangedToken, personIdent)
 
         return try {
             val response = getResponse(httpEntity)
@@ -39,10 +42,12 @@ class BehandlendeEnhetClient(
         }
     }
 
-    private fun createHttpEntity(exchangedToken: String): HttpEntity<*> {
+    private fun createHttpEntity(exchangedToken: String, personIdent: String): HttpEntity<*> {
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, bearerHeader(exchangedToken))
         headers.add(NAV_CALL_ID_HEADER, createCallId())
+        headers[NAV_CONSUMER_ID_HEADER] = MEROPPFOLGING_BACKEND_CONSUMER_ID
+        headers.add(NAV_PERSONIDENT_HEADER, personIdent)
         return HttpEntity<Any>(headers)
     }
 
