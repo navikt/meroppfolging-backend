@@ -3,7 +3,6 @@ package no.nav.syfo.senoppfolging.v2
 import jakarta.annotation.PostConstruct
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
@@ -64,7 +63,6 @@ class SenOppfolgingControllerV2(
         }
 
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
-        TokenUtil.getIssuerToken(tokenValidationContextHolder, TokenUtil.TokenIssuer.TOKENX)
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
         log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
         val response = responseDao.find(
@@ -88,8 +86,6 @@ class SenOppfolgingControllerV2(
         }
 
         val personident = tokenValidator.validateTokenXClaims().getFnr()
-        TokenUtil.getIssuerToken(tokenValidationContextHolder, TokenUtil.TokenIssuer.TOKENX)
-
         val response = responseDao.find(
             PersonIdentNumber(personident),
             FormType.SEN_OPPFOLGING_V2,
