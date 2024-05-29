@@ -32,12 +32,13 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
         val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
 
         val controller = SenOppfolgingControllerV2(
-            "merOppfolgingFrontendClientId",
-            tokenValidationContextHolder,
-            varselService,
-            metric,
-            responseDao,
-            behandlendeEnhetClient,
+            merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
+            tokenValidationContextHolder = tokenValidationContextHolder,
+            varselService = varselService,
+            metric = metric,
+            responseDao = responseDao,
+            behandlendeEnhetClient = behandlendeEnhetClient,
+            pilotEnabledForEnvironment = true
         ).apply {
             this.tokenValidator = tokenValidator
         }

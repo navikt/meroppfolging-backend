@@ -86,3 +86,5 @@ spec:
       value: prod-gcp:paw:veilarbregistrering
     - name: SEND_TO_VEILARBREGISTRERING_TOGGLE
       value: "true"
+    - name: TOGGLE_PILOT
+      value: "false"

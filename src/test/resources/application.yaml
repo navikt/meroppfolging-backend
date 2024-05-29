@@ -28,6 +28,8 @@ kafka.schema.registry.user: "kafka.schema.registry.user"
 kafka.schema.registry.password: "kafka.schema.registry.password"
 kafka.schema.registry: "kafka.schema.registry"
 
+toggle.pilot: "true"
+
 azure:
   app:
     client:

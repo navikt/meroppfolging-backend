@@ -14,6 +14,7 @@ import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.AlreadyRespondedException
+import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
@@ -41,6 +42,7 @@ class SenOppfolgingControllerV2(
     val metric: Metric,
     val responseDao: ResponseDao,
     val behandlendeEnhetClient: BehandlendeEnhetClient,
+    @Value("\${toggle.pilot}") private var pilotEnabledForEnvironment: Boolean,
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
@@ -54,6 +56,13 @@ class SenOppfolgingControllerV2(
     @GetMapping("/status", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
     fun status(): SenOppfolgingStatusDTOV2 {
+        if (!pilotEnabledForEnvironment) {
+            return SenOppfolgingStatusDTOV2(
+                isPilot = false,
+                responseStatus = ResponseStatus.NO_RESPONSE,
+            )
+        }
+
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         TokenUtil.getIssuerToken(tokenValidationContextHolder, TokenUtil.TokenIssuer.TOKENX)
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
@@ -74,6 +83,10 @@ class SenOppfolgingControllerV2(
     fun submitForm(
         @RequestBody senOppfolgingDTOV2: SenOppfolgingDTOV2,
     ) {
+        if (!pilotEnabledForEnvironment) {
+            return
+        }
+
         val personident = tokenValidator.validateTokenXClaims().getFnr()
         TokenUtil.getIssuerToken(tokenValidationContextHolder, TokenUtil.TokenIssuer.TOKENX)
 
