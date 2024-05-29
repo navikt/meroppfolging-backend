@@ -13,11 +13,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Deploy topic meroppfolgingsvar to dev
+      - name: Deploy topic senoppfolgingsvar to dev
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: nais/topics/meroppfolgingsvar.yaml
+          RESOURCE: nais/topics/senoppfolgingsvar.yaml
           VARS: nais/topics/dev.json
 
   deploy-topic-to-prod:
@@ -29,9 +29,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Deploy topic meroppfolgingsvar to prod
+      - name: Deploy topic senoppfolgingsvar to prod
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
-          RESOURCE: nais/topics/meroppfolgingsvar.yaml
+          RESOURCE: nais/topics/senoppfolgingsvar.yaml
           VARS: nais/topics/prod.json

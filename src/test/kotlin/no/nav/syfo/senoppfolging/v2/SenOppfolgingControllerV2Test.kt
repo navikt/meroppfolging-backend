@@ -14,6 +14,8 @@ import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTOV2
+import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.NO_RESPONSE
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_IKKE_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_OPPFOLGING
@@ -30,6 +32,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
         val metric = mockk<Metric>(relaxed = true)
         val responseDao = mockk<ResponseDao>(relaxed = true)
         val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
+        val senOppfolgingSvarKafkaProducer = mockk<SenOppfolgingSvarKafkaProducer>(relaxed = true)
 
         val controller = SenOppfolgingControllerV2(
             merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
@@ -38,7 +41,9 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             metric = metric,
             responseDao = responseDao,
             behandlendeEnhetClient = behandlendeEnhetClient,
-            pilotEnabledForEnvironment = true
+            pilotEnabledForEnvironment = true,
+            senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
+
         ).apply {
             this.tokenValidator = tokenValidator
         }
@@ -52,15 +57,21 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
         describe("Form submission") {
             it("should save form response") {
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
+                val responses = listOf(
+                    SenOppfolgingQuestionV2(ONSKER_OPPFOLGING, "Hei", "JA", "Ja"),
+                )
                 controller.submitForm(
                     SenOppfolgingDTOV2(
-                        listOf(
-                            SenOppfolgingQuestionV2(ONSKER_OPPFOLGING, "Hei", "JA", "Ja"),
-                        ),
+                        responses,
                     ),
                 )
                 verify(exactly = 1) {
-                    responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2)
+                    responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any())
+                }
+                verify(exactly = 1) {
+                    senOppfolgingSvarKafkaProducer.publishResponse(
+                        any<KSenOppfolgingSvarDTOV2>()
+                    )
                 }
             }
         }

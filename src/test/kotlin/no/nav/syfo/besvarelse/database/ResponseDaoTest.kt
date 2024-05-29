@@ -9,6 +9,7 @@ import no.nav.syfo.domain.PersonIdentNumber
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @SpringBootTest(classes = [LocalApplication::class])
 class ResponseDaoTest : FunSpec() {
@@ -23,7 +24,8 @@ class ResponseDaoTest : FunSpec() {
             responseDao.saveFormResponse(
                 personIdent,
                 listOf(QuestionResponse("UTDANNING", "test", "SVAR_ID", "test")),
-                FormType.SEN_OPPFOLGING_V1
+                FormType.SEN_OPPFOLGING_V1,
+                LocalDateTime.now()
             )
 
             val questionResponses = responseDao.find(

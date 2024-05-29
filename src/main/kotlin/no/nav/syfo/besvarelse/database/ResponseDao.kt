@@ -21,9 +21,9 @@ class ResponseDao(
         personIdent: PersonIdentNumber,
         questionResponses: List<QuestionResponse>,
         formType: FormType,
+        createdAt: LocalDateTime,
     ): UUID {
         val uuid = UUID.randomUUID()
-        val createdAt = LocalDateTime.now()
         val lagreSql =
             """
             INSERT INTO FORM_RESPONSE (

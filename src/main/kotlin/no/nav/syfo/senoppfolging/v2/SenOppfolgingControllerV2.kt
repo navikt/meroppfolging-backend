@@ -13,6 +13,8 @@ import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.AlreadyRespondedException
+import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTOV2
+import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/v2/senoppfolging")
@@ -41,6 +44,7 @@ class SenOppfolgingControllerV2(
     val metric: Metric,
     val responseDao: ResponseDao,
     val behandlendeEnhetClient: BehandlendeEnhetClient,
+    val senOppfolgingSvarKafkaProducer: SenOppfolgingSvarKafkaProducer,
     @Value("\${toggle.pilot}") private var pilotEnabledForEnvironment: Boolean,
 ) {
     lateinit var tokenValidator: TokenValidator
@@ -87,9 +91,9 @@ class SenOppfolgingControllerV2(
 
         val personident = tokenValidator.validateTokenXClaims().getFnr()
         val response = responseDao.find(
-            PersonIdentNumber(personident),
-            FormType.SEN_OPPFOLGING_V2,
-            cutoffDate,
+            personIdent = PersonIdentNumber(personident),
+            formType = FormType.SEN_OPPFOLGING_V2,
+            from = cutoffDate,
         )
 
         varselService.ferdigstillMerOppfolgingVarsel(personident)
@@ -98,11 +102,18 @@ class SenOppfolgingControllerV2(
             throw AlreadyRespondedException()
         }
 
-        responseDao.saveFormResponse(
-            PersonIdentNumber(personident),
-            senOppfolgingDTOV2.senOppfolgingFormV2.map { it.toQuestionResponse() },
-            FormType.SEN_OPPFOLGING_V2,
+        val createdAt = LocalDateTime.now()
+        val id = responseDao.saveFormResponse(
+            personIdent = PersonIdentNumber(personident),
+            questionResponses = senOppfolgingDTOV2.senOppfolgingFormV2.map { it.toQuestionResponse() },
+            formType = FormType.SEN_OPPFOLGING_V2,
+            createdAt = createdAt,
         )
+
+        senOppfolgingSvarKafkaProducer
+            .publishResponse(
+                KSenOppfolgingSvarDTOV2(id, personident, createdAt, senOppfolgingDTOV2.senOppfolgingFormV2)
+            )
 
         metric.countSenOppfolgingSubmitted()
     }
