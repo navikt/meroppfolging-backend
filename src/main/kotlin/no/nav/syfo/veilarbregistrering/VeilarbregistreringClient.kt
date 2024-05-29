@@ -2,14 +2,14 @@ package no.nav.syfo.veilarbregistrering
 
 import no.nav.syfo.MEROPPFOLGING_BACKEND_CONSUMER_ID
 import no.nav.syfo.NAV_CALL_ID_HEADER
-import no.nav.syfo.NAV_CONSUMER_ID
+import no.nav.syfo.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.auth.tokendings.TokendingsClient
 import no.nav.syfo.createCallId
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.RequestUnauthorizedException
-import no.nav.syfo.senoppfolging.domain.SenOppfolgingRegistrering
+import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingRegistrering
 import no.nav.syfo.veilarbregistrering.domain.StartRegistrationDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
@@ -82,7 +82,7 @@ class VeilarbregistreringClient(
         } else {
             log.info(
                 "sendToVeilarbregistreringToggle is toggled of, " +
-                    "not sending form to veilarbregistrering $senOppfolgingRegistrering"
+                    "not sending form to veilarbregistrering $senOppfolgingRegistrering",
             )
         }
     }
@@ -94,7 +94,7 @@ class VeilarbregistreringClient(
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, bearerHeader(exchangedToken))
         headers.add(NAV_CALL_ID_HEADER, createCallId())
-        headers.add(NAV_CONSUMER_ID, MEROPPFOLGING_BACKEND_CONSUMER_ID)
+        headers.add(NAV_CONSUMER_ID_HEADER, MEROPPFOLGING_BACKEND_CONSUMER_ID)
         return HttpEntity<Any>(senOppfolgingRegistrering, headers)
     }
 

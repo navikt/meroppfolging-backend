@@ -1,4 +1,4 @@
-package no.nav.syfo.senoppfolging.domain
+package no.nav.syfo.senoppfolging.v1.domain
 
 data class SenOppfolgingDTOV1(
     val senOppfolgingRegistrering: SenOppfolgingRegistrering?,

@@ -1,4 +1,4 @@
-package no.nav.syfo.senoppfolging
+package no.nav.syfo.senoppfolging.v1
 
 import jakarta.annotation.PostConstruct
 import no.nav.security.token.support.core.api.ProtectedWithClaims
@@ -14,25 +14,26 @@ import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
-import no.nav.syfo.senoppfolging.domain.OnskerOppfolgingSvar
-import no.nav.syfo.senoppfolging.domain.ResponseStatus
-import no.nav.syfo.senoppfolging.domain.SenOppfolgingDTOV1
-import no.nav.syfo.senoppfolging.domain.SenOppfolgingQuestionTypeV1
-import no.nav.syfo.senoppfolging.domain.SenOppfolgingQuestionV1
-import no.nav.syfo.senoppfolging.domain.StatusDTO
+import no.nav.syfo.senoppfolging.AlreadyRespondedException
+import no.nav.syfo.senoppfolging.v1.domain.OnskerOppfolgingSvar
+import no.nav.syfo.senoppfolging.v1.domain.ResponseStatus
+import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingDTOV1
+import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingQuestionTypeV1
+import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingQuestionV1
+import no.nav.syfo.senoppfolging.v1.domain.StatusDTO
 import no.nav.syfo.varsel.VarselService
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
-import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
-@Controller
+@RestController
 @RequestMapping("/api/v1/senoppfolging")
 @ProtectedWithClaims(issuer = "tokenx", combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
 @Suppress("LongParameterList")

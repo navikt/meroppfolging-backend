@@ -1,4 +1,4 @@
-package no.nav.syfo.senoppfolging.domain
+package no.nav.syfo.senoppfolging.v1.domain
 
 // DTO'er som brukes mot veilarbregistrering, må ikke endres
 data class SenOppfolgingRegistrering(

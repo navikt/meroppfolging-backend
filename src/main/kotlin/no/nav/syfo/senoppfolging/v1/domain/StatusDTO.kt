@@ -1,11 +1,11 @@
-package no.nav.syfo.senoppfolging.domain
+package no.nav.syfo.senoppfolging.v1.domain
 
 import no.nav.syfo.veilarbregistrering.domain.StartRegistrationType
 
 data class StatusDTO(
     val registrationType: StartRegistrationType,
     val isSykmeldt: Boolean,
-    val responseStatus: ResponseStatus
+    val responseStatus: ResponseStatus,
 )
 
 enum class ResponseStatus {
