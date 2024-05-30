@@ -13,7 +13,7 @@ import java.util.*
 
 class SenOppfolgingSvarKafkaProducerTest : DescribeSpec(
     {
-        val kafkaTemplate = mockk<KafkaTemplate<String, KSenOppfolgingSvarDTOV2>>(relaxed = true)
+        val kafkaTemplate = mockk<KafkaTemplate<String, KSenOppfolgingSvarDTO>>(relaxed = true)
         val producer = SenOppfolgingSvarKafkaProducer(kafkaTemplate)
         val ansattFnr = "12345678910"
 
@@ -25,16 +25,16 @@ class SenOppfolgingSvarKafkaProducerTest : DescribeSpec(
 
             it("Should publish message on kafka") {
                 producer.publishResponse(
-                    KSenOppfolgingSvarDTOV2(
+                    KSenOppfolgingSvarDTO(
                         UUID.randomUUID(),
                         ansattFnr,
                         LocalDateTime.now(),
-                        listOf(SenOppfolgingQuestionV2(SenOppfolgingQuestionTypeV2.ONSKER_OPPFOLGING, "", "", "")),
+                        listOf(SenOppfolgingQuestionV2(SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING, "", "", "")),
                     ),
                 )
 
                 verify(atLeast = 1) {
-                    kafkaTemplate.send(any<ProducerRecord<String, KSenOppfolgingSvarDTOV2>>())
+                    kafkaTemplate.send(any<ProducerRecord<String, KSenOppfolgingSvarDTO>>())
                 }
             }
         }

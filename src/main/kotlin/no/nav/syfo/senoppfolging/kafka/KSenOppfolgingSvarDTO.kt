@@ -4,7 +4,7 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import java.time.LocalDateTime
 import java.util.*
 
-data class KSenOppfolgingSvarDTOV2(
+data class KSenOppfolgingSvarDTO(
     val id: UUID,
     val personIdent: String,
     val createdAt: LocalDateTime,

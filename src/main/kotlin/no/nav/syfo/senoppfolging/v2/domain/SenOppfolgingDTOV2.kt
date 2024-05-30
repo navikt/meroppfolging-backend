@@ -1,21 +1,22 @@
 package no.nav.syfo.senoppfolging.v2.domain
 
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
-import no.nav.syfo.senoppfolging.v1.domain.OnskerOppfolgingSvar
 
 enum class SenOppfolgingQuestionTypeV2 {
     FREMTIDIG_SITUASJON,
-    ONSKER_OPPFOLGING
+    BEHOV_FOR_OPPFOLGING
 }
 
 enum class FremtidigSituasjonSvar {
     TILBAKE_HOS_ARBEIDSGIVER,
     TILBAKE_MED_TILPASNINGER,
+    TILBAKE_GRADERT,
+    BYTTE_JOBB,
     FORTSATT_SYK,
-    USIKKER
+    USIKKER,
 }
 
-enum class OnskerOppfolgingSvar {
+enum class BehovForOppfolgingSvar {
     JA,
     NEI
 }
@@ -30,13 +31,6 @@ data class SenOppfolgingQuestionV2(
 data class SenOppfolgingDTOV2(
     val senOppfolgingFormV2: List<SenOppfolgingQuestionV2>,
 )
-
-fun List<SenOppfolgingQuestionV2>.trengerOppfolging(): Boolean {
-    val trengerOppfolgingQuestion = find { it.questionType == SenOppfolgingQuestionTypeV2.ONSKER_OPPFOLGING }
-    checkNotNull(trengerOppfolgingQuestion)
-    val answer = OnskerOppfolgingSvar.valueOf(trengerOppfolgingQuestion.answerType)
-    return answer == OnskerOppfolgingSvar.JA
-}
 
 fun SenOppfolgingQuestionV2.toQuestionResponse(): QuestionResponse {
     return QuestionResponse(questionType.name, questionText, answerType, answerText)

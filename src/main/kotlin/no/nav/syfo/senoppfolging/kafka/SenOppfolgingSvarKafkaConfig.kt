@@ -14,10 +14,10 @@ class SenOppfolgingSvarKafkaConfig(
     private val kafkaConfig: KafkaConfig,
 ) {
     @Bean
-    fun senOppfolgingsvarProducerFactory(): ProducerFactory<String, KSenOppfolgingSvarDTOV2> =
+    fun senOppfolgingsvarProducerFactory(): ProducerFactory<String, KSenOppfolgingSvarDTO> =
         DefaultKafkaProducerFactory(kafkaConfig.commonKafkaAivenProducerConfig())
 
     @Bean
-    fun senOppfolgingsvarKafkaTemplate(producerFactory: ProducerFactory<String, KSenOppfolgingSvarDTOV2>):
-        KafkaTemplate<String, KSenOppfolgingSvarDTOV2> = KafkaTemplate(producerFactory)
+    fun senOppfolgingsvarKafkaTemplate(producerFactory: ProducerFactory<String, KSenOppfolgingSvarDTO>):
+        KafkaTemplate<String, KSenOppfolgingSvarDTO> = KafkaTemplate(producerFactory)
 }

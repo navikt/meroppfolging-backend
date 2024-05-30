@@ -13,7 +13,7 @@ import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.AlreadyRespondedException
-import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTOV2
+import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
@@ -112,7 +112,7 @@ class SenOppfolgingControllerV2(
 
         senOppfolgingSvarKafkaProducer
             .publishResponse(
-                KSenOppfolgingSvarDTOV2(id, personident, createdAt, senOppfolgingDTOV2.senOppfolgingFormV2)
+                KSenOppfolgingSvarDTO(id, personident, createdAt, senOppfolgingDTOV2.senOppfolgingFormV2)
             )
 
         metric.countSenOppfolgingSubmitted()
