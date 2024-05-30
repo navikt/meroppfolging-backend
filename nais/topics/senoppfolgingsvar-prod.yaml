@@ -10,7 +10,7 @@ metadata:
   labels:
     team: team-esyfo
 spec:
-  pool: {{ kafkaPool }}
+  pool: nav-prod
   config:
     cleanupPolicy: delete
     minimumInSyncReplicas: 1

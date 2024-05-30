@@ -17,8 +17,7 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: nais/topics/senoppfolgingsvar.yaml
-          VARS: nais/topics/dev.json
+          RESOURCE: nais/topics/senoppfolgingsvar-dev.yaml
 
   deploy-topic-to-prod:
     if: github.ref == 'refs/heads/main'
@@ -33,5 +32,4 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
-          RESOURCE: nais/topics/senoppfolgingsvar.yaml
-          VARS: nais/topics/prod.json
+          RESOURCE: nais/topics/senoppfolgingsvar-prod.yaml
