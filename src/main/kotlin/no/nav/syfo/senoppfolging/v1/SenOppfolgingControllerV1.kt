@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/v1/senoppfolging")
@@ -105,6 +106,7 @@ class SenOppfolgingControllerV1(
             PersonIdentNumber(personident),
             senOppfolgingDTOV1.senOppfolgingFormV1.map { it.toQuestionResponse() },
             FormType.SEN_OPPFOLGING_V1,
+            LocalDateTime.now(),
         )
 
         if (senOppfolgingDTOV1.senOppfolgingRegistrering != null &&

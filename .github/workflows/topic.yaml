@@ -13,12 +13,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Deploy topic meroppfolgingsvar to dev
+      - name: Deploy topic senoppfolgingsvar to dev
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: nais/topics/meroppfolgingsvar.yaml
-          VARS: nais/topics/dev.json
+          RESOURCE: nais/topics/senoppfolgingsvar-dev.yaml
 
   deploy-topic-to-prod:
     if: github.ref == 'refs/heads/main'
@@ -29,9 +28,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Deploy topic meroppfolgingsvar to prod
+      - name: Deploy topic senoppfolgingsvar to prod
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
-          RESOURCE: nais/topics/meroppfolgingsvar.yaml
-          VARS: nais/topics/prod.json
+          RESOURCE: nais/topics/senoppfolgingsvar-prod.yaml

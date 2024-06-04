@@ -5,12 +5,12 @@ metadata:
     dcat.data.nav.no/title: "Svar på mer oppfølging"
     dcat.data.nav.no/description: >-
       Topic inneholder svar fra sykmeldte om de ønsker mer oppfølging fra Nav.
-  name: meroppfolging-svar
+  name: sen-oppfolging-svar
   namespace: team-esyfo
   labels:
     team: team-esyfo
 spec:
-  pool: {{ kafkaPool }}
+  pool: nav-prod
   config:
     cleanupPolicy: delete
     minimumInSyncReplicas: 1
