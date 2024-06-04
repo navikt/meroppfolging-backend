@@ -19,7 +19,7 @@ repositories {
     }
 }
 
-val tokenSupportVersion = "4.1.7"
+val tokenSupportVersion = "4.1.8"
 val logstashLogbackEncoderVersion = "7.4"
 val kotestVersion = "5.9.0"
 val springKotestExtensionVersion = "1.3.0"
