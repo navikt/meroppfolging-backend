@@ -40,7 +40,7 @@ class SenOppfolgingSvarKafkaProducer(
     }
 
     companion object {
-        const val SEN_OPPFOLGING_SVAR_TOPIC = "team-esyfo.senoppfolging-svar"
+        const val SEN_OPPFOLGING_SVAR_TOPIC = "team-esyfo.sen-oppfolging-svar"
         private val log = LoggerFactory.getLogger(SenOppfolgingSvarKafkaProducer::class.java)
     }
 }
