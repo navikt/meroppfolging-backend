@@ -65,6 +65,7 @@ spec:
     inbound:
       rules:
         - application: meroppfolging-frontend
+        - application: esyfo-proxy
     outbound:
       rules:
         - application: isoppfolgingstilfelle
@@ -76,6 +77,8 @@ spec:
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
       value: "prod-gcp:team-esyfo:meroppfolging-frontend"
+    - name: ESYFO_PROXY_CLIENT_ID
+      value: "prod-gcp:team-esyfo:esyfo-proxy"
     - name: ISOPPFOLGINGSTILFELLE_URL
       value: http://isoppfolgingstilfelle.teamsykefravr
     - name: ISOPPFOLGINGSTILFELLE_ID

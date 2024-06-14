@@ -36,6 +36,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
 
         val controller = SenOppfolgingControllerV2(
             merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
+            esyfoProxyClientId = "esyfoProxyClientId",
             tokenValidationContextHolder = tokenValidationContextHolder,
             varselService = varselService,
             metric = metric,

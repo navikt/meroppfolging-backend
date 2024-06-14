@@ -5,6 +5,7 @@ no.nav.security.jwt:
       accepted_audience: meroppfolging-backend-client-id
 
 MEROPPFOLGING_FRONTEND_CLIENT_ID: 'meroppfolging-frontend-client-id'
+ESYFO_PROXY_CLIENT_ID: 'esyfo-proxy-client-id'
 
 token.x.client.id: "tokenx-client-id"
 token.x.private.jwk: "tokenx-jwk"
