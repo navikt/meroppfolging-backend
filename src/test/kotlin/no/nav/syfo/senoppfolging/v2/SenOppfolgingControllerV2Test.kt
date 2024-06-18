@@ -10,12 +10,15 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
 import no.nav.syfo.besvarelse.database.ResponseDao
+import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
+import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingQuestionTypeV1
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.NO_RESPONSE
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_IKKE_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_OPPFOLGING
@@ -71,7 +74,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                 }
                 verify(exactly = 1) {
                     senOppfolgingSvarKafkaProducer.publishResponse(
-                        any<KSenOppfolgingSvarDTO>()
+                        any<KSenOppfolgingSvarDTO>(),
                     )
                 }
             }
@@ -101,6 +104,31 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                 every { responseDao.find(any(), SEN_OPPFOLGING_V2, any()) } returns emptyList()
                 val status = controller.status()
                 TestCase.assertEquals(NO_RESPONSE, status.responseStatus)
+            }
+
+            it("Should return isPilot=false when user responded to v1 form") {
+                every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
+                every { responseDao.find(any(), FormType.SEN_OPPFOLGING_V1, any()) } returns listOf(
+                    QuestionResponse(SenOppfolgingQuestionTypeV1.ONSKER_OPPFOLGING.name, "", "JA", "Ja"),
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns BehandlendeEnhet(
+                    "0314",
+                    "Testkontor",
+                )
+                val status = controller.status()
+                TestCase.assertEquals(NO_RESPONSE, status.responseStatus)
+                TestCase.assertEquals(false, status.isPilot)
+            }
+
+            it("Should return isPilot=true when user belongs to pilot") {
+                every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
+                every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns BehandlendeEnhet(
+                    "0314",
+                    "Testkontor",
+                )
+                val status = controller.status()
+                TestCase.assertEquals(NO_RESPONSE, status.responseStatus)
+                TestCase.assertEquals(true, status.isPilot)
             }
         }
     },
