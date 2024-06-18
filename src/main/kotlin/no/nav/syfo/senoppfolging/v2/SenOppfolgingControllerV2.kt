@@ -39,6 +39,8 @@ import java.time.LocalDateTime
 class SenOppfolgingControllerV2(
     @Value("\${MEROPPFOLGING_FRONTEND_CLIENT_ID}")
     val merOppfolgingFrontendClientId: String,
+    @Value("\${ESYFO_PROXY_CLIENT_ID}")
+    val esyfoProxyClientId: String,
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val varselService: VarselService,
     val metric: Metric,
@@ -53,7 +55,8 @@ class SenOppfolgingControllerV2(
 
     @PostConstruct
     fun init() {
-        tokenValidator = TokenValidator(tokenValidationContextHolder, merOppfolgingFrontendClientId)
+        tokenValidator =
+            TokenValidator(tokenValidationContextHolder, listOf(merOppfolgingFrontendClientId, esyfoProxyClientId))
     }
 
     @GetMapping("/status", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -112,7 +115,7 @@ class SenOppfolgingControllerV2(
 
         senOppfolgingSvarKafkaProducer
             .publishResponse(
-                KSenOppfolgingSvarDTO(id, personident, createdAt, senOppfolgingDTOV2.senOppfolgingFormV2)
+                KSenOppfolgingSvarDTO(id, personident, createdAt, senOppfolgingDTOV2.senOppfolgingFormV2),
             )
 
         metric.countSenOppfolgingSubmitted()
