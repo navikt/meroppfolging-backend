@@ -129,9 +129,6 @@ class SenOppfolgingControllerV2(
             cutoffDate,
         )
 
-        if (responseOnV1Form.isNotEmpty()) {
-            return true
-        }
-        return false
+        return responseOnV1Form.isNotEmpty()
     }
 }
