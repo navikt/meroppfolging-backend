@@ -62,14 +62,15 @@ class SenOppfolgingControllerV2(
     @GetMapping("/status", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
     fun status(): SenOppfolgingStatusDTOV2 {
-        if (!pilotEnabledForEnvironment) {
+        val personIdent = tokenValidator.validateTokenXClaims().getFnr()
+
+        if (!pilotEnabledForEnvironment || hasRespondedToV1Form(personIdent)) {
             return SenOppfolgingStatusDTOV2(
                 isPilot = false,
                 responseStatus = ResponseStatus.NO_RESPONSE,
             )
         }
 
-        val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
         log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
         val response = responseDao.find(
@@ -119,5 +120,15 @@ class SenOppfolgingControllerV2(
             )
 
         metric.countSenOppfolgingSubmitted()
+    }
+
+    private fun hasRespondedToV1Form(personIdent: String): Boolean {
+        val responseOnV1Form = responseDao.find(
+            PersonIdentNumber(personIdent),
+            FormType.SEN_OPPFOLGING_V1,
+            cutoffDate,
+        )
+
+        return responseOnV1Form.isNotEmpty()
     }
 }
