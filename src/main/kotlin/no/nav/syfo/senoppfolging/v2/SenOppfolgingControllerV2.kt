@@ -3,6 +3,8 @@ package no.nav.syfo.senoppfolging.v2
 import jakarta.annotation.PostConstruct
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.syfo.auth.TokenUtil
+import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
@@ -11,6 +13,7 @@ import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
+import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.AlreadyRespondedException
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("/api/v2/senoppfolging")
@@ -47,6 +51,7 @@ class SenOppfolgingControllerV2(
     val responseDao: ResponseDao,
     val behandlendeEnhetClient: BehandlendeEnhetClient,
     val senOppfolgingSvarKafkaProducer: SenOppfolgingSvarKafkaProducer,
+    val esyfovarselClient: EsyfovarselClient,
     @Value("\${toggle.pilot}") private var pilotEnabledForEnvironment: Boolean,
 ) {
     lateinit var tokenValidator: TokenValidator
@@ -62,6 +67,7 @@ class SenOppfolgingControllerV2(
     @GetMapping("/status", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
     fun status(): SenOppfolgingStatusDTOV2 {
+        val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
         log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
@@ -70,17 +76,23 @@ class SenOppfolgingControllerV2(
             return SenOppfolgingStatusDTOV2(
                 isPilot = false,
                 responseStatus = ResponseStatus.NO_RESPONSE,
+                responseTime = null,
+                maxDate = null,
             )
         }
 
-        val response = responseDao.find(
+        val response = responseDao.findLatestFormResponse(
             PersonIdentNumber(personIdent),
             FormType.SEN_OPPFOLGING_V2,
             cutoffDate,
         )
+        val maxDate = esyfovarselClient.getMaxDate(token)
+
         return SenOppfolgingStatusDTOV2(
             isPilot = behandlendeEnhet.isPilot(),
-            responseStatus = response.toResponseStatus(),
+            responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
+            responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+            maxDate = maxDate,
         )
     }
 

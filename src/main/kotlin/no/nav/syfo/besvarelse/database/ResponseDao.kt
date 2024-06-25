@@ -1,5 +1,6 @@
 package no.nav.syfo.besvarelse.database
 
+import no.nav.syfo.besvarelse.database.domain.FormResponse
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 import no.nav.syfo.domain.PersonIdentNumber
@@ -11,7 +12,7 @@ import java.sql.Date
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Repository
 class ResponseDao(
@@ -116,6 +117,43 @@ class ResponseDao(
             namedParameterJdbcTemplate.query(query, namedParameters, QuestionResponseRowMapper())
         } catch (e: EmptyResultDataAccessException) {
             emptyList()
+        }
+    }
+
+    @Suppress("SwallowedException")
+    fun findLatestFormResponse(personIdent: PersonIdentNumber, formType: FormType, from: LocalDate): FormResponse? {
+        val query = """
+            SELECT 
+                form.uuid,
+                form.person_ident,
+                form.created_at,
+                form.form_type,
+                question.question_type,
+                question.question_text,
+                question.answer_type,
+                question.answer_text
+            FROM QUESTION_RESPONSE question
+            JOIN FORM_RESPONSE form ON question.response_id = form.uuid
+            WHERE form.person_ident = :person_ident
+            AND form.form_type = :form_type
+            AND form.created_at > :from_date
+            ORDER BY form.created_at DESC
+        """.trimIndent()
+
+        val namedParameters = MapSqlParameterSource()
+            .addValue("person_ident", personIdent.value)
+            .addValue("form_type", formType.name)
+            .addValue("from_date", Date.valueOf(from))
+
+        return try {
+            val formResponseList = namedParameterJdbcTemplate.query(
+                query,
+                namedParameters,
+                FormResponseResultSetExtractor()
+            )
+            formResponseList?.firstOrNull()
+        } catch (e: EmptyResultDataAccessException) {
+            null
         }
     }
 }

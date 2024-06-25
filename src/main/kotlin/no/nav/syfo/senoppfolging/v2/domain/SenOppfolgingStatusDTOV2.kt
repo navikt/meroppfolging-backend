@@ -5,6 +5,8 @@ import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 data class SenOppfolgingStatusDTOV2(
     val isPilot: Boolean,
     val responseStatus: ResponseStatus,
+    val responseTime: String?,
+    val maxDate: String?,
 )
 
 enum class ResponseStatus {
