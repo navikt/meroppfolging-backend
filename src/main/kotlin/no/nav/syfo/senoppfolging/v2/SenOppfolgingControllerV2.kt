@@ -63,6 +63,8 @@ class SenOppfolgingControllerV2(
     @ResponseBody
     fun status(): SenOppfolgingStatusDTOV2 {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
+        val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
+        log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
 
         if (!pilotEnabledForEnvironment || hasRespondedToV1Form(personIdent)) {
             return SenOppfolgingStatusDTOV2(
@@ -71,8 +73,6 @@ class SenOppfolgingControllerV2(
             )
         }
 
-        val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-        log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
         val response = responseDao.find(
             PersonIdentNumber(personIdent),
             FormType.SEN_OPPFOLGING_V2,
