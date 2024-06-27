@@ -12,9 +12,12 @@ import no.nav.syfo.auth.getFnr
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
 import no.nav.syfo.besvarelse.database.ResponseDao
+import no.nav.syfo.besvarelse.database.domain.FormResponse
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
+import no.nav.syfo.domain.PersonIdentNumber
+import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
@@ -26,6 +29,8 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.varsel.VarselService
+import java.time.LocalDateTime
+import java.util.*
 
 class SenOppfolgingControllerV2Test : DescribeSpec(
     {
@@ -36,6 +41,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
         val responseDao = mockk<ResponseDao>(relaxed = true)
         val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
         val senOppfolgingSvarKafkaProducer = mockk<SenOppfolgingSvarKafkaProducer>(relaxed = true)
+        val esyfovarselClient = mockk<EsyfovarselClient>(relaxed = true)
 
         val controller = SenOppfolgingControllerV2(
             merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
@@ -47,6 +53,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             behandlendeEnhetClient = behandlendeEnhetClient,
             pilotEnabledForEnvironment = true,
             senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
+            esyfovarselClient = esyfovarselClient,
 
         ).apply {
             this.tokenValidator = tokenValidator
@@ -83,18 +90,31 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
         describe("Get status") {
             it("Should return TRENGER_IKKE_OPPFOLGING when user has answered Nei") {
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
-                every { responseDao.find(any(), SEN_OPPFOLGING_V2, any()) } returns listOf(
-                    QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "NEI", "Nei"),
-                )
+                every { responseDao.findLatestFormResponse(any(), SEN_OPPFOLGING_V2, any()) } returns
+                    FormResponse(
+                        UUID.randomUUID(),
+                        PersonIdentNumber(ansattFnr),
+                        LocalDateTime.now().minusDays(1),
+                        SEN_OPPFOLGING_V2,
+                    ).apply {
+                        questionResponses.add(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "NEI", "Nei"))
+                    }
+
                 val status = controller.status()
                 TestCase.assertEquals(TRENGER_IKKE_OPPFOLGING, status.responseStatus)
             }
 
             it("Should return TRENGER_OPPFOLGING when user has answered Ja") {
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
-                every { responseDao.find(any(), SEN_OPPFOLGING_V2, any()) } returns listOf(
-                    QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "JA", "Ja"),
-                )
+                every { responseDao.findLatestFormResponse(any(), SEN_OPPFOLGING_V2, any()) } returns
+                    FormResponse(
+                        UUID.randomUUID(),
+                        PersonIdentNumber(ansattFnr),
+                        LocalDateTime.now().minusDays(1),
+                        SEN_OPPFOLGING_V2,
+                    ).apply {
+                        questionResponses.add(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "JA", "Ja"))
+                    }
                 val status = controller.status()
                 TestCase.assertEquals(TRENGER_OPPFOLGING, status.responseStatus)
             }

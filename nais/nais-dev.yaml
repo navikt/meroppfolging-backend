@@ -67,6 +67,7 @@ spec:
         - application: esyfo-proxy
     outbound:
       rules:
+        - application: esyfovarsel
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
         - application: syfobehandlendeenhet
@@ -82,6 +83,10 @@ spec:
       value: http://isoppfolgingstilfelle.teamsykefravr
     - name: ISOPPFOLGINGSTILFELLE_ID
       value: dev-gcp:teamsykefravr:isoppfolgingstilfelle
+    - name: ESYFOVARSEL_URL
+      value: http://esyfovarsel
+    - name: ESYFOVARSEL_ID
+      value: dev-gcp:team-esyfo:esyfovarsel
     - name: SYFOBEHANDLENDEENHET_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL

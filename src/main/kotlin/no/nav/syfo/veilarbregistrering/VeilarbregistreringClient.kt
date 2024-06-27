@@ -6,9 +6,9 @@ import no.nav.syfo.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.auth.tokendings.TokendingsClient
 import no.nav.syfo.createCallId
+import no.nav.syfo.exception.RequestUnauthorizedException
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.oppfolgingstilfelle.RequestUnauthorizedException
 import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingRegistrering
 import no.nav.syfo.veilarbregistrering.domain.StartRegistrationDTO
 import org.springframework.beans.factory.annotation.Value

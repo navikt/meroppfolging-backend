@@ -4,6 +4,7 @@ import no.nav.syfo.NAV_CALL_ID_HEADER
 import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.auth.tokendings.TokendingsClient
 import no.nav.syfo.createCallId
+import no.nav.syfo.exception.RequestUnauthorizedException
 import no.nav.syfo.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
