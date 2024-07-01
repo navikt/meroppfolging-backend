@@ -65,6 +65,8 @@ spec:
       rules:
         - application: meroppfolging-frontend
         - application: esyfo-proxy
+        - application: syfomodiaperson
+          namespace: teamsykefravr
     outbound:
       rules:
         - application: esyfovarsel

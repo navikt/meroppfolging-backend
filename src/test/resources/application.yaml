@@ -3,6 +3,9 @@ no.nav.security.jwt:
     tokenx:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
       accepted_audience: meroppfolging-backend-client-id
+    azureator:
+      discoveryurl: http://localhost:${mock-oauth2-server.port}/azuread/.well-known/openid-configuration
+      accepted_audience: meroppfolging-backend-client-id
 
 MEROPPFOLGING_FRONTEND_CLIENT_ID: 'meroppfolging-frontend-client-id'
 ESYFO_PROXY_CLIENT_ID: 'esyfo-proxy-client-id'
