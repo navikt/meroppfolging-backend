@@ -12,7 +12,11 @@ import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.veiledertilgang.VeilederTilgangClient
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
 @RestController
@@ -27,7 +31,13 @@ class SenOppfolgingVeilederADControllerV2(
 
     @GetMapping("/formresponse", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
-    fun getFormResponse(@RequestHeader(name = NAV_PERSONIDENT_HEADER) personident: @Pattern(regexp = "^[0-9]{11}$") String): String {
+    fun getFormResponse(
+        @RequestHeader(
+            name = NAV_PERSONIDENT_HEADER
+        ) personident:
+        @Pattern(regexp = "^[0-9]{11}$")
+        String
+    ): String {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, AZUREAD)
         val personIdentNumber = PersonIdentNumber(value = personident)
         val hasVeilederTilgangToPerson = veilederTilgangClient.hasVeilederTilgangToPerson(
@@ -47,5 +57,4 @@ class SenOppfolgingVeilederADControllerV2(
         // Map to dto
         return latestFormResponse.toString()
     }
-
 }

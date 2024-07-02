@@ -1,13 +1,22 @@
 package no.nav.syfo.veiledertilgang
 
-import no.nav.syfo.*
+import no.nav.syfo.MEROPPFOLGING_BACKEND_CONSUMER_ID
+import no.nav.syfo.NAV_CALL_ID_HEADER
+import no.nav.syfo.NAV_CONSUMER_ID_HEADER
+import no.nav.syfo.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.auth.azuread.AzureAdClient
 import no.nav.syfo.auth.bearerHeader
+import no.nav.syfo.createCallId
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.exception.RequestUnauthorizedException
+import no.nav.syfo.logger
 import no.nav.syfo.veiledertilgang.domain.Tilgang
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientResponseException
 import org.springframework.web.client.RestTemplate

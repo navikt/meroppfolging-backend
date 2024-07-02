@@ -75,12 +75,11 @@ class AzureAdClient(
         } catch (e: RestClientResponseException) {
             log.error(
                 "Call to get AzureADToken from AzureAD for scope: $scopeClientId " +
-                        "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
+                    "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
                 e
             )
             throw e
         }
-
     }
 
     fun systemTokenRequestEntity(
