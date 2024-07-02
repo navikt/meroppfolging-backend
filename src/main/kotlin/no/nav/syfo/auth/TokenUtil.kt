@@ -18,6 +18,7 @@ object TokenUtil {
 
     object TokenIssuer {
         const val TOKENX = "tokenx"
+        const val AZUREAD = "azuread"
     }
 }
 

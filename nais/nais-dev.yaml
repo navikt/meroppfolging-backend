@@ -65,10 +65,14 @@ spec:
       rules:
         - application: meroppfolging-frontend
         - application: esyfo-proxy
+        - application: syfomodiaperson
+          namespace: teamsykefravr
     outbound:
       rules:
         - application: esyfovarsel
         - application: isoppfolgingstilfelle
+          namespace: teamsykefravr
+        - application: istilgangskontroll
           namespace: teamsykefravr
         - application: syfobehandlendeenhet
           namespace: teamsykefravr
@@ -83,6 +87,10 @@ spec:
       value: http://isoppfolgingstilfelle.teamsykefravr
     - name: ISOPPFOLGINGSTILFELLE_ID
       value: dev-gcp:teamsykefravr:isoppfolgingstilfelle
+    - name: ISTILGANGSKONTROLL_URL
+      value: http://istilgangskontroll.teamsykefravr
+    - name: ISTILGANGSKONTROLL_ID
+      value: dev-gcp.teamsykefravr.istilgangskontroll
     - name: ESYFOVARSEL_URL
       value: http://esyfovarsel
     - name: ESYFOVARSEL_ID
