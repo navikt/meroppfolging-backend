@@ -91,7 +91,7 @@ spec:
     - name: ISTILGANGSKONTROLL_URL
       value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_ID
-      value: prod-gcp:teamsykefravr:istilgangskontroll
+      value: prod-gcp.teamsykefravr.istilgangskontroll
     - name: ESYFOVARSEL_URL
       value: http://esyfovarsel
     - name: ESYFOVARSEL_ID
