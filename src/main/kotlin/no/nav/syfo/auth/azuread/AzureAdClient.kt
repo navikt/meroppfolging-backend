@@ -58,6 +58,31 @@ class AzureAdClient(
         }
     }
 
+    fun getOnBehalfOfToken(
+        scopeClientId: String,
+        token: String,
+    ): String {
+        try {
+            val response = restTemplate.exchange(
+                azureTokenEndpoint,
+                HttpMethod.POST,
+                oboTokenRequestEntity(scopeClientId, token),
+                AzureAdTokenResponse::class.java
+            )
+            val tokenResponse = response.body!!
+
+            return tokenResponse.toAzureAdToken().accessToken
+        } catch (e: RestClientResponseException) {
+            log.error(
+                "Call to get AzureADToken from AzureAD for scope: $scopeClientId " +
+                        "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
+                e
+            )
+            throw e
+        }
+
+    }
+
     fun systemTokenRequestEntity(
         scopeClientId: String,
     ): HttpEntity<MultiValueMap<String, String>> {
@@ -72,12 +97,34 @@ class AzureAdClient(
         return HttpEntity(body, headers)
     }
 
+    private fun oboTokenRequestEntity(
+        scopeClientId: String,
+        token: String
+    ): HttpEntity<MultiValueMap<String, String>> {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.MULTIPART_FORM_DATA
+        val body: MultiValueMap<String, String> = LinkedMultiValueMap()
+        body.add(CLIENT_ID, azureAppClientId)
+        body.add(CLIENT_SECRET, azureAppClientSecret)
+        body.add(CLIENT_ASSERTION_TYPE, JWT_BEARER)
+        body.add(GRANT_TYPE, JWT_BEARER)
+        body.add(ASSERTION, token)
+        body.add(SCOPE, "api://$scopeClientId/.default")
+        body.add(TOKEN_USE, ON_BEHALF_OF)
+        return HttpEntity(body, headers)
+    }
+
     companion object {
+        private const val ASSERTION = "assertion"
         private const val CLIENT_ID = "client_id"
         private const val SCOPE = "scope"
         private const val GRANT_TYPE = "grant_type"
+        private const val CLIENT_ASSERTION_TYPE = "client_assertion_type"
         private const val CLIENT_CREDENTIALS = "client_credentials"
         private const val CLIENT_SECRET = "client_secret"
+        private const val JWT_BEARER = "urn:ietf:params:oauth:grant-type:jwt-bearer"
+        private const val TOKEN_USE = "requested_token_use"
+        private const val ON_BEHALF_OF = "on_behalf_of"
 
         val systemTokenCache = ConcurrentHashMap<String, AzureAdToken>()
         private val log = LoggerFactory.getLogger(AzureAdClient::class.java)

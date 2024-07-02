@@ -73,6 +73,8 @@ spec:
         - application: esyfovarsel
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
+        - application: istilgangskontroll
+          namespace: teamsykefravr
         - application: syfobehandlendeenhet
           namespace: teamsykefravr
         - application: veilarbregistrering
@@ -86,6 +88,10 @@ spec:
       value: http://isoppfolgingstilfelle.teamsykefravr
     - name: ISOPPFOLGINGSTILFELLE_ID
       value: prod-gcp:teamsykefravr:isoppfolgingstilfelle
+    - name: ISTILGANGSKONTROLL_URL
+      value: http://istilgangskontroll.teamsykefravr
+    - name: ISTILGANGSKONTROLL_ID
+      value: prod-gcp:teamsykefravr:istilgangskontroll
     - name: ESYFOVARSEL_URL
       value: http://esyfovarsel
     - name: ESYFOVARSEL_ID
