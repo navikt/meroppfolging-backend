@@ -10,8 +10,11 @@ import no.nav.syfo.auth.TokenUtil.TokenIssuer.AZUREAD
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.domain.PersonIdentNumber
+import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingFormResponseDTOV2
+import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponseDTOs
 import no.nav.syfo.veiledertilgang.VeilederTilgangClient
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
@@ -37,7 +40,7 @@ class SenOppfolgingVeilederADControllerV2(
         ) personident:
         @Pattern(regexp = "^[0-9]{11}$")
         String
-    ): String {
+    ): ResponseEntity<SenOppfolgingFormResponseDTOV2> {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, AZUREAD)
         val personIdentNumber = PersonIdentNumber(value = personident)
         val hasVeilederTilgangToPerson = veilederTilgangClient.hasVeilederTilgangToPerson(
@@ -54,7 +57,17 @@ class SenOppfolgingVeilederADControllerV2(
             from = cutoffDate,
         )
 
-        // Map to dto
-        return latestFormResponse.toString()
+        return if (latestFormResponse != null) {
+            val responseDTO = SenOppfolgingFormResponseDTOV2(
+                uuid = latestFormResponse.uuid.toString(),
+                personIdent = latestFormResponse.personIdent.value,
+                createdAt = latestFormResponse.createdAt,
+                formType = latestFormResponse.formType.name,
+                questionResponses = latestFormResponse.questionResponses.toQuestionResponseDTOs(),
+            )
+            ResponseEntity.ok(responseDTO)
+        } else {
+            ResponseEntity.noContent().build()
+        }
     }
 }
