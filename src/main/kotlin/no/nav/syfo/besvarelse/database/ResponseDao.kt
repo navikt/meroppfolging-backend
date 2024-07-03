@@ -121,7 +121,6 @@ class ResponseDao(
         }
     }
 
-    @Suppress("SwallowedException")
     fun findLatestFormResponse(personIdent: PersonIdentNumber, formType: FormType, from: LocalDate): FormResponse? {
         val query = """
             SELECT 
@@ -174,6 +173,7 @@ class ResponseDao(
         return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
     }
 
+    @Suppress("SwallowedException")
     private fun executeFormResponseQuery(query: String, namedParameters: SqlParameterSource): List<FormResponse>? {
         return try {
             namedParameterJdbcTemplate.query(
