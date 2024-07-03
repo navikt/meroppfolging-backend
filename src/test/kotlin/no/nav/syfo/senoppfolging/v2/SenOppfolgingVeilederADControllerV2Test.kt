@@ -17,7 +17,7 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR
 import no.nav.syfo.veiledertilgang.VeilederTilgangClient
 import org.springframework.http.HttpStatusCode
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class SenOppfolgingVeilederADControllerV2Test : DescribeSpec(
     {
