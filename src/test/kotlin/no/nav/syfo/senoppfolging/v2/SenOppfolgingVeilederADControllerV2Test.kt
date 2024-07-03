@@ -48,7 +48,7 @@ class SenOppfolgingVeilederADControllerV2Test : DescribeSpec(
 
             it("returns no content when veileder has access to person but person has no form response") {
                 every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true
-                every { responseDao.findLatestFormResponse(any(), any(), any()) } returns null
+                every { responseDao.findLatestFormResponse(any(), any()) } returns null
 
                 val response = controller.getFormResponse(fnr)
                 TestCase.assertTrue(response.statusCode.isSameCodeAs(HttpStatusCode.valueOf(204)))
@@ -61,7 +61,7 @@ class SenOppfolgingVeilederADControllerV2Test : DescribeSpec(
                 val responseUUID = UUID.randomUUID()
                 val responseCreatedAt = LocalDateTime.now()
 
-                every { responseDao.findLatestFormResponse(any(), any(), any()) } returns FormResponse(
+                every { responseDao.findLatestFormResponse(any(), any()) } returns FormResponse(
                     uuid = responseUUID,
                     personIdent = personIdent,
                     createdAt = responseCreatedAt,
