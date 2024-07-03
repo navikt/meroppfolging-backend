@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
+import java.time.Month
 
 @RestController
 @ProtectedWithClaims(issuer = AZUREAD)
@@ -30,7 +31,7 @@ class SenOppfolgingVeilederADControllerV2(
     val veilederTilgangClient: VeilederTilgangClient,
     val responseDao: ResponseDao,
 ) {
-    private val cutoffDate = LocalDate.now().minusMonths(3)
+    private val cutoffDate = LocalDate.of(2024, Month.JULY, 1)
 
     @GetMapping("/formresponse", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
