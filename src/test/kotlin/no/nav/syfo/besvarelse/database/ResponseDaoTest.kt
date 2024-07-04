@@ -61,6 +61,52 @@ class ResponseDaoTest : FunSpec() {
             assertNull(formResponse)
         }
 
+        test("Find latest response created before from date") {
+            val personIdent = PersonIdentNumber("12345678911")
+            val firstQuestionResponse = QuestionResponse(
+                "FREMTIDIG_SITUASJON",
+                "Hvordan ser du for deg din situasjon når sykepengene er slutt?",
+                "TILBAKE_HOS_ARBEIDSGIVER",
+                "Jeg skal tilbake til min arbeidsgiver"
+            )
+            responseDao.saveFormResponse(
+                personIdent = personIdent,
+                questionResponses = listOf(firstQuestionResponse),
+                formType = FormType.SEN_OPPFOLGING_V2,
+                createdAt = LocalDateTime.now().minusDays(2)
+            )
+
+            val formResponse = responseDao.findLatestFormResponse(
+                personIdent = personIdent,
+                formType = FormType.SEN_OPPFOLGING_V2,
+                from = LocalDate.now().minusDays(1)
+            )
+
+            assertNull(formResponse)
+        }
+
+        test("Find latest response (no from date)") {
+            val personIdent = PersonIdentNumber("12345678911")
+            val firstQuestionResponse = QuestionResponse(
+                "FREMTIDIG_SITUASJON",
+                "Hvordan ser du for deg din situasjon når sykepengene er slutt?",
+                "TILBAKE_HOS_ARBEIDSGIVER",
+                "Jeg skal tilbake til min arbeidsgiver"
+            )
+            responseDao.saveFormResponse(
+                personIdent = personIdent,
+                questionResponses = listOf(firstQuestionResponse),
+                formType = FormType.SEN_OPPFOLGING_V2,
+                createdAt = LocalDateTime.now().minusDays(2)
+            )
+
+            val formResponse = responseDao.findLatestFormResponse(
+                personIdent = personIdent,
+                formType = FormType.SEN_OPPFOLGING_V2,
+            )
+            checkNotNull(formResponse)
+        }
+
         test("Find latest response") {
             val personIdent = PersonIdentNumber("12345678911")
             val firstQuestionResponse = QuestionResponse(

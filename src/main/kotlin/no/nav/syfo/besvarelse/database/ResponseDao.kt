@@ -7,6 +7,7 @@ import no.nav.syfo.domain.PersonIdentNumber
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.jdbc.core.namedparam.SqlParameterSource
 import org.springframework.stereotype.Repository
 import java.sql.Date
 import java.sql.Timestamp
@@ -120,7 +121,6 @@ class ResponseDao(
         }
     }
 
-    @Suppress("SwallowedException")
     fun findLatestFormResponse(personIdent: PersonIdentNumber, formType: FormType, from: LocalDate): FormResponse? {
         val query = """
             SELECT 
@@ -145,13 +145,42 @@ class ResponseDao(
             .addValue("form_type", formType.name)
             .addValue("from_date", Date.valueOf(from))
 
+        return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
+    }
+
+    fun findLatestFormResponse(personIdent: PersonIdentNumber, formType: FormType): FormResponse? {
+        val query = """
+            SELECT 
+                form.uuid,
+                form.person_ident,
+                form.created_at,
+                form.form_type,
+                question.question_type,
+                question.question_text,
+                question.answer_type,
+                question.answer_text
+            FROM QUESTION_RESPONSE question
+            JOIN FORM_RESPONSE form ON question.response_id = form.uuid
+            WHERE form.person_ident = :person_ident
+            AND form.form_type = :form_type
+            ORDER BY form.created_at DESC
+        """.trimIndent()
+
+        val namedParameters = MapSqlParameterSource()
+            .addValue("person_ident", personIdent.value)
+            .addValue("form_type", formType.name)
+
+        return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
+    }
+
+    @Suppress("SwallowedException")
+    private fun executeFormResponseQuery(query: String, namedParameters: SqlParameterSource): List<FormResponse>? {
         return try {
-            val formResponseList = namedParameterJdbcTemplate.query(
+            namedParameterJdbcTemplate.query(
                 query,
                 namedParameters,
                 FormResponseResultSetExtractor()
             )
-            formResponseList?.firstOrNull()
         } catch (e: EmptyResultDataAccessException) {
             null
         }
