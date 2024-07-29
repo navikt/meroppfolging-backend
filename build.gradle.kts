@@ -20,7 +20,7 @@ repositories {
 }
 
 val tokenSupportVersion = "4.1.8"
-val logstashLogbackEncoderVersion = "7.4"
+val logstashLogbackEncoderVersion = "8.0"
 val kotestVersion = "5.9.1"
 val springKotestExtensionVersion = "1.3.0"
 val mockkVersion = "1.13.11"
