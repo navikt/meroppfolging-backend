@@ -79,6 +79,7 @@ spec:
           namespace: teamsykefravr
         - application: veilarbregistrering
           namespace: paw
+        - application: sykepengedager-informasjon
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
       value: "prod-gcp:team-esyfo:meroppfolging-frontend"
