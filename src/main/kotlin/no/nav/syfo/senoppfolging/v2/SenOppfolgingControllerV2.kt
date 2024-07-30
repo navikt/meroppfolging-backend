@@ -76,6 +76,7 @@ class SenOppfolgingControllerV2(
             return SenOppfolgingStatusDTOV2(
                 isPilot = false,
                 responseStatus = ResponseStatus.NO_RESPONSE,
+                response = null,
                 responseTime = null,
                 maxDate = null,
             )
@@ -91,6 +92,7 @@ class SenOppfolgingControllerV2(
         return SenOppfolgingStatusDTOV2(
             isPilot = behandlendeEnhet.isPilot(),
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
+            response = response,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
             maxDate = maxDate,
         )
