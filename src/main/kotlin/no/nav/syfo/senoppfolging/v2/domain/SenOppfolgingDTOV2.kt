@@ -35,3 +35,19 @@ data class SenOppfolgingDTOV2(
 fun SenOppfolgingQuestionV2.toQuestionResponse(): QuestionResponse {
     return QuestionResponse(questionType.name, questionText, answerType, answerText)
 }
+
+fun List<SenOppfolgingQuestionV2>.behovForOppfolging(): Boolean {
+    val behovForOppfolgingSvar = this.filter { it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING }
+
+    require(behovForOppfolgingSvar.isNotEmpty()) { "Behov for oppfølging er ikke besvart" }
+
+    return behovForOppfolgingSvar.firstOrNull { it.answerType == BehovForOppfolgingSvar.JA.name } != null
+}
+
+fun List<SenOppfolgingQuestionV2>.fremtidigSituasjonSvar(): FremtidigSituasjonSvar {
+    val fremtidigSituasjonAnswer =
+        this.firstOrNull { it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON }
+            ?: throw IllegalArgumentException("Fremtidig situasjon er ikke besvart")
+
+    return FremtidigSituasjonSvar.entries.first { it.name == fremtidigSituasjonAnswer.answerType }
+}

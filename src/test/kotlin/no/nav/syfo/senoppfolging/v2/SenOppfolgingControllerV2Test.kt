@@ -28,6 +28,7 @@ import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
+import no.nav.syfo.syfoopppdfgen.SyfoopfpdfgenService
 import no.nav.syfo.varsel.VarselService
 import java.time.LocalDateTime
 import java.util.*
@@ -42,6 +43,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
         val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
         val senOppfolgingSvarKafkaProducer = mockk<SenOppfolgingSvarKafkaProducer>(relaxed = true)
         val esyfovarselClient = mockk<EsyfovarselClient>(relaxed = true)
+        val syfoopfpdfgenService = mockk<SyfoopfpdfgenService>(relaxed = true)
 
         val controller = SenOppfolgingControllerV2(
             merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
@@ -54,6 +56,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             pilotEnabledForEnvironment = true,
             senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
             esyfovarselClient = esyfovarselClient,
+            syfoopfpdfgenService = syfoopfpdfgenService,
 
         ).apply {
             this.tokenValidator = tokenValidator

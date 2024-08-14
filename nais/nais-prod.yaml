@@ -71,6 +71,7 @@ spec:
     outbound:
       rules:
         - application: esyfovarsel
+        - application: syfooppdfgen
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
         - application: istilgangskontroll
@@ -109,3 +110,5 @@ spec:
       value: "true"
     - name: TOGGLE_PILOT
       value: "false"
+    - name: SYFOOPPDFGEN_URL
+      value: http://syfooppdfgen

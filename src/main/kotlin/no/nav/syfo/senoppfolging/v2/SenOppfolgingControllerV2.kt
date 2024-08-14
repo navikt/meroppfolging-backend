@@ -23,6 +23,7 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
+import no.nav.syfo.syfoopppdfgen.SyfoopfpdfgenService
 import no.nav.syfo.varsel.VarselService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -53,6 +54,7 @@ class SenOppfolgingControllerV2(
     val senOppfolgingSvarKafkaProducer: SenOppfolgingSvarKafkaProducer,
     val esyfovarselClient: EsyfovarselClient,
     @Value("\${toggle.pilot}") private var pilotEnabledForEnvironment: Boolean,
+    val syfoopfpdfgenService: SyfoopfpdfgenService,
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
@@ -127,6 +129,9 @@ class SenOppfolgingControllerV2(
             formType = FormType.SEN_OPPFOLGING_V2,
             createdAt = createdAt,
         )
+
+        val pdf = syfoopfpdfgenService.getPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
+        log.info("[PDF]: $pdf")
 
         senOppfolgingSvarKafkaProducer
             .publishResponse(
