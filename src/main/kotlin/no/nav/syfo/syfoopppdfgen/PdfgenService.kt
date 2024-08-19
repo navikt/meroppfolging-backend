@@ -21,7 +21,7 @@ class PdfgenService(
 ) {
     private val log = logger()
 
-    fun getKvitteringEndpoint(fremtidigSituasjonSvar: FremtidigSituasjonSvar): String {
+    private fun getKvitteringEndpoint(fremtidigSituasjonSvar: FremtidigSituasjonSvar): String {
         return when (fremtidigSituasjonSvar) {
             FremtidigSituasjonSvar.USIKKER -> "usikker_receipt"
             FremtidigSituasjonSvar.BYTTE_JOBB -> "bytte_jobb_receipt"

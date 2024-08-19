@@ -11,6 +11,7 @@ import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.isPilot
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormType
+import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.maksdato.EsyfovarselClient
@@ -53,6 +54,7 @@ class SenOppfolgingControllerV2(
     val behandlendeEnhetClient: BehandlendeEnhetClient,
     val senOppfolgingSvarKafkaProducer: SenOppfolgingSvarKafkaProducer,
     val esyfovarselClient: EsyfovarselClient,
+    val dokarkivClient: DokarkivClient,
     @Value("\${toggle.pilot}") private var pilotEnabledForEnvironment: Boolean,
     val syfoopfpdfgenService: PdfgenService,
 ) {
@@ -131,7 +133,12 @@ class SenOppfolgingControllerV2(
         )
 
         val pdf = syfoopfpdfgenService.getPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
-        log.info("[PDF]: $pdf")
+        if (pdf == null) {
+            log.error("Failed to generate PDF")
+        } else {
+            log.info("Generated PDF")
+            dokarkivClient.postDocumentToDokarkiv(fnr = personident, pdf = pdf, uuid = id.toString())
+        }
 
         senOppfolgingSvarKafkaProducer
             .publishResponse(

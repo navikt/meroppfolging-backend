@@ -21,6 +21,10 @@ isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
 esyfovarsel.url: "http://esyfovarsel"
 esyfovarsel.id: "local:team-esyfo:esyfovarsel"
 
+dokarkiv.url: "http://dokarkiv"
+dokarkiv.scope: "local:teamdokumenthandtering:dokarkiv"
+
+
 syfobehandlendeenhet.url: "http://syfobehandlendeenhet"
 syfobehandlendeenhet.id: "local:teamsykefravr:syfobehandlendeenhet"
 
