@@ -16,6 +16,7 @@ import no.nav.syfo.besvarelse.database.domain.FormResponse
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
+import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
@@ -44,6 +45,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
         val senOppfolgingSvarKafkaProducer = mockk<SenOppfolgingSvarKafkaProducer>(relaxed = true)
         val esyfovarselClient = mockk<EsyfovarselClient>(relaxed = true)
         val syfoopfpdfgenService = mockk<PdfgenService>(relaxed = true)
+        val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
 
         val controller = SenOppfolgingControllerV2(
             merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
@@ -57,6 +59,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
             esyfovarselClient = esyfovarselClient,
             syfoopfpdfgenService = syfoopfpdfgenService,
+            dokarkivClient = dokarkivClient,
 
         ).apply {
             this.tokenValidator = tokenValidator
