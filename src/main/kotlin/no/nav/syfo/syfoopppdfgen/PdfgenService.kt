@@ -14,8 +14,8 @@ import java.time.LocalDate
 import java.time.Period
 
 @Component
-class SyfoopfpdfgenService(
-    val syfooppfpdfgenClient: SyfooppfpdfgenClient,
+class PdfgenService(
+    val syfooppfpdfgenClient: PdfgenClient,
     val esyfovarselClient: EsyfovarselClient,
     val tokenValidationContextHolder: TokenValidationContextHolder,
 ) {

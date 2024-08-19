@@ -13,12 +13,12 @@ import org.springframework.web.client.RestTemplate
 import java.time.LocalDate
 
 @Component
-class SyfooppfpdfgenClient(
+class PdfgenClient(
     @Value("\${SYFOOPPDFGEN_URL}")
     private val pdfgenUrl: String,
     private val restTemplate: RestTemplate,
 ) {
-    private val log = LoggerFactory.getLogger(SyfooppfpdfgenClient::class.java)
+    private val log = LoggerFactory.getLogger(PdfgenClient::class.java)
 
     fun getSenOppfolgingPdf(
         kvitteringEndpoint: String,
