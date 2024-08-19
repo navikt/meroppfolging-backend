@@ -61,7 +61,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             syfoopfpdfgenService = syfoopfpdfgenService,
             dokarkivClient = dokarkivClient,
 
-            ).apply {
+        ).apply {
             this.tokenValidator = tokenValidator
         }
 
@@ -97,14 +97,14 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             it("Should return TRENGER_IKKE_OPPFOLGING when user has answered Nei") {
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
                 every { responseDao.findLatestFormResponse(any(), SEN_OPPFOLGING_V2, any()) } returns
-                        FormResponse(
-                            UUID.randomUUID(),
-                            PersonIdentNumber(ansattFnr),
-                            LocalDateTime.now().minusDays(1),
-                            SEN_OPPFOLGING_V2,
-                        ).apply {
-                            questionResponses.add(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "NEI", "Nei"))
-                        }
+                    FormResponse(
+                        UUID.randomUUID(),
+                        PersonIdentNumber(ansattFnr),
+                        LocalDateTime.now().minusDays(1),
+                        SEN_OPPFOLGING_V2,
+                    ).apply {
+                        questionResponses.add(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "NEI", "Nei"))
+                    }
 
                 val status = controller.status()
                 status.responseStatus shouldBe TRENGER_IKKE_OPPFOLGING
@@ -113,14 +113,14 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             it("Should return TRENGER_OPPFOLGING when user has answered Ja") {
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
                 every { responseDao.findLatestFormResponse(any(), SEN_OPPFOLGING_V2, any()) } returns
-                        FormResponse(
-                            UUID.randomUUID(),
-                            PersonIdentNumber(ansattFnr),
-                            LocalDateTime.now().minusDays(1),
-                            SEN_OPPFOLGING_V2,
-                        ).apply {
-                            questionResponses.add(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "JA", "Ja"))
-                        }
+                    FormResponse(
+                        UUID.randomUUID(),
+                        PersonIdentNumber(ansattFnr),
+                        LocalDateTime.now().minusDays(1),
+                        SEN_OPPFOLGING_V2,
+                    ).apply {
+                        questionResponses.add(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "JA", "Ja"))
+                    }
                 val status = controller.status()
                 status.responseStatus shouldBe TRENGER_OPPFOLGING
             }
