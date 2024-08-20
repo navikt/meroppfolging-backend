@@ -25,7 +25,7 @@ class EsyfovarselClient(
 ) {
     private val log = logger()
 
-    fun getMaxDate(token: String): String? {
+    fun getSykepengerMaxDateResponse(token: String): SykepengerMaxDateResponse? {
         val exchangedToken =
             tokenDingsClient.exchangeToken(
                 token,
@@ -35,7 +35,7 @@ class EsyfovarselClient(
 
         return try {
             val response = getResponse(httpEntity)
-            response?.maxDate
+            response
         } catch (e: RestClientResponseException) {
             handleException(e, httpEntity)
         }

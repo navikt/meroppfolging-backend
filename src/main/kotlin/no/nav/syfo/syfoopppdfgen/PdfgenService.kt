@@ -8,10 +8,7 @@ import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.fremtidigSituasjonSvar
-import no.nav.syfo.utils.parseDate
 import org.springframework.stereotype.Component
-import java.time.LocalDate
-import java.time.Period
 
 @Component
 class PdfgenService(
@@ -40,7 +37,7 @@ class PdfgenService(
         answersToQuestions: List<SenOppfolgingQuestionV2>,
     ): ByteArray? {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TokenUtil.TokenIssuer.TOKENX)
-        val maxDate = esyfovarselClient.getMaxDate(token)
+        val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
         val behovForOppfolging = answersToQuestions.behovForOppfolging()
         val fremtidigSituasjonSvar = answersToQuestions.fremtidigSituasjonSvar()
         val kvitteringEndpoint = getKvitteringEndpoint(fremtidigSituasjonSvar)
@@ -48,7 +45,7 @@ class PdfgenService(
         return syfooppfpdfgenClient.getSenOppfolgingPdf(
             kvitteringEndpoint = kvitteringEndpoint,
             behovForOppfolging = behovForOppfolging,
-            daysUntilMaxDate = Period.between(LocalDate.now(), maxDate?.let { parseDate(it) }).days.toString(),
+            daysUntilMaxDate = sykepengerMaxDateResponse?.gjenstaendeSykedager,
         )
     }
 }
