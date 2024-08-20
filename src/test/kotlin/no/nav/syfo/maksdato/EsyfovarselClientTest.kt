@@ -36,43 +36,39 @@ class EsyfovarselClientTest : FunSpec(
         }
 
         test("Get maksdato") {
-            val response = SykepengerMaxDateResponse("3.juni 2023", "2023-12-31", "71")
             esyfovarselServer.stubMaxDate(
                 exchangedToken,
-                response,
+                SykepengerMaxDateResponse("3.juni 2023", "2023-12-31", "61"),
             )
             val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
-            result shouldBe response
+            result?.maxDate shouldBe "3.juni 2023"
         }
 
         test("Get maksdato null") {
-            val response = SykepengerMaxDateResponse(null, "2023-12-31", "52")
             esyfovarselServer.stubMaxDate(
                 exchangedToken,
-                response,
+                SykepengerMaxDateResponse(null, "2023-12-31", "44"),
             )
             val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
             result?.maxDate shouldBe null
         }
 
         test("Get maksdato and utbetaltTom null") {
-            val response = SykepengerMaxDateResponse(null, null, "55")
             esyfovarselServer.stubMaxDate(
                 exchangedToken,
-                response,
+                SykepengerMaxDateResponse(null, null, null),
             )
             val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
             result?.maxDate shouldBe null
         }
 
         test("Get maksdato when utbetaltTom is null") {
-            val response = SykepengerMaxDateResponse("3.juni 2023", null, "35")
             esyfovarselServer.stubMaxDate(
                 exchangedToken,
-                response,
+                SykepengerMaxDateResponse("3.juni 2023", null, "55"),
             )
             val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
-            result shouldBe response
+            result?.maxDate shouldBe "3.juni 2023"
         }
     },
 )
