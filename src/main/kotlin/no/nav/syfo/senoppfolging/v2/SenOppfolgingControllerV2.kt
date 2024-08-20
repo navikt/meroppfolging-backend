@@ -57,6 +57,7 @@ class SenOppfolgingControllerV2(
     val dokarkivClient: DokarkivClient,
     @Value("\${toggle.pilot}") private var pilotEnabledForEnvironment: Boolean,
     val syfoopfpdfgenService: PdfgenService,
+    @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
@@ -74,6 +75,7 @@ class SenOppfolgingControllerV2(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
+        val isProd = "prod-gcp" == clusterName
         log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
 
         if (!pilotEnabledForEnvironment || hasRespondedToV1Form(personIdent)) {
@@ -95,7 +97,7 @@ class SenOppfolgingControllerV2(
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
 
         return SenOppfolgingStatusDTOV2(
-            isPilot = behandlendeEnhet.isPilot(),
+            isPilot = behandlendeEnhet.isPilot(isProd = isProd),
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),

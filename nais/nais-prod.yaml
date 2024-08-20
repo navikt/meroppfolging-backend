@@ -111,7 +111,7 @@ spec:
     - name: SEND_TO_VEILARBREGISTRERING_TOGGLE
       value: "true"
     - name: TOGGLE_PILOT
-      value: "false"
+      value: "true"
     - name: SYFOOPPDFGEN_URL
       value: http://syfooppdfgen
     - name: DOKARKIV_URL

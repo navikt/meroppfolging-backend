@@ -1,10 +1,10 @@
 package no.nav.syfo.syfoopppdfgen
 
-data class PdfgenSenOppfolgingRequest(
-    val senOppfolgingData: SenOppfolgingData,
+data class PdfgenRequest(
+    val brevdata: Brevdata,
 )
 
-class SenOppfolgingData(
+class Brevdata(
     val daysUntilMaxDate: String?,
     val behovForOppfolging: Boolean,
     val sentDate: String,

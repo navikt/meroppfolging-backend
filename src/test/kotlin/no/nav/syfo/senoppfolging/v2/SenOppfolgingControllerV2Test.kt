@@ -60,6 +60,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             esyfovarselClient = esyfovarselClient,
             syfoopfpdfgenService = syfoopfpdfgenService,
             dokarkivClient = dokarkivClient,
+            clusterName = "local",
 
         ).apply {
             this.tokenValidator = tokenValidator
