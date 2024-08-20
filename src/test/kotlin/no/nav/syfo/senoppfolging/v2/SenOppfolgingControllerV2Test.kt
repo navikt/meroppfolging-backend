@@ -1,11 +1,11 @@
 package no.nav.syfo.senoppfolging.v2
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import junit.framework.TestCase
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
@@ -16,6 +16,7 @@ import no.nav.syfo.besvarelse.database.domain.FormResponse
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
+import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
@@ -28,6 +29,7 @@ import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
+import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.varsel.VarselService
 import java.time.LocalDateTime
 import java.util.*
@@ -42,6 +44,8 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
         val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
         val senOppfolgingSvarKafkaProducer = mockk<SenOppfolgingSvarKafkaProducer>(relaxed = true)
         val esyfovarselClient = mockk<EsyfovarselClient>(relaxed = true)
+        val syfoopfpdfgenService = mockk<PdfgenService>(relaxed = true)
+        val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
 
         val controller = SenOppfolgingControllerV2(
             merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
@@ -54,6 +58,8 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             pilotEnabledForEnvironment = true,
             senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
             esyfovarselClient = esyfovarselClient,
+            syfoopfpdfgenService = syfoopfpdfgenService,
+            dokarkivClient = dokarkivClient,
 
         ).apply {
             this.tokenValidator = tokenValidator
@@ -101,7 +107,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                     }
 
                 val status = controller.status()
-                TestCase.assertEquals(TRENGER_IKKE_OPPFOLGING, status.responseStatus)
+                status.responseStatus shouldBe TRENGER_IKKE_OPPFOLGING
             }
 
             it("Should return TRENGER_OPPFOLGING when user has answered Ja") {
@@ -116,14 +122,14 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                         questionResponses.add(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "JA", "Ja"))
                     }
                 val status = controller.status()
-                TestCase.assertEquals(TRENGER_OPPFOLGING, status.responseStatus)
+                status.responseStatus shouldBe TRENGER_OPPFOLGING
             }
 
             it("Should return NO_RESPONSE when user hasn't answered") {
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
                 every { responseDao.find(any(), SEN_OPPFOLGING_V2, any()) } returns emptyList()
                 val status = controller.status()
-                TestCase.assertEquals(NO_RESPONSE, status.responseStatus)
+                status.responseStatus shouldBe NO_RESPONSE
             }
 
             it("Should return isPilot=false when user responded to v1 form") {
@@ -136,8 +142,8 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                     "Testkontor",
                 )
                 val status = controller.status()
-                TestCase.assertEquals(NO_RESPONSE, status.responseStatus)
-                TestCase.assertEquals(false, status.isPilot)
+                status.responseStatus shouldBe NO_RESPONSE
+                status.isPilot shouldBe false
             }
 
             it("Should return isPilot=true when user belongs to pilot") {
@@ -147,8 +153,30 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                     "Testkontor",
                 )
                 val status = controller.status()
-                TestCase.assertEquals(NO_RESPONSE, status.responseStatus)
-                TestCase.assertEquals(true, status.isPilot)
+                status.responseStatus shouldBe NO_RESPONSE
+                status.isPilot shouldBe true
+            }
+
+            it("Should journalfore submitted answers for pilot") {
+                every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
+                every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns BehandlendeEnhet(
+                    "0314",
+                    "Testkontor",
+                )
+                every { syfoopfpdfgenService.getPdf(any()) } returns ByteArray(1)
+                val responses = listOf(
+                    SenOppfolgingQuestionV2(BEHOV_FOR_OPPFOLGING, "Hei", "JA", "Ja"),
+                )
+                controller.submitForm(
+                    SenOppfolgingDTOV2(
+                        responses,
+                    ),
+                )
+                verify(exactly = 1) {
+                    responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any())
+                }
+
+                verify(exactly = 1) { dokarkivClient.postDocumentToDokarkiv(ansattFnr, any(), any()) }
             }
         }
     },

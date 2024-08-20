@@ -71,6 +71,7 @@ spec:
     outbound:
       rules:
         - application: esyfovarsel
+        - application: syfooppdfgen
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
         - application: istilgangskontroll
@@ -80,6 +81,8 @@ spec:
         - application: veilarbregistrering
           namespace: paw
         - application: sykepengedager-informasjon
+      external:
+        - host: dokarkiv.prod-fss-pub.nais.io
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
       value: "prod-gcp:team-esyfo:meroppfolging-frontend"
@@ -109,3 +112,9 @@ spec:
       value: "true"
     - name: TOGGLE_PILOT
       value: "false"
+    - name: SYFOOPPDFGEN_URL
+      value: http://syfooppdfgen
+    - name: DOKARKIV_URL
+      value: https://dokarkiv.prod-fss-pub.nais.io
+    - name: DOKARKIV_SCOPE
+      value: prod-fss.teamdokumenthandtering.dokarkiv
