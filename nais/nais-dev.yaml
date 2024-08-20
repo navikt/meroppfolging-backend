@@ -26,6 +26,7 @@ spec:
   gcp:
     sqlInstances:
       - type: POSTGRES_15
+        tier: db-f1-micro
         databases:
           - name: meroppfolging-backend-db
             envVarPrefix: DB
