@@ -83,6 +83,7 @@ class SenOppfolgingControllerV2(
                 response = null,
                 responseTime = null,
                 maxDate = null,
+                gjenstaendeSykedager = null,
             )
         }
 
@@ -91,14 +92,15 @@ class SenOppfolgingControllerV2(
             FormType.SEN_OPPFOLGING_V2,
             cutoffDate,
         )
-        val maxDate = esyfovarselClient.getMaxDate(token)
+        val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
 
         return SenOppfolgingStatusDTOV2(
             isPilot = behandlendeEnhet.isPilot(),
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            maxDate = maxDate,
+            maxDate = sykepengerMaxDateResponse?.maxDate,
+            gjenstaendeSykedager = sykepengerMaxDateResponse?.gjenstaendeSykedager,
         )
     }
 

@@ -38,37 +38,37 @@ class EsyfovarselClientTest : FunSpec(
         test("Get maksdato") {
             esyfovarselServer.stubMaxDate(
                 exchangedToken,
-                SykepengerMaxDateResponse("3.juni 2023", "2023-12-31"),
+                SykepengerMaxDateResponse("3.juni 2023", "2023-12-31", "61"),
             )
-            val result = esyfovarselClient.getMaxDate(userToken)
-            result shouldBe "3.juni 2023"
+            val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
+            result?.maxDate shouldBe "3.juni 2023"
         }
 
         test("Get maksdato null") {
             esyfovarselServer.stubMaxDate(
                 exchangedToken,
-                SykepengerMaxDateResponse(null, "2023-12-31"),
+                SykepengerMaxDateResponse(null, "2023-12-31", "44"),
             )
-            val result = esyfovarselClient.getMaxDate(userToken)
-            result shouldBe null
+            val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
+            result?.maxDate shouldBe null
         }
 
         test("Get maksdato and utbetaltTom null") {
             esyfovarselServer.stubMaxDate(
                 exchangedToken,
-                SykepengerMaxDateResponse(null, null),
+                SykepengerMaxDateResponse(null, null, null),
             )
-            val result = esyfovarselClient.getMaxDate(userToken)
-            result shouldBe null
+            val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
+            result?.maxDate shouldBe null
         }
 
         test("Get maksdato when utbetaltTom is null") {
             esyfovarselServer.stubMaxDate(
                 exchangedToken,
-                SykepengerMaxDateResponse("3.juni 2023", null),
+                SykepengerMaxDateResponse("3.juni 2023", null, "55"),
             )
-            val result = esyfovarselClient.getMaxDate(userToken)
-            result shouldBe "3.juni 2023"
+            val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
+            result?.maxDate shouldBe "3.juni 2023"
         }
     },
 )
