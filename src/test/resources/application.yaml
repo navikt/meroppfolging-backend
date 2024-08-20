@@ -10,6 +10,7 @@ no.nav.security.jwt:
 MEROPPFOLGING_FRONTEND_CLIENT_ID: 'meroppfolging-frontend-client-id'
 ESYFO_PROXY_CLIENT_ID: 'esyfo-proxy-client-id'
 SYFOOPPDFGEN_URL: 'http://syfooppdfgenurl'
+NAIS_CLUSTER_NAME: 'local'
 
 token.x.client.id: "tokenx-client-id"
 token.x.private.jwk: "tokenx-jwk"
