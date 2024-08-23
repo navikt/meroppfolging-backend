@@ -1,5 +1,10 @@
 # Getting Started
 
+### Local development
+Integration tests use Testcontainers to start a PostgreSQL container. 
+To run the tests, you need to have Docker installed on your machine.
+Recommended docker application: https://rancherdesktop.io/
+
 ### Reference Documentation
 
 For further reference, please consider the following sections:
