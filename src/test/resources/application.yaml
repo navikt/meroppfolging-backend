@@ -55,3 +55,12 @@ azure:
     config:
       token:
         endpoint: "https://token-endpoint"
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/testdb
+    username: test
+    password: test
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
