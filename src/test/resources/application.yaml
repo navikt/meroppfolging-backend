@@ -36,10 +36,10 @@ veilarbregistrering.url: "http://veilarbregistrering"
 veilarbregistrering.id: "local:paw:veilarbregistrering"
 send.to.veilarbregistrering.toggle: "true"
 
-kafka.brokers: localhost://9092
-kafka.truststore.path: /truststore
-kafka.keystore.path: /keystore
-kafka.credstore.password: /credstore/password
+kafka.brokers: localhost:9092
+kafka.truststore.path: ""
+kafka.keystore.path: ""
+kafka.credstore.password: ""
 kafka.schema.registry.user: "kafka.schema.registry.user"
 kafka.schema.registry.password: "kafka.schema.registry.password"
 kafka.schema.registry: "kafka.schema.registry"

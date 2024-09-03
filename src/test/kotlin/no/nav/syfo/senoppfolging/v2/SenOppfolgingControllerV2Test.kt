@@ -84,7 +84,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                     ),
                 )
                 verify(exactly = 1) {
-                    responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any())
+                    responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any(), any())
                 }
                 verify(exactly = 1) {
                     senOppfolgingSvarKafkaProducer.publishResponse(
@@ -174,7 +174,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                     ),
                 )
                 verify(exactly = 1) {
-                    responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any())
+                    responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any(), any())
                 }
 
                 verify(exactly = 1) { dokarkivClient.postDocumentToDokarkiv(ansattFnr, any(), any()) }

@@ -9,5 +9,6 @@ data class FormResponse(
     val personIdent: PersonIdentNumber,
     val createdAt: LocalDateTime,
     val formType: FormType,
+    val utsendtVarselUUID: UUID? = null,
     val questionResponses: MutableList<QuestionResponse> = mutableListOf(),
 )

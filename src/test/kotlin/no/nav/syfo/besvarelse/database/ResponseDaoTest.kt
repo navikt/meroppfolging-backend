@@ -16,6 +16,7 @@ import java.time.LocalDateTime
 
 @SpringBootTest(classes = [LocalApplication::class])
 class ResponseDaoTest : IntegrationTest() {
+
     @Autowired
     private lateinit var responseDao: ResponseDao
 
@@ -141,7 +142,6 @@ class ResponseDaoTest : IntegrationTest() {
                 FormType.SEN_OPPFOLGING_V2,
                 LocalDate.now().minusDays(2),
             )
-
             checkNotNull(formResponse)
             checkNotNull(formResponse.questionResponses)
 

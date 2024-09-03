@@ -30,6 +30,7 @@ import no.nav.syfo.senoppfolging.v1.domain.UtdanningSvar
 import no.nav.syfo.varsel.ArbeidstakerHendelse
 import no.nav.syfo.varsel.EsyfovarselProducer
 import no.nav.syfo.varsel.HendelseType
+import no.nav.syfo.varsel.VarselDAO
 import no.nav.syfo.varsel.VarselService
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
 import org.springframework.mock.web.MockHttpServletRequest
@@ -43,7 +44,8 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
         val esyfovarselProducer = mockk<EsyfovarselProducer>(relaxed = true)
         val tokenValidator = mockk<TokenValidator>(relaxed = true)
         val metric = mockk<Metric>(relaxed = true)
-        val varselService = VarselService(esyfovarselProducer)
+        val varselDAO = mockk<VarselDAO>(relaxed = true)
+        val varselService = VarselService(esyfovarselProducer, varselDAO)
         val responseDao = mockk<ResponseDao>(relaxed = true)
 
         val controller =

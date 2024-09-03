@@ -5,6 +5,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
@@ -70,6 +71,7 @@ class KafkaConfig(
 
     fun commonKafkaAivenConsumerConfig(): HashMap<String, Any> {
         return HashMap<String, Any>().apply {
+            putAll(commonKafkaAivenConfig())
             put(
                 ConsumerConfig.GROUP_ID_CONFIG,
                 "meroppfolging-backend-01",
@@ -89,6 +91,14 @@ class KafkaConfig(
             put(
                 ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG,
                 "" + (10 * 1024 * 1024),
+            )
+            put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer::class.java,
+            )
+            put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer::class.java,
             )
         }
     }
