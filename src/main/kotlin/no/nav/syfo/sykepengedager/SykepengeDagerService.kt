@@ -17,6 +17,9 @@ class SykepengeDagerService(
             sykepengeDagerDTO.maksDato.isAfter(LocalDate.now().plusDays(maxDateLimit))
         val hasAlreadySentVarsel: Boolean = varselService.getUtsendtVarsel(sykepengeDagerDTO.fnr) != null
 
+        // sjekk isBrukerYngreEnn67Ar
+        // sjekk isPersonSykmeldtPaDato - hva gjør vi her, resend-jobb?
+
         if (hasLimitedRemainingSykedager && maxDateIsEqualToOrMoreThanTwoWeeksAway && !hasAlreadySentVarsel) {
             varselService.sendMerOppfolgingVarsel(sykepengeDagerDTO.fnr)
             varselService.storeUtsendtVarsel(

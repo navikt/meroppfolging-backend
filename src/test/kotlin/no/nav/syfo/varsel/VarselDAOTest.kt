@@ -18,19 +18,17 @@ class VarselDAOTest : IntegrationTest() {
     init {
         extension(SpringExtension)
 
-        describe("storeUtsendtVarsel") {
-            it("should store UtsendtVarsel") {
-                val fnr = "12345678901"
-                val sykepengeDagerId = "123"
+        it("should store UtsendtVarsel") {
+            val fnr = "12345678901"
+            val sykepengeDagerId = "123"
 
-                varselDAO.storeUtsendtVarsel(fnr, sykepengeDagerId)
-                val storedVarsel = varselDAO.getUtsendtVarsel(fnr)
+            varselDAO.storeUtsendtVarsel(fnr, sykepengeDagerId)
+            val storedVarsel = varselDAO.getUtsendtVarsel(fnr)
 
-                storedVarsel shouldNotBe null
-                storedVarsel!!.fnr shouldBe fnr
-                storedVarsel.utsendtTidspunkt.toLocalDate() shouldBe LocalDate.now()
-                storedVarsel.sykepengedagerId shouldBe sykepengeDagerId
-            }
+            storedVarsel shouldNotBe null
+            storedVarsel!!.fnr shouldBe fnr
+            storedVarsel.utsendtTidspunkt.toLocalDate() shouldBe LocalDate.now()
+            storedVarsel.sykepengedagerId shouldBe sykepengeDagerId
         }
     }
 }
