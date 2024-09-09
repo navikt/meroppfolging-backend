@@ -25,6 +25,7 @@ class SykepengedagerConsumer(private val sykepengeDagerService: SykepengeDagerSe
         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 
+    // TODO: Topic does not exist yet
     //    @KafkaListener(topics = [SPDI_TOPIC], containerFactory = "sykepengeDagerKafkaListenerContainerFactory")
     fun listenToTopic(
         record: ConsumerRecord<String, String>,
