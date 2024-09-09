@@ -27,7 +27,7 @@ val kotestTestContainersExtensionVersion = "2.0.2"
 val mockkVersion = "1.13.12"
 val wiremockVersion = "3.9.1"
 val wiremockKotestExtensionVersion = "3.1.0"
-val detektVersion = "1.23.6"
+val detektVersion = "1.23.7"
 val testcontainersVersion = "1.20.1"
 
 dependencies {
