@@ -83,6 +83,7 @@ spec:
         - application: sykepengedager-informasjon
       external:
         - host: dokarkiv.dev-fss-pub.nais.io
+        - host: pdl-api.dev-fss-pub.nais.io
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
       value: "dev-gcp:team-esyfo:meroppfolging-frontend"
@@ -118,3 +119,7 @@ spec:
       value: https://dokarkiv-q2.dev-fss-pub.nais.io
     - name: DOKARKIV_SCOPE
       value: dev-fss.teamdokumenthandtering.dokarkiv
+    - name: PDL_URL
+      value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    - name: PDL_SCOPE
+      value: dev-fss.pdl.pdl-api

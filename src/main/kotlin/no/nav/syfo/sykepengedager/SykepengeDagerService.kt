@@ -1,32 +1,35 @@
 package no.nav.syfo.sykepengedager
 
-import no.nav.syfo.varsel.VarselService
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 
 @Service
 class SykepengeDagerService(
-    private val varselService: VarselService,
+    private val sykepengeDagerDAO: SykepengeDagerDAO,
 ) {
-    val gjenstaendeSykedagerLimit = 91
-    val maxDateLimit = 13L
+
+
+    // Flytt til jobb-kode
+//    fun shouldSendVarsel(sykepengeDagerDTO: SykepengeDagerDTO): Boolean {
+//        val hasLimitedRemainingSykedager: Boolean = sykepengeDagerDTO.gjenstaendeSykedager < gjenstaendeSykedagerLimit
+//        val maxDateIsEqualToOrMoreThanTwoWeeksAway: Boolean =
+//            sykepengeDagerDTO.maksDato.isAfter(LocalDate.now().plusDays(maxDateLimit))
+//        val hasAlreadySentVarsel: Boolean = varselService.getUtsendtVarsel(sykepengeDagerDTO.fnr) != null
+//        val isBrukerYngreEnn67Ar: Boolean = pdlClient.isBrukerYngreEnnGittMaxAlder(sykepengeDagerDTO.fnr, 67)
+//        val hasActiveSykmelding = true // implement this
+//
+//        return hasLimitedRemainingSykedager &&
+//            maxDateIsEqualToOrMoreThanTwoWeeksAway &&
+//            !hasAlreadySentVarsel &&
+//            isBrukerYngreEnn67Ar
+//    }
 
     fun processSykepengeDagerRecord(sykepengeDagerDTO: SykepengeDagerDTO) {
-        val hasLimitedRemainingSykedager: Boolean = sykepengeDagerDTO.gjenstaendeSykedager < gjenstaendeSykedagerLimit
-        val maxDateIsEqualToOrMoreThanTwoWeeksAway: Boolean =
-            sykepengeDagerDTO.maksDato.isAfter(LocalDate.now().plusDays(maxDateLimit))
-        val hasAlreadySentVarsel: Boolean = varselService.getUtsendtVarsel(sykepengeDagerDTO.fnr) != null
-
-        // sjekk isBrukerYngreEnn67Ar
-        // sjekk isPersonSykmeldtPaDato - hva gjør vi her, resend-jobb?
-
-        if (hasLimitedRemainingSykedager && maxDateIsEqualToOrMoreThanTwoWeeksAway && !hasAlreadySentVarsel) {
-            varselService.sendMerOppfolgingVarsel(sykepengeDagerDTO.fnr)
-            varselService.storeUtsendtVarsel(
-                fnr = sykepengeDagerDTO.fnr,
-                sykepengeDagerId = sykepengeDagerDTO.id,
-            )
-            // Publiser til isyfo-kafka
-        }
+        sykepengeDagerDAO.storeSykepengeDager(
+            fnr = sykepengeDagerDTO.fnr,
+            maksDato = sykepengeDagerDTO.maksDato,
+            utbetaltTom = sykepengeDagerDTO.utbetaltTom,
+            gjenstaendeSykedager = sykepengeDagerDTO.gjenstaendeSykedager,
+            sykepengedagerId = sykepengeDagerDTO.id,
+        )
     }
 }

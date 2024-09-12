@@ -44,15 +44,15 @@ class VarselDAO(
 
         namedParameterJdbcTemplate.update(sql, parameters)
     }
+}
 
-    internal class UtsendtVarselRowMapper : RowMapper<UtsendtVarsel> {
-        override fun mapRow(rs: ResultSet, rowNum: Int): UtsendtVarsel {
-            return UtsendtVarsel(
-                uuid = UUID.fromString(rs.getString("uuid")),
-                fnr = rs.getString("fnr"),
-                utsendtTidspunkt = rs.getTimestamp("utsendt_tidspunkt").toLocalDateTime(),
-                sykepengedagerId = rs.getString("sykepengedager_id"),
-            )
-        }
+internal class UtsendtVarselRowMapper : RowMapper<UtsendtVarsel> {
+    override fun mapRow(rs: ResultSet, rowNum: Int): UtsendtVarsel {
+        return UtsendtVarsel(
+            uuid = UUID.fromString(rs.getString("uuid")),
+            fnr = rs.getString("fnr"),
+            utsendtTidspunkt = rs.getTimestamp("utsendt_tidspunkt").toLocalDateTime(),
+            sykepengedagerId = rs.getString("sykepengedager_id"),
+        )
     }
 }
