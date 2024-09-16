@@ -1,8 +1,8 @@
 package no.nav.syfo.besvarelse.database
 
+import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldContain
-import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
@@ -11,16 +11,29 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.kafka.test.context.EmbeddedKafka
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+@EmbeddedKafka
+@TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
-class ResponseDaoTest : IntegrationTest() {
+class ResponseDaoTest : DescribeSpec() {
     @Autowired
     private lateinit var responseDao: ResponseDao
 
+    @Autowired
+    lateinit var jdbcTemplate: JdbcTemplate
+
     init {
         extension(SpringExtension)
+
+        beforeTest {
+            jdbcTemplate.execute("TRUNCATE TABLE FORM_RESPONSE CASCADE")
+            jdbcTemplate.execute("TRUNCATE TABLE QUESTION_RESPONSE CASCADE")
+        }
 
         it("Create besvarelse") {
             val personIdent = PersonIdentNumber("12345678910")
