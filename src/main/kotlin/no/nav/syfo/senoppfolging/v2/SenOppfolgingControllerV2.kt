@@ -11,6 +11,7 @@ import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.isPilot
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormType
+import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.maksdato.EsyfovarselClient
@@ -23,6 +24,7 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
+import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.varsel.VarselService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -52,7 +54,10 @@ class SenOppfolgingControllerV2(
     val behandlendeEnhetClient: BehandlendeEnhetClient,
     val senOppfolgingSvarKafkaProducer: SenOppfolgingSvarKafkaProducer,
     val esyfovarselClient: EsyfovarselClient,
+    val dokarkivClient: DokarkivClient,
     @Value("\${toggle.pilot}") private var pilotEnabledForEnvironment: Boolean,
+    val syfoopfpdfgenService: PdfgenService,
+    @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
@@ -70,6 +75,7 @@ class SenOppfolgingControllerV2(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
+        val isProd = "prod-gcp" == clusterName
         log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
 
         if (!pilotEnabledForEnvironment || hasRespondedToV1Form(personIdent)) {
@@ -79,6 +85,7 @@ class SenOppfolgingControllerV2(
                 response = null,
                 responseTime = null,
                 maxDate = null,
+                gjenstaendeSykedager = null,
             )
         }
 
@@ -87,14 +94,15 @@ class SenOppfolgingControllerV2(
             FormType.SEN_OPPFOLGING_V2,
             cutoffDate,
         )
-        val maxDate = esyfovarselClient.getMaxDate(token)
+        val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
 
         return SenOppfolgingStatusDTOV2(
-            isPilot = behandlendeEnhet.isPilot(),
+            isPilot = behandlendeEnhet.isPilot(isProd = isProd),
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            maxDate = maxDate,
+            maxDate = sykepengerMaxDateResponse?.maxDate,
+            gjenstaendeSykedager = sykepengerMaxDateResponse?.gjenstaendeSykedager,
         )
     }
 
@@ -127,6 +135,14 @@ class SenOppfolgingControllerV2(
             formType = FormType.SEN_OPPFOLGING_V2,
             createdAt = createdAt,
         )
+
+        val pdf = syfoopfpdfgenService.getPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
+        if (pdf == null) {
+            log.error("Failed to generate PDF")
+        } else {
+            log.info("Generated PDF")
+            dokarkivClient.postDocumentToDokarkiv(fnr = personident, pdf = pdf, uuid = id.toString())
+        }
 
         senOppfolgingSvarKafkaProducer
             .publishResponse(

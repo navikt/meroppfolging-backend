@@ -1,0 +1,30 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  annotations:
+    dcat.data.nav.no/title: "Varsel om mer oppfølging"
+    dcat.data.nav.no/description: >-
+      Topic inneholder forespørsel om utsending av varsel for sen oppfølging fra Nav til sykmeldte.
+  name: sen-oppfolging-varsel
+  namespace: team-esyfo
+  labels:
+    team: team-esyfo
+spec:
+  pool: nav-dev
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 1
+    partitions: 1
+    replication: 3
+    retentionBytes: -1  # Messages will never be deleted because of disk space
+    retentionHours: -1  # Messages will never be timed out
+  acl:
+    - team: team-esyfo
+      application: meroppfolging-backend
+      access: write
+    - team: teamsykefravr
+      application: isyfomock
+      access: write
+    - team: teamsykefravr
+      application: ismeroppfolging
+      access: read

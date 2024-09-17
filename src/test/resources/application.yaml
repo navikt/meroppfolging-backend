@@ -9,6 +9,8 @@ no.nav.security.jwt:
 
 MEROPPFOLGING_FRONTEND_CLIENT_ID: 'meroppfolging-frontend-client-id'
 ESYFO_PROXY_CLIENT_ID: 'esyfo-proxy-client-id'
+SYFOOPPDFGEN_URL: 'http://syfooppdfgenurl'
+NAIS_CLUSTER_NAME: 'local'
 
 token.x.client.id: "tokenx-client-id"
 token.x.private.jwk: "tokenx-jwk"
@@ -19,6 +21,10 @@ isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
 
 esyfovarsel.url: "http://esyfovarsel"
 esyfovarsel.id: "local:team-esyfo:esyfovarsel"
+
+dokarkiv.url: "http://dokarkiv"
+dokarkiv.scope: "local:teamdokumenthandtering:dokarkiv"
+
 
 syfobehandlendeenhet.url: "http://syfobehandlendeenhet"
 syfobehandlendeenhet.id: "local:teamsykefravr:syfobehandlendeenhet"
@@ -49,3 +55,12 @@ azure:
     config:
       token:
         endpoint: "https://token-endpoint"
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/testdb
+    username: test
+    password: test
+  flyway:
+    enabled: true
+    locations: classpath:db/migration

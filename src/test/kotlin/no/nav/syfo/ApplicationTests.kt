@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(classes = [LocalApplication::class])
-class ApplicationTests {
+class ApplicationTests : IntegrationTest() {
     @Suppress("EmptyFunctionBlock")
     @Test
     fun contextLoads() {

@@ -1,8 +1,8 @@
 package no.nav.syfo.besvarelse.database
 
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldContain
+import no.nav.syfo.IntegrationTest
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
@@ -15,89 +15,89 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @SpringBootTest(classes = [LocalApplication::class])
-class ResponseDaoTest : FunSpec() {
+class ResponseDaoTest : IntegrationTest() {
     @Autowired
     private lateinit var responseDao: ResponseDao
 
     init {
         extension(SpringExtension)
 
-        test("Create besvarelse") {
+        it("Create besvarelse") {
             val personIdent = PersonIdentNumber("12345678910")
             responseDao.saveFormResponse(
                 personIdent,
                 listOf(QuestionResponse("UTDANNING", "test", "SVAR_ID", "test")),
                 FormType.SEN_OPPFOLGING_V1,
-                LocalDateTime.now()
+                LocalDateTime.now(),
             )
 
             val questionResponses = responseDao.find(
                 personIdent,
                 FormType.SEN_OPPFOLGING_V1,
-                LocalDate.now().minusDays(1)
+                LocalDate.now().minusDays(1),
             )
             assert(questionResponses.size == 1)
         }
 
-        test("Find empty") {
+        it("Find empty") {
             val personIdent = PersonIdentNumber("12345678911")
 
             val questionResponses = responseDao.find(
                 personIdent,
                 FormType.SEN_OPPFOLGING_V1,
-                LocalDate.now().minusDays(1)
+                LocalDate.now().minusDays(1),
             )
             assert(questionResponses.isEmpty())
         }
 
-        test("Find empty response") {
+        it("Find empty response") {
             val personIdent = PersonIdentNumber("12345678911")
 
             val formResponse = responseDao.findLatestFormResponse(
                 personIdent,
                 FormType.SEN_OPPFOLGING_V1,
-                LocalDate.now().minusDays(1)
+                LocalDate.now().minusDays(1),
             )
             assertNull(formResponse)
         }
 
-        test("Find latest response created before from date") {
+        it("Find latest response created before from date") {
             val personIdent = PersonIdentNumber("12345678911")
             val firstQuestionResponse = QuestionResponse(
                 "FREMTIDIG_SITUASJON",
                 "Hvordan ser du for deg din situasjon når sykepengene er slutt?",
                 "TILBAKE_HOS_ARBEIDSGIVER",
-                "Jeg skal tilbake til min arbeidsgiver"
+                "Jeg skal tilbake til min arbeidsgiver",
             )
             responseDao.saveFormResponse(
                 personIdent = personIdent,
                 questionResponses = listOf(firstQuestionResponse),
                 formType = FormType.SEN_OPPFOLGING_V2,
-                createdAt = LocalDateTime.now().minusDays(2)
+                createdAt = LocalDateTime.now().minusDays(2),
             )
 
             val formResponse = responseDao.findLatestFormResponse(
                 personIdent = personIdent,
                 formType = FormType.SEN_OPPFOLGING_V2,
-                from = LocalDate.now().minusDays(1)
+                from = LocalDate.now().minusDays(1),
             )
 
             assertNull(formResponse)
         }
 
-        test("Find latest response (no from date)") {
+        it("Find latest response (no from date)") {
             val personIdent = PersonIdentNumber("12345678911")
             val firstQuestionResponse = QuestionResponse(
                 "FREMTIDIG_SITUASJON",
                 "Hvordan ser du for deg din situasjon når sykepengene er slutt?",
                 "TILBAKE_HOS_ARBEIDSGIVER",
-                "Jeg skal tilbake til min arbeidsgiver"
+                "Jeg skal tilbake til min arbeidsgiver",
             )
             responseDao.saveFormResponse(
                 personIdent = personIdent,
                 questionResponses = listOf(firstQuestionResponse),
                 formType = FormType.SEN_OPPFOLGING_V2,
-                createdAt = LocalDateTime.now().minusDays(2)
+                createdAt = LocalDateTime.now().minusDays(2),
             )
 
             val formResponse = responseDao.findLatestFormResponse(
@@ -107,39 +107,39 @@ class ResponseDaoTest : FunSpec() {
             checkNotNull(formResponse)
         }
 
-        test("Find latest response") {
+        it("Find latest response") {
             val personIdent = PersonIdentNumber("12345678911")
             val firstQuestionResponse = QuestionResponse(
                 "FREMTIDIG_SITUASJON",
                 "Hvordan ser du for deg din situasjon når sykepengene er slutt?",
                 "TILBAKE_HOS_ARBEIDSGIVER",
-                "Jeg skal tilbake til min arbeidsgiver"
+                "Jeg skal tilbake til min arbeidsgiver",
             )
             val latestQuestionResponse = QuestionResponse(
                 "BEHOV_FOR_OPPFOLGING",
                 "Trenger du hjelp fra NAV?",
                 "JA",
-                "Ja"
+                "Ja",
             )
 
             responseDao.saveFormResponse(
                 personIdent,
                 listOf(firstQuestionResponse),
                 FormType.SEN_OPPFOLGING_V2,
-                LocalDateTime.now().minusDays(1)
+                LocalDateTime.now().minusDays(1),
             )
 
             responseDao.saveFormResponse(
                 personIdent,
                 listOf(latestQuestionResponse),
                 FormType.SEN_OPPFOLGING_V2,
-                LocalDateTime.now()
+                LocalDateTime.now(),
             )
 
             val formResponse = responseDao.findLatestFormResponse(
                 personIdent,
                 FormType.SEN_OPPFOLGING_V2,
-                LocalDate.now().minusDays(2)
+                LocalDate.now().minusDays(2),
             )
 
             checkNotNull(formResponse)
@@ -153,32 +153,32 @@ class ResponseDaoTest : FunSpec() {
             assertEquals(latestQuestionResponse.answerText, question.answerText)
         }
 
-        test("Find latest response with multiple questions") {
+        it("Find latest response with multiple questions") {
             val personIdent = PersonIdentNumber("12345678911")
             val firstQuestionResponse = QuestionResponse(
                 "FREMTIDIG_SITUASJON",
                 "Hvordan ser du for deg din situasjon når sykepengene er slutt?",
                 "TILBAKE_HOS_ARBEIDSGIVER",
-                "Jeg skal tilbake til min arbeidsgiver"
+                "Jeg skal tilbake til min arbeidsgiver",
             )
             val secondQuestionResponse = QuestionResponse(
                 "BEHOV_FOR_OPPFOLGING",
                 "Trenger du hjelp fra NAV?",
                 "JA",
-                "Ja"
+                "Ja",
             )
 
             responseDao.saveFormResponse(
                 personIdent,
                 listOf(firstQuestionResponse, secondQuestionResponse),
                 FormType.SEN_OPPFOLGING_V2,
-                LocalDateTime.now()
+                LocalDateTime.now(),
             )
 
             val formResponse = responseDao.findLatestFormResponse(
                 personIdent,
                 FormType.SEN_OPPFOLGING_V2,
-                LocalDate.now().minusDays(1)
+                LocalDate.now().minusDays(1),
             )
 
             checkNotNull(formResponse)
