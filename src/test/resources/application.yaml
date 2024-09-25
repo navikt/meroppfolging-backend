@@ -36,7 +36,7 @@ veilarbregistrering.url: "http://veilarbregistrering"
 veilarbregistrering.id: "local:paw:veilarbregistrering"
 send.to.veilarbregistrering.toggle: "true"
 
-kafka.brokers: localhost://9092
+kafka.brokers: ${spring.embedded.kafka.brokers}
 kafka.truststore.path: /truststore
 kafka.keystore.path: /keystore
 kafka.credstore.password: /credstore/password
@@ -57,6 +57,8 @@ azure:
         endpoint: "https://token-endpoint"
 
 spring:
+  profiles:
+    active: test
   datasource:
     url: jdbc:postgresql://localhost:5432/testdb
     username: test
@@ -64,3 +66,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      group-id: test
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
