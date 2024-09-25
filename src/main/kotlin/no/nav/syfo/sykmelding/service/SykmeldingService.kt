@@ -1,42 +1,37 @@
 package no.nav.syfo.sykmelding.service
 
 import no.nav.syfo.sykmelding.database.SykmeldingDao
+import no.nav.syfo.sykmelding.domain.PSykmelding
 import no.nav.syfo.sykmelding.domain.Periode
-import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class SykmeldingService(private val sykmeldingDao: SykmeldingDao) {
-    fun persistSykmeldingsperioder(
+    fun persistSykmelding(
         sykmeldingId: String,
         employeeIdentificationNumber: String,
         sykmeldingsperioder: List<Periode>,
-        harArbeidsgiver: Boolean,
     ) {
-        val activeSykmeldingsPerioder = sykmeldingsperioder.filter {
-            !it.tom.isBefore(
-                LocalDate.now(),
-            )
+        if (sykmeldingsperioder.maxOf { it.tom } < LocalDate.now()) {
+            return
         }
-        activeSykmeldingsPerioder.forEach { sykmeldingsperiode ->
-            sykmeldingDao.persistSykmeldingsperiode(
-                sykmeldingId = sykmeldingId,
-                employeeIdentificationNumber = employeeIdentificationNumber,
-                fom = sykmeldingsperiode.fom,
-                tom = sykmeldingsperiode.tom,
-                harArbeidsgiver = harArbeidsgiver,
-            )
-        }
+
+        sykmeldingDao.persistSykmelding(
+            sykmeldingId = sykmeldingId,
+            employeeIdentificationNumber = employeeIdentificationNumber,
+            fom = sykmeldingsperioder.minOf { it.fom },
+            tom = sykmeldingsperioder.maxOf { it.tom },
+        )
     }
 
-    fun deleteSykmeldingsperioder(sykmeldingId: String) {
-        sykmeldingDao.deleteSykmeldingsperioder(sykmeldingId)
+    fun deleteSykmelding(sykmeldingId: String) {
+        sykmeldingDao.deleteSykmelding(sykmeldingId)
     }
 
-    fun getSykmeldingsperioder(
+    fun getSykmelding(
         employeeIdentificationNumber: String,
-    ): List<Sykmeldingsperiode> {
-        return sykmeldingDao.getSykmeldingsperioder(employeeIdentificationNumber)
+    ): PSykmelding? {
+        return sykmeldingDao.getSykmelding(employeeIdentificationNumber)
     }
 }

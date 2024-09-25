@@ -55,14 +55,13 @@ class SykmeldingConsumer(
 
         if (sykmeldingKafkaMessage == null) {
             log.info("Received tombstone record for sykmeldingId: $sykmeldingId ..deleting")
-            sykmeldingService.deleteSykmeldingsperioder(sykmeldingId)
+            sykmeldingService.deleteSykmelding(sykmeldingId)
         } else {
             log.info("Storing sykmeldingsperioder for sykmeldingId: $sykmeldingId")
-            sykmeldingService.persistSykmeldingsperioder(
+            sykmeldingService.persistSykmelding(
                 sykmeldingId = sykmeldingId,
                 employeeIdentificationNumber = sykmeldingKafkaMessage.personNrPasient,
                 sykmeldingsperioder = sykmeldingKafkaMessage.sykmelding.perioder,
-                harArbeidsgiver = sykmeldingKafkaMessage.sykmelding.arbeidsgiver.harArbeidsgiver.codeValue != "3",
             )
         }
     }

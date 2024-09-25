@@ -18,7 +18,7 @@ class SykmeldingKafkaConfig(
     @Bean
     fun sykmeldingConsumerFactory(): ConsumerFactory<String, String?> {
         val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {
-            put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-ok-sykmelding-1")
+            put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-ok-sykmelding-2")
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
         }
         return DefaultKafkaConsumerFactory(config)

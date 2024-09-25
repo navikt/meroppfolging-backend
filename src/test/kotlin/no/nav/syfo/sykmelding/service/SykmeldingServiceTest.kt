@@ -3,6 +3,7 @@ package no.nav.syfo.sykmelding.service
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.sykmelding.domain.Periode
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,11 +30,11 @@ class SykmeldingServiceTest : DescribeSpec() {
         extension(SpringExtension)
 
         beforeTest {
-            jdbcTemplate.execute("TRUNCATE TABLE SYKMELDINGSPERIODE CASCADE")
+            jdbcTemplate.execute("TRUNCATE TABLE SYKMELDING CASCADE")
         }
 
-        it("Should only persist ongoing sykmeldingsperioder") {
-            sykmeldingService.persistSykmeldingsperioder(
+        it("Should persist the earliest and latest date of a sykmelding") {
+            sykmeldingService.persistSykmelding(
                 "123",
                 employeeIdentificationNumber,
                 listOf(
@@ -46,22 +47,20 @@ class SykmeldingServiceTest : DescribeSpec() {
                         tom = LocalDate.now().minusDays(6),
                     ),
                 ),
-                true,
             )
 
-            val sykmeldingsperioder = sykmeldingService.getSykmeldingsperioder(
+            val sykmelding = sykmeldingService.getSykmelding(
                 employeeIdentificationNumber,
             )
 
-            sykmeldingsperioder.size shouldBe 1
-            sykmeldingsperioder[0].fom shouldBe LocalDate.now().minusDays(5)
-            sykmeldingsperioder[0].tom shouldBe LocalDate.now().plusDays(5)
-            sykmeldingsperioder[0].hasEmployer shouldBe true
-            sykmeldingsperioder[0].sykmeldingId shouldBe "123"
+            sykmelding shouldNotBe null
+            sykmelding!!.fom shouldBe LocalDate.now().minusDays(15)
+            sykmelding.tom shouldBe LocalDate.now().plusDays(5)
+            sykmelding.sykmeldingId shouldBe "123"
         }
 
         it("Should delete tombstone records") {
-            sykmeldingService.persistSykmeldingsperioder(
+            sykmeldingService.persistSykmelding(
                 "123",
                 employeeIdentificationNumber,
                 listOf(
@@ -74,65 +73,67 @@ class SykmeldingServiceTest : DescribeSpec() {
                         tom = LocalDate.now().minusDays(6),
                     ),
                 ),
-                true,
             )
 
-            val sykmeldingsperioder = sykmeldingService.getSykmeldingsperioder(
+            val sykmelding = sykmeldingService.getSykmelding(
                 employeeIdentificationNumber,
             )
 
-            sykmeldingsperioder.size shouldBe 1
+            sykmelding shouldNotBe null
 
-            sykmeldingService.deleteSykmeldingsperioder("123")
-            val sykmeldingsperioderAfterDelete = sykmeldingService.getSykmeldingsperioder(
+            sykmeldingService.deleteSykmelding("123")
+            val sykmeldingAfterDelete = sykmeldingService.getSykmelding(
                 employeeIdentificationNumber,
             )
 
-            sykmeldingsperioderAfterDelete.size shouldBe 0
+            sykmeldingAfterDelete shouldBe null
         }
 
-        it("Should ignore duplicate sykmeldingsperioder") {
-            sykmeldingService.persistSykmeldingsperioder(
+        it("Should update already stored sykmeldinger") {
+            val firstActiveSykmeldingsperiodeFom = LocalDate.now().minusDays(5)
+            val firstActiveSykmeldingsperiodeTom = LocalDate.now().plusDays(5)
+            val updatedSykmeldingFom = LocalDate.now().minusDays(4)
+            val updatedSykmeldingTom = LocalDate.now().plusDays(12)
+
+            sykmeldingService.persistSykmelding(
                 "123",
                 employeeIdentificationNumber,
                 listOf(
                     Periode(
-                        fom = LocalDate.now().minusDays(5),
-                        tom = LocalDate.now().plusDays(5),
-                    ),
-                    Periode(
-                        fom = LocalDate.now().minusDays(15),
-                        tom = LocalDate.now().minusDays(6),
+                        fom = firstActiveSykmeldingsperiodeFom,
+                        tom = firstActiveSykmeldingsperiodeTom,
                     ),
                 ),
-                true,
             )
 
-            sykmeldingService.persistSykmeldingsperioder(
+            val storedSykmelding = sykmeldingService.getSykmelding(
+                employeeIdentificationNumber,
+            )
+
+            storedSykmelding shouldNotBe null
+            storedSykmelding!!.sykmeldingId shouldBe "123"
+            storedSykmelding.fom shouldBe firstActiveSykmeldingsperiodeFom
+            storedSykmelding.tom shouldBe firstActiveSykmeldingsperiodeTom
+
+            sykmeldingService.persistSykmelding(
                 "123",
                 employeeIdentificationNumber,
                 listOf(
                     Periode(
-                        fom = LocalDate.now().minusDays(5),
-                        tom = LocalDate.now().plusDays(5),
-                    ),
-                    Periode(
-                        fom = LocalDate.now().minusDays(15),
-                        tom = LocalDate.now().minusDays(6),
+                        fom = updatedSykmeldingFom,
+                        tom = updatedSykmeldingTom,
                     ),
                 ),
-                true,
             )
 
-            val sykmeldingsperioder = sykmeldingService.getSykmeldingsperioder(
+            val updatedSykmelding = sykmeldingService.getSykmelding(
                 employeeIdentificationNumber,
             )
 
-            sykmeldingsperioder.size shouldBe 1
-            sykmeldingsperioder[0].fom shouldBe LocalDate.now().minusDays(5)
-            sykmeldingsperioder[0].tom shouldBe LocalDate.now().plusDays(5)
-            sykmeldingsperioder[0].hasEmployer shouldBe true
-            sykmeldingsperioder[0].sykmeldingId shouldBe "123"
+            updatedSykmelding shouldNotBe null
+            updatedSykmelding!!.fom shouldBe updatedSykmeldingFom
+            updatedSykmelding.tom shouldBe updatedSykmeldingTom
+            updatedSykmelding.sykmeldingId shouldBe "123"
         }
     }
 }
