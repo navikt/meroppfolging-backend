@@ -1,9 +1,9 @@
-name: "Deploy topic"
+name: "Deploy topic senoppfolgingsvar"
 on:
   push:
     paths:
       - nais/topics/**
-      - .github/workflows/topic.yaml
+      - .github/workflows/senoppfolging-svar-topic.yaml
 jobs:
   deploy-topic-to-dev:
     name: Deploy topic to dev
