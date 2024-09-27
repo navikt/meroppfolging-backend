@@ -30,7 +30,6 @@ class SykepengedagerInformasjonKafkaConfig(
         val factory = ConcurrentKafkaListenerContainerFactory<String, String?>()
         factory.consumerFactory = sykepengeDagerConsumerFactory()
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
-        factory.isBatchListener = true
         return factory
     }
 }
