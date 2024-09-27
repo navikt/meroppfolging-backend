@@ -1,4 +1,4 @@
-package no.nav.syfo.sykepengedagerinformasjon
+package no.nav.syfo.sykepengedagerinformasjon.kafka
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -6,6 +6,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.syfo.logger
+import no.nav.syfo.sykepengedagerinformasjon.domain.SykepengedagerInformasjonDTO
+import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment

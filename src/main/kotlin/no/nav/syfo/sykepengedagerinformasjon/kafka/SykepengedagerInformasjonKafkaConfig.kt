@@ -1,4 +1,4 @@
-package no.nav.syfo.sykepengedagerinformasjon
+package no.nav.syfo.sykepengedagerinformasjon.kafka
 
 import no.nav.syfo.config.kafka.KafkaConfig
 import org.apache.kafka.clients.consumer.ConsumerConfig
