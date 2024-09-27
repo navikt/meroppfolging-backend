@@ -8,6 +8,7 @@ import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
+import org.springframework.kafka.listener.ContainerProperties
 
 @EnableKafka
 @Configuration
@@ -15,16 +16,21 @@ class SykepengedagerInformasjonKafkaConfig(
     private val kafkaConfig: KafkaConfig,
 ) {
     @Bean
-    fun sykepengeDagerConsumerFactory(): ConsumerFactory<String, String> {
-        val config = kafkaConfig.commonKafkaAivenConsumerConfig()
-        config[ConsumerConfig.GROUP_ID_CONFIG] = "meroppfolging-backend-sykepengedager-01"
+    fun sykepengeDagerConsumerFactory(): ConsumerFactory<String, String?> {
+        val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {
+            put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-sykepengedager-01")
+            put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
+        }
+
         return DefaultKafkaConsumerFactory(config)
     }
 
     @Bean
-    fun sykepengedagerInformasjonKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
+    fun sykepengedagerInformasjonListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String?> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, String?>()
         factory.consumerFactory = sykepengeDagerConsumerFactory()
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
+        factory.isBatchListener = true
         return factory
     }
 }

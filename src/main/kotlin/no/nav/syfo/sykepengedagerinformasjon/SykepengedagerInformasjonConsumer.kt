@@ -25,7 +25,7 @@ class SykepengedagerInformasjonConsumer(private val sykepengeDagerService: Sykep
         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 
-    @KafkaListener(topics = [SPDI_TOPIC], containerFactory = "sykepengedagerInformasjonKafkaListenerContainerFactory")
+    @KafkaListener(topics = [SPDI_TOPIC], containerFactory = "sykepengedagerInformasjonListenerContainerFactory")
     fun listen(
         record: ConsumerRecord<String, String>,
         ack: Acknowledgment,
