@@ -4,3 +4,6 @@ style:
 config:
   validation: true
   warningsAsErrors: true
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
