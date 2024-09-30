@@ -52,11 +52,11 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
         val parameters = MapSqlParameterSource()
             .addValue("utbetaling_id", utbetalingId)
 
-        return namedParameterJdbcTemplate.query(selectStatement, parameters) { rs, _ -> rs.toPSykmelding() }
+        return namedParameterJdbcTemplate.query(selectStatement, parameters) { rs, _ -> rs.toPSykepengedagerInformasjon() }
             .firstOrNull()
     }
 
-    fun ResultSet.toPSykmelding() = PSykepengedagerInformasjon(
+    fun ResultSet.toPSykepengedagerInformasjon() = PSykepengedagerInformasjon(
         utbetalingId = getString("utbetaling_id"),
         personIdent = getString("person_ident"),
         forelopigBeregnetSlutt = getTimestamp("forelopig_beregnet_slutt").toLocalDateTime().toLocalDate(),
