@@ -25,6 +25,8 @@ esyfovarsel.id: "local:team-esyfo:esyfovarsel"
 dokarkiv.url: "http://dokarkiv"
 dokarkiv.scope: "local:teamdokumenthandtering:dokarkiv"
 
+pdl.url: "http://pdl"
+pdl.scope: "local:pdl:pdl"
 
 syfobehandlendeenhet.url: "http://syfobehandlendeenhet"
 syfobehandlendeenhet.id: "local:teamsykefravr:syfobehandlendeenhet"
