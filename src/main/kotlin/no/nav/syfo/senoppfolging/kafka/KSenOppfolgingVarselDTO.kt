@@ -5,6 +5,6 @@ import java.util.UUID
 
 data class KSenOppfolgingVarselDTO(
     val uuid: UUID,
-    val fnr: String,
+    val personindent: String,
     val createdAt: LocalDateTime,
 )
