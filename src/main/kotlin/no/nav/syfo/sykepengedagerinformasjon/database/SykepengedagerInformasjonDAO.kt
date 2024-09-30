@@ -44,15 +44,18 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
         utbetalingId: String,
     ): PSykepengedagerInformasjon? {
         val selectStatement = """
-        SELECT *
-        FROM SYKEPENGEDAGER_INFORMASJON
-        WHERE utbetaling_id = :utbetalingId
+            SELECT *
+            FROM SYKEPENGEDAGER_INFORMASJON
+            WHERE utbetaling_id = :utbetaling_id
         """.trimIndent()
 
         val parameters = MapSqlParameterSource()
             .addValue("utbetaling_id", utbetalingId)
 
-        return namedParameterJdbcTemplate.query(selectStatement, parameters) { rs, _ -> rs.toPSykepengedagerInformasjon() }
+        return namedParameterJdbcTemplate.query(
+            selectStatement,
+            parameters
+        ) { rs, _ -> rs.toPSykepengedagerInformasjon() }
             .firstOrNull()
     }
 

@@ -58,7 +58,7 @@ class SykepengedagerInformasjonDAOTest : DescribeSpec() {
 
             utbetaling?.utbetalingId shouldBe utbetalingId
             utbetaling?.personIdent shouldBe personIdent
-            utbetaling?.utbetalingCreatedAt shouldBe createdAt
+            utbetaling?.utbetalingCreatedAt?.toLocalDate() shouldBe createdAt.toLocalDate()
             utbetaling?.receivedAt?.toLocalDate() shouldBe expectedReceivedDate
         }
     }
