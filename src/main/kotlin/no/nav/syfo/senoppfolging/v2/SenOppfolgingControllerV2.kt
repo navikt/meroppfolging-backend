@@ -89,11 +89,12 @@ class SenOppfolgingControllerV2(
             )
         }
 
-        val response = responseDao.findLatestFormResponse(
-            PersonIdentNumber(personIdent),
-            FormType.SEN_OPPFOLGING_V2,
-            cutoffDate,
-        )
+        val response =
+            responseDao.findLatestFormResponse(
+                PersonIdentNumber(personIdent),
+                FormType.SEN_OPPFOLGING_V2,
+                cutoffDate,
+            )
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
 
         return SenOppfolgingStatusDTOV2(
@@ -116,11 +117,12 @@ class SenOppfolgingControllerV2(
         }
 
         val personident = tokenValidator.validateTokenXClaims().getFnr()
-        val response = responseDao.find(
-            personIdent = PersonIdentNumber(personident),
-            formType = FormType.SEN_OPPFOLGING_V2,
-            from = cutoffDate,
-        )
+        val response =
+            responseDao.find(
+                personIdent = PersonIdentNumber(personident),
+                formType = FormType.SEN_OPPFOLGING_V2,
+                from = cutoffDate,
+            )
 
         varselService.ferdigstillMerOppfolgingVarsel(personident)
 
@@ -129,12 +131,13 @@ class SenOppfolgingControllerV2(
         }
 
         val createdAt = LocalDateTime.now()
-        val id = responseDao.saveFormResponse(
-            personIdent = PersonIdentNumber(personident),
-            questionResponses = senOppfolgingDTOV2.senOppfolgingFormV2.map { it.toQuestionResponse() },
-            formType = FormType.SEN_OPPFOLGING_V2,
-            createdAt = createdAt,
-        )
+        val id =
+            responseDao.saveFormResponse(
+                personIdent = PersonIdentNumber(personident),
+                questionResponses = senOppfolgingDTOV2.senOppfolgingFormV2.map { it.toQuestionResponse() },
+                formType = FormType.SEN_OPPFOLGING_V2,
+                createdAt = createdAt,
+            )
 
         val pdf = syfoopfpdfgenService.getPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
         if (pdf == null) {
@@ -149,15 +152,16 @@ class SenOppfolgingControllerV2(
                 KSenOppfolgingSvarDTO(id, personident, createdAt, senOppfolgingDTOV2.senOppfolgingFormV2),
             )
 
-        metric.countSenOppfolgingSubmitted()
+        metric.countSenOppfolgingPilotSubmitted()
     }
 
     private fun hasRespondedToV1Form(personIdent: String): Boolean {
-        val responseOnV1Form = responseDao.find(
-            PersonIdentNumber(personIdent),
-            FormType.SEN_OPPFOLGING_V1,
-            cutoffDate,
-        )
+        val responseOnV1Form =
+            responseDao.find(
+                PersonIdentNumber(personIdent),
+                FormType.SEN_OPPFOLGING_V1,
+                cutoffDate,
+            )
 
         return responseOnV1Form.isNotEmpty()
     }

@@ -15,11 +15,14 @@ constructor(
 
     fun countCallVeilarbregistreringComplete() = countEvent("call_veilarbregistrering_complete")
 
+    fun countSenOppfolgingPilotSubmitted() = countEvent("sen_oppfolging_pilot_submitted")
+
     fun countEvent(name: String) {
-        registry.counter(
-            metricPrefix(name),
-            Tags.of("type", "info"),
-        ).increment()
+        registry
+            .counter(
+                metricPrefix(name),
+                Tags.of("type", "info"),
+            ).increment()
     }
 
     private fun metricPrefix(name: String) = "meroppfolging_backend_$name"
