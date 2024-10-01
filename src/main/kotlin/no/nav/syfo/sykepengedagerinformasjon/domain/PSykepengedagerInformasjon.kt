@@ -8,7 +8,7 @@ data class PSykepengedagerInformasjon(
     val personIdent: String,
     val forelopigBeregnetSlutt: LocalDate,
     val utbetaltTom: LocalDate,
-    val gjenstaendeSykedager: String,
+    val gjenstaendeSykedager: Int,
     val utbetalingCreatedAt: LocalDateTime,
     val receivedAt: LocalDateTime,
 )

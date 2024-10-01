@@ -33,7 +33,7 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
                 Timestamp.valueOf(sykepengeDagerDTO.forelopigBeregnetSlutt.atStartOfDay())
             )
             .addValue("utbetalt_tom", Timestamp.valueOf(sykepengeDagerDTO.utbetaltTom.atStartOfDay()))
-            .addValue("gjenstaende_sykedager", sykepengeDagerDTO.personIdent)
+            .addValue("gjenstaende_sykedager", sykepengeDagerDTO.gjenstaendeSykedager.toInt())
             .addValue("utbetaling_created_at", Timestamp.valueOf(sykepengeDagerDTO.createdAt))
             .addValue("received_at", Timestamp.valueOf(LocalDateTime.now()))
 
@@ -64,7 +64,7 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
         personIdent = getString("person_ident"),
         forelopigBeregnetSlutt = getTimestamp("forelopig_beregnet_slutt").toLocalDateTime().toLocalDate(),
         utbetaltTom = getTimestamp("utbetalt_tom").toLocalDateTime().toLocalDate(),
-        gjenstaendeSykedager = getString("gjenstaende_sykedager"),
+        gjenstaendeSykedager = getInt("gjenstaende_sykedager"),
         utbetalingCreatedAt = getTimestamp("utbetaling_created_at").toLocalDateTime(),
         receivedAt = getTimestamp("received_at").toLocalDateTime(),
     )
