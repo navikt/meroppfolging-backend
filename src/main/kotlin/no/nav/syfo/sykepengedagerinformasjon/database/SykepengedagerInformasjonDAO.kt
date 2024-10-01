@@ -33,7 +33,7 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
                 Timestamp.valueOf(sykepengeDagerDTO.forelopigBeregnetSlutt.atStartOfDay())
             )
             .addValue("utbetalt_tom", Timestamp.valueOf(sykepengeDagerDTO.utbetaltTom.atStartOfDay()))
-            .addValue("gjenstaende_sykedager", sykepengeDagerDTO.personIdent)
+            .addValue("gjenstaende_sykedager", sykepengeDagerDTO.gjenstaendeSykedager)
             .addValue("utbetaling_created_at", Timestamp.valueOf(sykepengeDagerDTO.createdAt))
             .addValue("received_at", Timestamp.valueOf(LocalDateTime.now()))
 
