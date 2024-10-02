@@ -21,6 +21,7 @@ class AzureAdClientTest : DescribeSpec(
             azureAppClientSecret = "test-client-secret",
             azureTokenEndpoint = "https://test.token.endpoint",
             restTemplate = restTemplate,
+            env = mockk(relaxed = true),
         )
 
         beforeTest {

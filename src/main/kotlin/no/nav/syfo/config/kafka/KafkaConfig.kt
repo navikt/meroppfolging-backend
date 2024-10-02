@@ -1,5 +1,6 @@
 package no.nav.syfo.config.kafka
 
+import no.nav.syfo.config.isLocal
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -44,7 +45,7 @@ class KafkaConfig(
     }
 
     private fun securityConfig(): Map<String, Any> =
-        if (isLocal) {
+        if (env.isLocal()) {
             mapOf()
         } else {
             mapOf<String, Any>(
@@ -57,11 +58,5 @@ class KafkaConfig(
                 SslConfigs.SSL_KEY_PASSWORD_CONFIG to aivenCredstorePassword,
                 SslConfigs.SSL_KEYSTORE_TYPE_CONFIG to "PKCS12",
             )
-        }
-
-    private val isLocal: Boolean
-        get() = env.activeProfiles.any {
-            it.equals("local", ignoreCase = true) ||
-                it.equals("test", ignoreCase = true)
         }
 }

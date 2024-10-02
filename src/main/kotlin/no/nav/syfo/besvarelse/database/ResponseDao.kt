@@ -24,6 +24,7 @@ class ResponseDao(
         questionResponses: List<QuestionResponse>,
         formType: FormType,
         createdAt: LocalDateTime,
+        utsendtVarselUUID: UUID? = null,
     ): UUID {
         val uuid = UUID.randomUUID()
         val lagreSql =
@@ -32,13 +33,15 @@ class ResponseDao(
                 uuid,
                 person_ident,
                 created_at,
-                form_type
+                form_type,
+                utsendt_varsel_uuid
             )
             VALUES (
                 :uuid,
                 :person_ident,
                 :created_at,
-                :form_type
+                :form_type,
+                :utsendt_varsel_uuid
             )
             """.trimIndent()
         val mapLagreSql =
@@ -47,6 +50,7 @@ class ResponseDao(
                 .addValue("person_ident", personIdent.value)
                 .addValue("created_at", Timestamp.valueOf(createdAt))
                 .addValue("form_type", formType.name)
+                .addValue("utsendt_varsel_uuid", utsendtVarselUUID)
         namedParameterJdbcTemplate.update(lagreSql, mapLagreSql)
         questionResponses.forEach {
             saveQuestionResponse(it, uuid, createdAt)
@@ -128,6 +132,7 @@ class ResponseDao(
                 form.person_ident,
                 form.created_at,
                 form.form_type,
+                form.utsendt_varsel_uuid,
                 question.question_type,
                 question.question_text,
                 question.answer_type,
@@ -155,6 +160,7 @@ class ResponseDao(
                 form.person_ident,
                 form.created_at,
                 form.form_type,
+                form.utsendt_varsel_uuid,
                 question.question_type,
                 question.question_text,
                 question.answer_type,

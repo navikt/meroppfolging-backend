@@ -13,6 +13,7 @@ import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
+import no.nav.syfo.pdl.PdlClient
 import no.nav.syfo.senoppfolging.v1.domain.AndreForholdSvar
 import no.nav.syfo.senoppfolging.v1.domain.Besvarelse
 import no.nav.syfo.senoppfolging.v1.domain.FremtidigSituasjonSvar
@@ -30,6 +31,7 @@ import no.nav.syfo.senoppfolging.v1.domain.UtdanningSvar
 import no.nav.syfo.varsel.ArbeidstakerHendelse
 import no.nav.syfo.varsel.EsyfovarselProducer
 import no.nav.syfo.varsel.HendelseType
+import no.nav.syfo.varsel.VarselRepository
 import no.nav.syfo.varsel.VarselService
 import no.nav.syfo.veilarbregistrering.VeilarbregistreringClient
 import org.springframework.mock.web.MockHttpServletRequest
@@ -42,8 +44,10 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
         val isOppfolgingstilfelleClient = mockk<IsOppfolgingstilfelleClient>(relaxed = true)
         val esyfovarselProducer = mockk<EsyfovarselProducer>(relaxed = true)
         val tokenValidator = mockk<TokenValidator>(relaxed = true)
+        val varselRepository = mockk<VarselRepository>(relaxed = true)
+        val pdlClient = mockk<PdlClient>(relaxed = true)
         val metric = mockk<Metric>(relaxed = true)
-        val varselService = VarselService(esyfovarselProducer)
+        val varselService = VarselService(esyfovarselProducer, varselRepository, pdlClient)
         val responseDao = mockk<ResponseDao>(relaxed = true)
 
         val controller =

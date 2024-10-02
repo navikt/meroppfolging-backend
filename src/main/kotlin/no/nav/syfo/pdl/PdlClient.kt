@@ -74,12 +74,12 @@ class PdlClient(
         }
     }
 
-    fun parsePDLDate(date: String): LocalDate {
+    private fun parsePDLDate(date: String): LocalDate {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         return LocalDate.parse(date, formatter)
     }
 
-    fun isAlderMindreEnnGittAr(fodselsdato: String, maxAlder: Int): Boolean {
+    private fun isAlderMindreEnnGittAr(fodselsdato: String, maxAlder: Int): Boolean {
         val parsedFodselsdato = parsePDLDate(fodselsdato)
 
         return Period.between(parsedFodselsdato, LocalDate.now()).years < maxAlder
