@@ -1,4 +1,4 @@
-DROP TABLE  IF EXISTS SYKEPENGEDAGER_INFORMASJON;
+DROP TABLE IF EXISTS SYKEPENGEDAGER_INFORMASJON;
 
 CREATE TABLE SYKEPENGEDAGER_INFORMASJON
 (
@@ -7,10 +7,9 @@ CREATE TABLE SYKEPENGEDAGER_INFORMASJON
     person_ident             VARCHAR(11) NOT NULL,
     forelopig_beregnet_slutt TIMESTAMP   NOT NULL,
     utbetalt_tom             TIMESTAMP   NOT NULL,
-    gjenstaende_sykedager    INTEGER        NOT NULL,
+    gjenstaende_sykedager    INTEGER     NOT NULL,
     utbetaling_created_at    TIMESTAMP   NOT NULL,
     received_at              TIMESTAMP   NOT NULL
 );
 
 CREATE INDEX person_ident_index ON SYKEPENGEDAGER_INFORMASJON (person_ident);
-

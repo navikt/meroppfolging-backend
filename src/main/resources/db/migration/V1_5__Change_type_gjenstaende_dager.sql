@@ -1,2 +1,0 @@
-ALTER TABLE SYKEPENGEDAGER_INFORMASJON
-    ALTER COLUMN gjenstaende_sykedager TYPE INTEGER USING gjenstaende_sykedager::INTEGER;
