@@ -18,7 +18,7 @@ class SykepengedagerInformasjonKafkaConfig(
     @Bean
     fun sykepengeDagerConsumerFactory(): ConsumerFactory<String, String?> {
         val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {
-            put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-sykepengedager-01")
+            put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-sykepengedager-02")
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
         }
 
