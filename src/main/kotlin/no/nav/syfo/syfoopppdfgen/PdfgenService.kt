@@ -40,6 +40,10 @@ class PdfgenService(
             FremtidigSituasjonSvar.TILBAKE_GRADERT -> "tilbake_gradert_receipt"
             FremtidigSituasjonSvar.TILBAKE_MED_TILPASNINGER -> "tilbake_med_tilpasninger_receipt"
             FremtidigSituasjonSvar.TILBAKE_HOS_ARBEIDSGIVER -> "tilbake_hos_arbeidsgiver_receipt"
+            else -> {
+                log.error("Could not map FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
+                throw IllegalArgumentException("Invalid FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
+            }
         }
     }
 
