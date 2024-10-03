@@ -9,4 +9,4 @@ CREATE TABLE JOURNALFORING_FAILED
     fail_reason  TEXT        NOT NULL
 );
 
-CREATE INDEX person_ident_index ON JOURNALFORING_FAILED (person_ident);
+CREATE INDEX person_ident_journalforing_failed_index ON JOURNALFORING_FAILED (person_ident);
