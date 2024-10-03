@@ -7,6 +7,7 @@ import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.isPilot
+import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.logger
 import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
@@ -22,6 +23,7 @@ class PdfgenService(
     val esyfovarselClient: EsyfovarselClient,
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val behandlendeEnhetClient: BehandlendeEnhetClient,
+    val dkifClient: DkifClient,
     @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
 ) {
     lateinit var tokenValidator: TokenValidator
@@ -63,39 +65,29 @@ class PdfgenService(
         )
     }
 
-    private fun getMerVeiledningEndpoint(): String {
-        val isUserReservert = false // TODO : implement reservasjon
-        return when {
-            isUserReservert -> {
-                urlForReservedUsers
-            }
-            else -> {
-                urlForDigitalUsers
-            }
-        }
-    }
-
     fun getMerVeiledningPdf(): ByteArray {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
-
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-
         val isPilotUser = behandlendeEnhet.isPilot(isProd = isProd)
+        val isUserReservert = dkifClient.person(personIdent)?.kanVarsles == true
 
-        return if (isPilotUser) {
-            syfooppfpdfgenClient.getMerVeiledningPilotUserPdf(
+        return when {
+            isUserReservert -> syfooppfpdfgenClient.getMerVeiledningPdf(
+                pdfEndpoint = urlForReservedUsers,
+                utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
+                maxDate = sykepengerMaxDateResponse?.maxDate
+            )
+            isPilotUser -> syfooppfpdfgenClient.getMerVeiledningPilotUserPdf(
                 pdfEndpoint = urlForDigitalPilotUsers,
                 daysLeft = sykepengerMaxDateResponse?.gjenstaendeSykedager,
-                maxDate = sykepengerMaxDateResponse?.maxDate,
+                maxDate = sykepengerMaxDateResponse?.maxDate
             )
-        } else {
-            val pdfEndpoint = getMerVeiledningEndpoint()
-            syfooppfpdfgenClient.getMerVeiledningPdf(
-                pdfEndpoint = pdfEndpoint,
+            else -> syfooppfpdfgenClient.getMerVeiledningPdf(
+                pdfEndpoint = urlForDigitalUsers,
                 utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
-                maxDate = sykepengerMaxDateResponse?.maxDate,
+                maxDate = sykepengerMaxDateResponse?.maxDate
             )
         }
     }
