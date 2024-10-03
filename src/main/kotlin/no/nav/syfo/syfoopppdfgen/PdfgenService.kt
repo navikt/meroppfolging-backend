@@ -64,7 +64,7 @@ class PdfgenService(
     }
 
     private fun getMerVeiledningEndpoint(): String {
-        val isUserReservert = false // TODO : reservasjon
+        val isUserReservert = false // TODO : implement reservasjon
         return when {
             isUserReservert -> {
                 urlForReservedUsers
@@ -84,8 +84,6 @@ class PdfgenService(
 
         val isPilotUser = behandlendeEnhet.isPilot(isProd = isProd)
 
-        val pdfEndpoint = getMerVeiledningEndpoint()
-
         return if (isPilotUser) {
             syfooppfpdfgenClient.getMerVeiledningPilotUserPdf(
                 pdfEndpoint = urlForDigitalPilotUsers,
@@ -93,6 +91,7 @@ class PdfgenService(
                 maxDate = sykepengerMaxDateResponse?.maxDate,
             )
         } else {
+            val pdfEndpoint = getMerVeiledningEndpoint()
             syfooppfpdfgenClient.getMerVeiledningPdf(
                 pdfEndpoint = pdfEndpoint,
                 utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
