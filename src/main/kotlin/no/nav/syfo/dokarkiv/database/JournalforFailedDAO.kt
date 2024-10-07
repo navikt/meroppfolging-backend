@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 
 @Repository
 class JournalforFailedDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,) {
-    fun persistJournalforFailed(fnr: String, pdf: ByteArray, varselUuid: String, failReason: String) {
+    fun persistJournalforFailed(fnr: String, pdf: ByteArray?, varselUuid: String, failReason: String) {
         val uuid = java.util.UUID.randomUUID()
         val insertStatement = """
             INSERT INTO JOURNALFORING_FAILED (
@@ -20,6 +20,7 @@ class JournalforFailedDAO(private val namedParameterJdbcTemplate: NamedParameter
                     received_at,
                     fail_reason
             ) VALUES (:UUID, :varsel_uuid, :pdf, :person_ident, :received_at,  :fail_reason)
+            ON CONFLICT (varsel_uuid) DO NOTHING;
             ;
         """.trimIndent()
 
@@ -34,7 +35,7 @@ class JournalforFailedDAO(private val namedParameterJdbcTemplate: NamedParameter
         namedParameterJdbcTemplate.update(insertStatement, parameters)
     }
 
-    fun fetchJournalforFailed(): List<PJournalforFailed>? {
+    fun fetchJournalforingFailed(): List<PJournalforingFailed>? {
         val selectStatement = """
             SELECT *
             FROM JOURNALFORING_FAILED
@@ -45,7 +46,19 @@ class JournalforFailedDAO(private val namedParameterJdbcTemplate: NamedParameter
         ) { rs, _ -> rs.toJournalforFailed() }
     }
 
-    fun ResultSet.toJournalforFailed() = PJournalforFailed(
+    fun deleteJournalforFailed(varselUuid: String) {
+        val deleteStatement = """
+        DELETE FROM JOURNALFORING_FAILED
+        WHERE varsel_uuid = :varselUuid
+        """.trimIndent()
+
+        val parameters = MapSqlParameterSource()
+            .addValue("varsel_uuid", varselUuid)
+
+        namedParameterJdbcTemplate.update(deleteStatement, parameters)
+    }
+
+    fun ResultSet.toJournalforFailed() = PJournalforingFailed(
         uuid = getString("UUID"),
         varselUuid = getString("varsel_uuid"),
         pdf = getBytes("pdf"),
@@ -54,10 +67,10 @@ class JournalforFailedDAO(private val namedParameterJdbcTemplate: NamedParameter
         failReason = getString("fail_reason"),
     )
 
-    data class PJournalforFailed(
+    data class PJournalforingFailed(
         val uuid: String,
         val varselUuid: String,
-        val pdf: ByteArray,
+        val pdf: ByteArray?,
         val personIdent: String,
         val receivedAt: LocalDateTime,
         val failReason: String,

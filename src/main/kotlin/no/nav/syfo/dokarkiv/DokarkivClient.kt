@@ -63,11 +63,13 @@ class DokarkivClient(
             when (response.statusCode) {
                 HttpStatus.CREATED -> {
                     log.info("Sending to dokarkiv successful, journalpost created")
+                    journalforFailedDAO.deleteJournalforFailed(varselUuid = uuid)
                     response.body
                 }
 
                 HttpStatus.CONFLICT -> {
                     log.info("Sending to dokarkiv successful, journalpost was created before")
+                    journalforFailedDAO.deleteJournalforFailed(varselUuid = uuid)
                     response.body
                 }
 
