@@ -20,6 +20,7 @@ class FormResponseResultSetExtractor : ResultSetExtractor<List<FormResponse>> {
                     uuid = responseId,
                     personIdent = PersonIdentNumber(rs.getString("person_ident")),
                     createdAt = rs.getTimestamp("created_at").toLocalDateTime(),
+                    utsendtVarselUUID = rs.getObject("utsendt_varsel_uuid", UUID::class.java),
                     formType = FormType.valueOf(rs.getString("form_type")),
                 )
                 formResponses.add(currentFormResponse)

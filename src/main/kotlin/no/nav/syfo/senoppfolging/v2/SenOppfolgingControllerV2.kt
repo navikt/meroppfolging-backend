@@ -131,12 +131,14 @@ class SenOppfolgingControllerV2(
         }
 
         val createdAt = LocalDateTime.now()
+        val latestVarsel = varselService.getUtsendtVarsel(personident)
         val id =
             responseDao.saveFormResponse(
                 personIdent = PersonIdentNumber(personident),
                 questionResponses = senOppfolgingDTOV2.senOppfolgingFormV2.map { it.toQuestionResponse() },
                 formType = FormType.SEN_OPPFOLGING_V2,
                 createdAt = createdAt,
+                utsendtVarselUUID = latestVarsel?.uuid,
             )
 
         val pdf = syfoopfpdfgenService.getPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
