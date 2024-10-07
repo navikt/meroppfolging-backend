@@ -6,7 +6,6 @@ import no.nav.syfo.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.auth.azuread.AzureAdClient
 import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.createCallId
-import no.nav.syfo.dokarkiv.database.JournalforFailedDAO
 import no.nav.syfo.dokarkiv.domain.AvsenderMottaker
 import no.nav.syfo.dokarkiv.domain.DokarkivRequest
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
@@ -30,7 +29,6 @@ class DokarkivClient(
     private val azureAdClient: AzureAdClient,
     @Value("\${dokarkiv.url}") private val dokarkivUrl: String,
     @Value("\${dokarkiv.scope}") private val dokarkivScope: String,
-    private val journalforFailedDAO: JournalforFailedDAO,
 ) {
     private val journalpostPath = "/rest/journalpostapi/v1/journalpost"
     private val journalpostParamString = "forsoekFerdigstill"
@@ -63,50 +61,42 @@ class DokarkivClient(
             when (response.statusCode) {
                 HttpStatus.CREATED -> {
                     log.info("Sending to dokarkiv successful, journalpost created")
-                    journalforFailedDAO.deleteJournalforFailed(varselUuid = uuid)
                     response.body
                 }
 
                 HttpStatus.CONFLICT -> {
                     log.info("Sending to dokarkiv successful, journalpost was created before")
-                    journalforFailedDAO.deleteJournalforFailed(varselUuid = uuid)
                     response.body
                 }
 
                 HttpStatus.UNAUTHORIZED -> {
                     log.error("Failed to post document to Dokarkiv: Unable to authorize")
-                    journalforFailedDAO.persistJournalforFailed(fnr, pdf, uuid, HttpStatus.UNAUTHORIZED.name)
                     null
                 }
 
                 else -> {
                     log.error("Failed to post document to Dokarkiv: $response")
-                    journalforFailedDAO.persistJournalforFailed(fnr, pdf, uuid, response.body.toString())
                     null
                 }
             }
         } catch (e: HttpClientErrorException) {
             val message = "Client error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
             log.error(message)
-            journalforFailedDAO.persistJournalforFailed(fnr, pdf, uuid, message)
             null
         } catch (e: HttpServerErrorException) {
             val message = "Server error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
             log.error(message)
-            journalforFailedDAO.persistJournalforFailed(fnr, pdf, uuid, message)
 
             null
         } catch (e: ResourceAccessException) {
             val message = "Resource access error while posting document to Dokarkiv, " +
                 "message: ${e.message}, cause: ${e.cause}"
             log.error(message)
-            journalforFailedDAO.persistJournalforFailed(fnr, pdf, uuid, message)
             null
         } catch (e: RestClientException) {
             val message =
                 "Unexpected error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
             log.error(message)
-            journalforFailedDAO.persistJournalforFailed(fnr, pdf, uuid, message)
             null
         }
     }
