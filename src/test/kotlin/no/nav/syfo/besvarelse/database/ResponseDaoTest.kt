@@ -42,6 +42,7 @@ class ResponseDaoTest : DescribeSpec() {
                 listOf(QuestionResponse("UTDANNING", "test", "SVAR_ID", "test")),
                 FormType.SEN_OPPFOLGING_V1,
                 LocalDateTime.now(),
+                null,
             )
 
             val questionResponses = responseDao.find(
@@ -87,6 +88,7 @@ class ResponseDaoTest : DescribeSpec() {
                 questionResponses = listOf(firstQuestionResponse),
                 formType = FormType.SEN_OPPFOLGING_V2,
                 createdAt = LocalDateTime.now().minusDays(2),
+                utsendtVarselUUID = null,
             )
 
             val formResponse = responseDao.findLatestFormResponse(
@@ -111,6 +113,7 @@ class ResponseDaoTest : DescribeSpec() {
                 questionResponses = listOf(firstQuestionResponse),
                 formType = FormType.SEN_OPPFOLGING_V2,
                 createdAt = LocalDateTime.now().minusDays(2),
+                utsendtVarselUUID = null,
             )
 
             val formResponse = responseDao.findLatestFormResponse(
@@ -140,6 +143,7 @@ class ResponseDaoTest : DescribeSpec() {
                 listOf(firstQuestionResponse),
                 FormType.SEN_OPPFOLGING_V2,
                 LocalDateTime.now().minusDays(1),
+                null,
             )
 
             responseDao.saveFormResponse(
@@ -147,6 +151,7 @@ class ResponseDaoTest : DescribeSpec() {
                 listOf(latestQuestionResponse),
                 FormType.SEN_OPPFOLGING_V2,
                 LocalDateTime.now(),
+                null,
             )
 
             val formResponse = responseDao.findLatestFormResponse(
@@ -186,6 +191,7 @@ class ResponseDaoTest : DescribeSpec() {
                 listOf(firstQuestionResponse, secondQuestionResponse),
                 FormType.SEN_OPPFOLGING_V2,
                 LocalDateTime.now(),
+                null,
             )
 
             val formResponse = responseDao.findLatestFormResponse(

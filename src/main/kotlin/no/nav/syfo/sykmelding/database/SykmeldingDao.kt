@@ -63,6 +63,7 @@ class SykmeldingDao(
         SELECT *
         FROM SYKMELDING
         WHERE employee_identification_number = :employee_identification_number
+        ORDER BY created_at DESC
         """.trimIndent()
 
         val parameters = MapSqlParameterSource()

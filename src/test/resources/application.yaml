@@ -11,6 +11,7 @@ MEROPPFOLGING_FRONTEND_CLIENT_ID: 'meroppfolging-frontend-client-id'
 ESYFO_PROXY_CLIENT_ID: 'esyfo-proxy-client-id'
 SYFOOPPDFGEN_URL: 'http://syfooppdfgenurl'
 NAIS_CLUSTER_NAME: 'local'
+ELECTOR_GET_URL: 'http://elector-get-url'
 
 token.x.client.id: "tokenx-client-id"
 token.x.private.jwk: "tokenx-jwk"
@@ -25,7 +26,7 @@ esyfovarsel.id: "local:team-esyfo:esyfovarsel"
 dokarkiv.url: "http://dokarkiv"
 dokarkiv.scope: "local:teamdokumenthandtering:dokarkiv"
 
-pdl.url: "http://pdl"
+pdl.url: "http://localhost:8080"
 pdl.scope: "local:pdl:pdl"
 
 dkif.url: "http://dkif"
@@ -50,6 +51,7 @@ kafka.schema.registry.password: "kafka.schema.registry.password"
 kafka.schema.registry: "kafka.schema.registry"
 
 toggle.pilot: "true"
+toggle.ssps.varselutsending: "false"
 
 azure:
   app:

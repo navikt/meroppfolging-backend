@@ -107,6 +107,7 @@ class SenOppfolgingControllerV1(
             senOppfolgingDTOV1.senOppfolgingFormV1.map { it.toQuestionResponse() },
             FormType.SEN_OPPFOLGING_V1,
             LocalDateTime.now(),
+            null,
         )
 
         if (senOppfolgingDTOV1.senOppfolgingRegistrering != null &&

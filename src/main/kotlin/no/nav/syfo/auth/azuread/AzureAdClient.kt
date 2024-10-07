@@ -1,7 +1,9 @@
 package no.nav.syfo.auth.azuread
 
+import no.nav.syfo.config.isLocal
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -15,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Component
 class AzureAdClient(
+    private val env: Environment,
     @Value("\${azure.app.client.id}") private val azureAppClientId: String,
     @Value("\${azure.app.client.secret}") private val azureAppClientSecret: String,
     @Value("\${azure.openid.config.token.endpoint}") private val azureTokenEndpoint: String,
@@ -24,6 +27,10 @@ class AzureAdClient(
     fun getSystemToken(
         scopeClientId: String,
     ): String {
+        if (env.isLocal()) {
+            return "localToken"
+        }
+
         val cachedToken = systemTokenCache[scopeClientId]
 
         return if (cachedToken?.isExpired() == false) {
@@ -67,7 +74,7 @@ class AzureAdClient(
                 azureTokenEndpoint,
                 HttpMethod.POST,
                 oboTokenRequestEntity(scopeClientId, token),
-                AzureAdTokenResponse::class.java
+                AzureAdTokenResponse::class.java,
             )
             val tokenResponse = response.body!!
 
@@ -76,7 +83,7 @@ class AzureAdClient(
             log.error(
                 "Call to get AzureADToken from AzureAD for scope: $scopeClientId " +
                     "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
-                e
+                e,
             )
             throw e
         }
@@ -98,7 +105,7 @@ class AzureAdClient(
 
     private fun oboTokenRequestEntity(
         scopeClientId: String,
-        token: String
+        token: String,
     ): HttpEntity<MultiValueMap<String, String>> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.MULTIPART_FORM_DATA

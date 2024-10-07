@@ -123,8 +123,9 @@ spec:
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
     - name: PDL_SCOPE
       value: dev-fss.pdl.pdl-api
+    - name: TOGGLE_SSPS_VARSELUTSENDING
+      value: "true"
     - name: DKIF_URL
       value: http://digdir-krr-proxy.team-rocket/rest/v1/person
     - name: DKIF_SCOPE
       value: dev-gcp.team-rocket.digdir-krr-proxy
-
