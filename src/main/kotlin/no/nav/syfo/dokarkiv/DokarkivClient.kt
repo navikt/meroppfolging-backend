@@ -80,18 +80,17 @@ class DokarkivClient(
                 }
             }
         } catch (e: HttpClientErrorException) {
-            val message = "Client error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
-            log.error(message)
+            log.error("Client error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
             null
         } catch (e: HttpServerErrorException) {
-            val message = "Server error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
-            log.error(message)
+            log.error("Server error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
 
             null
         } catch (e: ResourceAccessException) {
-            val message = "Resource access error while posting document to Dokarkiv, " +
-                "message: ${e.message}, cause: ${e.cause}"
-            log.error(message)
+            log.error(
+                "Resource access error while posting document to Dokarkiv, " +
+                    "message: ${e.message}, cause: ${e.cause}"
+            )
             null
         } catch (e: RestClientException) {
             val message =
