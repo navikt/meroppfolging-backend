@@ -54,7 +54,14 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
         val metric = mockk<Metric>(relaxed = true)
         val senOppfolgingVarselKafkaProducer = mockk<SenOppfolgingVarselKafkaProducer>(relaxed = true)
         val varselService =
-            VarselService(esyfovarselProducer, varselRepository, pdlClient, senOppfolgingVarselKafkaProducer, pdfgenService, dokarkivClient)
+            VarselService(
+                esyfovarselProducer,
+                varselRepository,
+                pdlClient,
+                senOppfolgingVarselKafkaProducer,
+                pdfgenService,
+                dokarkivClient
+            )
         val responseDao = mockk<ResponseDao>(relaxed = true)
 
         val controller =
