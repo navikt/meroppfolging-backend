@@ -64,6 +64,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
     testImplementation("org.testcontainers:kafka:$testcontainersVersion")
     testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }
