@@ -30,14 +30,15 @@ class VarselRepository(
         return namedParameterJdbcTemplate.query(sql, parameters, UtsendtVarselRowMapper()).firstOrNull()
     }
 
-    fun storeUtsendtVarsel(personIdent: String, utbetalingId: String, sykmeldingId: String) {
+    fun storeUtsendtVarsel(personIdent: String, utbetalingId: String, sykmeldingId: String): UUID {
         val sql = """
         INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
         VALUES (:uuid, :person_ident, :utsendt_tidspunkt, :utbetaling_id, :sykmelding_id)
         """.trimIndent()
 
+        val utsendtVarselUUID = UUID.randomUUID()
         val parameters = mapOf(
-            "uuid" to UUID.randomUUID(),
+            "uuid" to utsendtVarselUUID,
             "person_ident" to personIdent,
             "utsendt_tidspunkt" to LocalDate.now(),
             "utbetaling_id" to utbetalingId,
@@ -45,6 +46,7 @@ class VarselRepository(
         )
 
         namedParameterJdbcTemplate.update(sql, parameters)
+        return utsendtVarselUUID
     }
 
     fun fetchMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {

@@ -1,13 +1,17 @@
 package no.nav.syfo.varsel
 
 import no.nav.syfo.pdl.PdlClient
+import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingVarselDTO
+import no.nav.syfo.senoppfolging.kafka.SenOppfolgingVarselKafkaProducer
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class VarselService(
     private val producer: EsyfovarselProducer,
     private val varselRepository: VarselRepository,
     private val pdlClient: PdlClient,
+    private val senOppfolgingVarselKafkaProducer: SenOppfolgingVarselKafkaProducer,
 ) {
 
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
@@ -43,11 +47,17 @@ class VarselService(
             orgnummer = null,
         )
         producer.sendVarselTilEsyfovarsel(hendelse)
-        // Legg til sending til isyfo
-        varselRepository.storeUtsendtVarsel(
+        val utsendtVarselUUID = varselRepository.storeUtsendtVarsel(
             personIdent = merOppfolgingVarselDTO.personIdent,
             utbetalingId = merOppfolgingVarselDTO.utbetalingId,
             sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
+        )
+        senOppfolgingVarselKafkaProducer.publishVarsel(
+            KSenOppfolgingVarselDTO(
+                uuid = utsendtVarselUUID,
+                personident = merOppfolgingVarselDTO.personIdent,
+                createdAt = LocalDateTime.now(),
+            ),
         )
     }
 
