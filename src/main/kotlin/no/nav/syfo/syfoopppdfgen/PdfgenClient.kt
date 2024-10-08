@@ -20,6 +20,99 @@ class PdfgenClient(
 ) {
     private val log = LoggerFactory.getLogger(PdfgenClient::class.java)
 
+    fun getMerVeiledningPdf(
+        pdfEndpoint: String,
+        utbetaltTom: String?,
+        maxDate: String?,
+
+    ): ByteArray? {
+        try {
+            val requestEntity =
+                getMerVeiledningPdfRequestEntity(
+                    utbetaltTom = utbetaltTom,
+                    maxDate = maxDate,
+                )
+            return restTemplate
+                .exchange(
+                    "$pdfgenUrl/api/v1/genpdf$pdfEndpoint",
+                    HttpMethod.POST,
+                    requestEntity,
+                    ByteArray::class.java,
+                ).body!!
+        } catch (e: RestClientResponseException) {
+            log.error(
+                "Call to get PDF from pdfgen failed " +
+                    "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
+                e,
+            )
+            throw e
+        }
+    }
+
+    private fun getMerVeiledningPdfRequestEntity(
+        utbetaltTom: String?,
+        maxDate: String?,
+    ): HttpEntity<PdfgenRequest> {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
+
+        val body = PdfgenRequest(
+            BrevdataMerVeiledning(
+                sendtdato = formatDateForLetter(LocalDate.now()),
+                utbetaltTom = utbetaltTom,
+                maxdato = maxDate,
+            ),
+        )
+        return HttpEntity(body, headers)
+    }
+
+    fun getMerVeiledningPilotUserPdf(
+        pdfEndpoint: String,
+        daysLeft: String?,
+        maxDate: String?,
+    ): ByteArray {
+        try {
+            val requestEntity =
+                getMerVeiledningPilotUserPdfRequestEntity(
+                    maxDate = maxDate,
+                    daysLeft = daysLeft,
+                )
+            return restTemplate
+                .exchange(
+                    "$pdfgenUrl/api/v1/genpdf$pdfEndpoint",
+                    HttpMethod.POST,
+                    requestEntity,
+                    ByteArray::class.java,
+                ).body!!
+        } catch (e: RestClientResponseException) {
+            log.error(
+                "Call to get PDF from pdfgen failed " +
+                    "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
+                e,
+            )
+            throw e
+        }
+    }
+
+    private fun getMerVeiledningPilotUserPdfRequestEntity(
+        daysLeft: String?,
+        maxDate: String?,
+    ): HttpEntity<PdfgenRequest> {
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
+
+        val body = PdfgenRequest(
+            BrevdataMerVeiledningPilot(
+                sendtdato = formatDateForLetter(LocalDate.now()),
+                daysLeft = daysLeft,
+                maxdato = maxDate,
+            ),
+        )
+        return HttpEntity(body, headers)
+    }
+
     fun getSenOppfolgingPdf(
         kvitteringEndpoint: String,
         behovForOppfolging: Boolean,
@@ -59,7 +152,7 @@ class PdfgenClient(
         val body =
             PdfgenRequest(
                 brevdata =
-                Brevdata(
+                BrevdataSenOppfolging(
                     daysUntilMaxDate = daysUntilMaxDate,
                     behovForOppfolging = behovForOppfolging,
                     sentDate = formatDateForLetter(LocalDate.now()),

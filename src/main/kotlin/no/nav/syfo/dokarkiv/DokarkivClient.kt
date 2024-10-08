@@ -41,7 +41,7 @@ class DokarkivClient(
 
     private val log = LoggerFactory.getLogger(DokarkivClient::class.qualifiedName)
 
-    fun postDocumentToDokarkiv(fnr: String, pdf: ByteArray, uuid: String): DokarkivResponse? {
+    fun postDocumentToDokarkiv(fnr: String, pdf: ByteArray, uuid: String,): DokarkivResponse? {
         return try {
             val token = azureAdClient.getSystemToken(dokarkivScope)
 
@@ -65,7 +65,7 @@ class DokarkivClient(
                 }
 
                 HttpStatus.CONFLICT -> {
-                    log.info("Sending to dokarkiv successful, journalpost created was created before")
+                    log.info("Sending to dokarkiv successful, journalpost was created before")
                     response.body
                 }
 
@@ -84,15 +84,18 @@ class DokarkivClient(
             null
         } catch (e: HttpServerErrorException) {
             log.error("Server error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
+
             null
         } catch (e: ResourceAccessException) {
             log.error(
                 "Resource access error while posting document to Dokarkiv, " +
-                    "message: ${e.message}, cause: ${e.cause}",
+                    "message: ${e.message}, cause: ${e.cause}"
             )
             null
         } catch (e: RestClientException) {
-            log.error("Unexpected error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
+            log.error(
+                "Unexpected error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
+            )
             null
         }
     }

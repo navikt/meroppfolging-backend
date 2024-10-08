@@ -29,6 +29,9 @@ dokarkiv.scope: "local:teamdokumenthandtering:dokarkiv"
 pdl.url: "http://localhost:8080"
 pdl.scope: "local:pdl:pdl"
 
+dkif.url: "http://dkif"
+dkif.scope: "local:dkif:dkif"
+
 syfobehandlendeenhet.url: "http://syfobehandlendeenhet"
 syfobehandlendeenhet.id: "local:teamsykefravr:syfobehandlendeenhet"
 

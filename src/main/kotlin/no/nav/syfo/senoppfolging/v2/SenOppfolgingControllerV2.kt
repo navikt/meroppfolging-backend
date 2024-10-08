@@ -141,7 +141,7 @@ class SenOppfolgingControllerV2(
                 utsendtVarselUUID = latestVarsel?.uuid,
             )
 
-        val pdf = syfoopfpdfgenService.getPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
+        val pdf = syfoopfpdfgenService.getSenOppfolgingPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
         if (pdf == null) {
             log.error("Failed to generate PDF")
         } else {
