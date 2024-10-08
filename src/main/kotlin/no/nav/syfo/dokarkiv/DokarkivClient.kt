@@ -93,9 +93,9 @@ class DokarkivClient(
             )
             null
         } catch (e: RestClientException) {
-            val message =
+            log.error(
                 "Unexpected error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
-            log.error(message)
+            )
             null
         }
     }
