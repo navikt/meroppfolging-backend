@@ -3,7 +3,6 @@ package no.nav.syfo.syfoopppdfgen
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
-import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.isPilot
 import no.nav.syfo.dkif.DkifClient
