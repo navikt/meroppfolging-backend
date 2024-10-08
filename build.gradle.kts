@@ -29,6 +29,7 @@ val wiremockVersion = "3.9.1"
 val wiremockKotestExtensionVersion = "3.1.0"
 val detektVersion = "1.23.7"
 val testcontainersVersion = "1.20.2"
+val springMockkVersion = "4.0.2"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
@@ -64,7 +65,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
     testImplementation("org.testcontainers:kafka:$testcontainersVersion")
     testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
-    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }
