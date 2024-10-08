@@ -127,7 +127,7 @@ class VarselServiceTest : DescribeSpec() {
                 utsendtVarsel shouldBe null
             }
 
-            it("Should not store utsendt varsel post to dokarkiv fails") {
+            it("Should not store utsendt varsel journalforing fails") {
                 every { pdfgenService.getMerVeiledningPdf(any()) } returns ByteArray(1)
                 every { dokarkivClient.postDocumentToDokarkiv(any(), any(), any()) } throws Exception("Help me")
 
