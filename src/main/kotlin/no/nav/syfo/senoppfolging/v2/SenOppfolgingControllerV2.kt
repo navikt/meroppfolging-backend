@@ -151,7 +151,13 @@ class SenOppfolgingControllerV2(
 
         senOppfolgingSvarKafkaProducer
             .publishResponse(
-                KSenOppfolgingSvarDTO(id, personident, createdAt, senOppfolgingDTOV2.senOppfolgingFormV2),
+                KSenOppfolgingSvarDTO(
+                    id = id,
+                    personIdent = personident,
+                    createdAt = createdAt,
+                    response = senOppfolgingDTOV2.senOppfolgingFormV2,
+                    varselId = latestVarsel?.uuid
+                ),
             )
 
         metric.countSenOppfolgingPilotSubmitted()
