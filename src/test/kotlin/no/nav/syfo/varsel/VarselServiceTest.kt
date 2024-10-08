@@ -1,14 +1,19 @@
 package no.nav.syfo.varsel
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.ninjasquad.springmockk.MockkBean
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.extensions.wiremock.ListenerMode
 import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
 import no.nav.syfo.LocalApplication
+import no.nav.syfo.dokarkiv.DokarkivClient
+import no.nav.syfo.dokarkiv.domain.DokarkivResponse
 import no.nav.syfo.pdl.stubHentPerson
+import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
 import no.nav.syfo.sykepengedagerinformasjon.domain.SykepengedagerInformasjonDTO
 import no.nav.syfo.sykmelding.database.SykmeldingDao
@@ -25,6 +30,12 @@ import java.util.*
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 class VarselServiceTest : DescribeSpec() {
+
+    @MockkBean(relaxed = true)
+    lateinit var pdfgenService: PdfgenService
+
+    @MockkBean(relaxed = true)
+    lateinit var dokarkivClient: DokarkivClient
 
     @Autowired
     lateinit var varselService: VarselService
@@ -98,6 +109,61 @@ class VarselServiceTest : DescribeSpec() {
 
                 merOppfolgingVarselToBeSent.size shouldBe 1
                 merOppfolgingVarselToBeSent[0].personIdent shouldBe "12345678910"
+            }
+
+            it("Should not store utsendt varsel if pdfgen fails") {
+                every { pdfgenService.getMerVeiledningPdf(any()) } throws Exception("Help me")
+
+                varselService.sendMerOppfolgingVarsel(
+                    MerOppfolgingVarselDTO(
+                        personIdent = "12345678910",
+                        utbetalingId = "utbetalingId",
+                        sykmeldingId = "sykmeldingId",
+                    ),
+                )
+
+                val utsendtVarsel = varselService.getUtsendtVarsel("12345678910")
+
+                utsendtVarsel shouldBe null
+            }
+
+            it("Should not store utsendt varsel journalforing fails") {
+                every { pdfgenService.getMerVeiledningPdf(any()) } returns ByteArray(1)
+                every { dokarkivClient.postDocumentToDokarkiv(any(), any(), any()) } throws Exception("Help me")
+
+                varselService.sendMerOppfolgingVarsel(
+                    MerOppfolgingVarselDTO(
+                        personIdent = "12345678910",
+                        utbetalingId = "utbetalingId",
+                        sykmeldingId = "sykmeldingId",
+                    ),
+                )
+
+                val utsendtVarsel = varselService.getUtsendtVarsel("12345678910")
+
+                utsendtVarsel shouldBe null
+            }
+
+            it("Should store utsendt varsel post to dokarkiv OK") {
+                every { pdfgenService.getMerVeiledningPdf(any()) } returns ByteArray(1)
+                every {
+                    dokarkivClient.postDocumentToDokarkiv(any(), any(), any())
+                } returns DokarkivResponse(null, 1, null, "status", null)
+
+                varselService.sendMerOppfolgingVarsel(
+                    MerOppfolgingVarselDTO(
+                        personIdent = "12345678910",
+                        utbetalingId = "utbetalingId",
+                        sykmeldingId = "sykmeldingId",
+                    ),
+                )
+
+                val utsendtVarsel = varselService.getUtsendtVarsel("12345678910")
+
+                utsendtVarsel shouldNotBe null
+                utsendtVarsel!!.personIdent shouldBe "12345678910"
+                utsendtVarsel.utbetalingId shouldBe "utbetalingId"
+                utsendtVarsel.sykmeldingId shouldBe "sykmeldingId"
             }
         }
     }

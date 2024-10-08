@@ -11,6 +11,7 @@ import no.nav.syfo.auth.getFnr
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
+import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.pdl.PdlClient
@@ -29,6 +30,7 @@ import no.nav.syfo.senoppfolging.v1.domain.TilbakeIArbeidSvar
 import no.nav.syfo.senoppfolging.v1.domain.UtdanningBestattSvar
 import no.nav.syfo.senoppfolging.v1.domain.UtdanningGodkjentSvar
 import no.nav.syfo.senoppfolging.v1.domain.UtdanningSvar
+import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.varsel.ArbeidstakerHendelse
 import no.nav.syfo.varsel.EsyfovarselProducer
 import no.nav.syfo.varsel.HendelseType
@@ -47,10 +49,19 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
         val tokenValidator = mockk<TokenValidator>(relaxed = true)
         val varselRepository = mockk<VarselRepository>(relaxed = true)
         val pdlClient = mockk<PdlClient>(relaxed = true)
+        val pdfgenService = mockk<PdfgenService>(relaxed = true)
+        val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
         val metric = mockk<Metric>(relaxed = true)
         val senOppfolgingVarselKafkaProducer = mockk<SenOppfolgingVarselKafkaProducer>(relaxed = true)
         val varselService =
-            VarselService(esyfovarselProducer, varselRepository, pdlClient, senOppfolgingVarselKafkaProducer)
+            VarselService(
+                esyfovarselProducer,
+                varselRepository,
+                pdlClient,
+                senOppfolgingVarselKafkaProducer,
+                pdfgenService,
+                dokarkivClient
+            )
         val responseDao = mockk<ResponseDao>(relaxed = true)
 
         val controller =
