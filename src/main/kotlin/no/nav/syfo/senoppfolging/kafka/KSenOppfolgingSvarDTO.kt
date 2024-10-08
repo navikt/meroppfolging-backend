@@ -9,4 +9,5 @@ data class KSenOppfolgingSvarDTO(
     val personIdent: String,
     val createdAt: LocalDateTime,
     val response: List<SenOppfolgingQuestionV2>,
+    val varselId: UUID?
 )
