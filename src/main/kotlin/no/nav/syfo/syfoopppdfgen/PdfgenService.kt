@@ -4,7 +4,6 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.auth.TokenValidator
-import no.nav.syfo.auth.getFnr
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.isPilot
 import no.nav.syfo.dkif.DkifClient
@@ -26,13 +25,12 @@ class PdfgenService(
     val dkifClient: DkifClient,
     @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
 ) {
-    lateinit var tokenValidator: TokenValidator
     private val log = logger()
     val isProd = "prod-gcp" == clusterName
 
-    private val urlForReservedUsers = "/api/v1/genpdf/oppfolging/mer_veiledning_for_reserverte"
-    private val urlForDigitalUsers = "/api/v1/genpdf/oppfolging/mer_veiledning_for_digitale"
-    private val urlForDigitalPilotUsers = "/api/v1/genpdf/senoppfolging/landing"
+    private val urlForReservedUsers = "/oppfolging/mer_veiledning_for_reserverte"
+    private val urlForDigitalUsers = "/oppfolging/mer_veiledning_for_digitale"
+    private val urlForDigitalPilotUsers = "/senoppfolging/landing"
 
     private fun getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar: FremtidigSituasjonSvar): String {
         return when (fremtidigSituasjonSvar) {
