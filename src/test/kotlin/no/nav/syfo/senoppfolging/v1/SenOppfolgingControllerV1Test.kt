@@ -15,6 +15,7 @@ import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.pdl.PdlClient
+import no.nav.syfo.senoppfolging.kafka.SenOppfolgingVarselKafkaProducer
 import no.nav.syfo.senoppfolging.v1.domain.AndreForholdSvar
 import no.nav.syfo.senoppfolging.v1.domain.Besvarelse
 import no.nav.syfo.senoppfolging.v1.domain.FremtidigSituasjonSvar
@@ -51,8 +52,9 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
         val pdfgenService = mockk<PdfgenService>(relaxed = true)
         val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
         val metric = mockk<Metric>(relaxed = true)
+        val senOppfolgingVarselKafkaProducer = mockk<SenOppfolgingVarselKafkaProducer>(relaxed = true)
         val varselService =
-            VarselService(esyfovarselProducer, varselRepository, pdlClient, pdfgenService, dokarkivClient)
+            VarselService(esyfovarselProducer, varselRepository, pdlClient, senOppfolgingVarselKafkaProducer, pdfgenService, dokarkivClient)
         val responseDao = mockk<ResponseDao>(relaxed = true)
 
         val controller =

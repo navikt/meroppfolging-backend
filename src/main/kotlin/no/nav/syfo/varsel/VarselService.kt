@@ -3,18 +3,22 @@ package no.nav.syfo.varsel
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.logger
 import no.nav.syfo.pdl.PdlClient
-import no.nav.syfo.syfoopppdfgen.PdfgenService
+import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingVarselDTO
+import no.nav.syfo.senoppfolging.kafka.SenOppfolgingVarselKafkaProducer
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.*
+import no.nav.syfo.syfoopppdfgen.PdfgenService
 
 @Service
 class VarselService(
     private val producer: EsyfovarselProducer,
     private val varselRepository: VarselRepository,
     private val pdlClient: PdlClient,
+    private val senOppfolgingVarselKafkaProducer: SenOppfolgingVarselKafkaProducer,
     private val pdfgenService: PdfgenService,
     private val dokarkivClient: DokarkivClient,
-) {
+    ) {
     private val log = logger()
 
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
@@ -51,24 +55,29 @@ class VarselService(
                 pdf = pdf,
                 uuid = UUID.randomUUID().toString(),
             )
-
             if (journalpostId != null) {
-                val hendelse = ArbeidstakerHendelse(
-                    type = HendelseType.SM_MER_VEILEDNING,
-                    ferdigstill = false,
-                    data = journalpostId, // Må tilpasse Esyfovarsel slik at det blir distribuert til ikke-digitale brukere
-                    arbeidstakerFnr = personIdent,
-                    orgnummer = null,
-                )
-                producer.sendVarselTilEsyfovarsel(hendelse)
-                // Legg til sending til isyfo
-                varselRepository.storeUtsendtVarsel(
-                    personIdent = merOppfolgingVarselDTO.personIdent,
-                    utbetalingId = merOppfolgingVarselDTO.utbetalingId,
-                    sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
+                    val hendelse = ArbeidstakerHendelse(
+                        type = HendelseType.SM_MER_VEILEDNING,
+                        ferdigstill = false,
+                        data = journalpostId, // Må tilpasse Esyfovarsel slik at det blir distribuert til ikke-digitale brukere
+                        arbeidstakerFnr = personIdent,
+                        orgnummer = null,
+                    )
+                    producer.sendVarselTilEsyfovarsel(hendelse)
 
-                )
-            } else {
+                    val utsendtVarselUUID = varselRepository.storeUtsendtVarsel(
+                        personIdent = merOppfolgingVarselDTO.personIdent,
+                        utbetalingId = merOppfolgingVarselDTO.utbetalingId,
+                        sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
+                    )
+                    senOppfolgingVarselKafkaProducer.publishVarsel(
+                        KSenOppfolgingVarselDTO(
+                            uuid = utsendtVarselUUID,
+                            personident = merOppfolgingVarselDTO.personIdent,
+                            createdAt = LocalDateTime.now(),
+                        ),
+                    )
+                } else {
                 log.warn("Fetched journalpost id is null, skipped sending varsel")
             }
         } catch (e: Exception) {
