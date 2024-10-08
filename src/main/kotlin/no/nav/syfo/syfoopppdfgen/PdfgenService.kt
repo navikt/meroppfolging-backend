@@ -65,10 +65,9 @@ class PdfgenService(
         )
     }
 
-    fun getMerVeiledningPdf(): ByteArray? {
+    fun getMerVeiledningPdf(personIdent: String): ByteArray {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
-        val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
         val isPilotUser = behandlendeEnhet.isPilot(isProd = isProd)
         val isUserReservert = dkifClient.person(personIdent)?.kanVarsles == true

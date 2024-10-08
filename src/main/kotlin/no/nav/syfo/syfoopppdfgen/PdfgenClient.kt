@@ -25,7 +25,7 @@ class PdfgenClient(
         utbetaltTom: String?,
         maxDate: String?,
 
-    ): ByteArray? {
+    ): ByteArray {
         try {
             val requestEntity =
                 getMerVeiledningPdfRequestEntity(

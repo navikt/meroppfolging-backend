@@ -1,14 +1,21 @@
 package no.nav.syfo.varsel
 
+import no.nav.syfo.dokarkiv.DokarkivClient
+import no.nav.syfo.logger
 import no.nav.syfo.pdl.PdlClient
+import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class VarselService(
     private val producer: EsyfovarselProducer,
     private val varselRepository: VarselRepository,
     private val pdlClient: PdlClient,
+    private val pdfgenService: PdfgenService,
+    private val dokarkivClient: DokarkivClient,
 ) {
+    private val log = logger()
 
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
         return varselRepository.fetchMerOppfolgingVarselToBeSent()
@@ -35,20 +42,40 @@ class VarselService(
         merOppfolgingVarselDTO: MerOppfolgingVarselDTO,
     ) {
         // Hent PDF og journalfør. Avbryte utsending dersom journalføring feiler. Så sikrer vi at jobben prøver på nytt.
-        val hendelse = ArbeidstakerHendelse(
-            type = HendelseType.SM_MER_VEILEDNING,
-            ferdigstill = false,
-            data = null, // Må vel legge med journalpost_id her, og tilpasse Esyfovarsel slik at det blir distribuert til ikke-digitale brukere
-            arbeidstakerFnr = merOppfolgingVarselDTO.personIdent,
-            orgnummer = null,
-        )
-        producer.sendVarselTilEsyfovarsel(hendelse)
-        // Legg til sending til isyfo
-        varselRepository.storeUtsendtVarsel(
-            personIdent = merOppfolgingVarselDTO.personIdent,
-            utbetalingId = merOppfolgingVarselDTO.utbetalingId,
-            sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
-        )
+        val personIdent = merOppfolgingVarselDTO.personIdent
+        try {
+            val pdf = pdfgenService.getMerVeiledningPdf(personIdent)
+
+            val journalpostId = dokarkivClient.postDocumentToDokarkiv(
+                fnr = personIdent,
+                pdf = pdf,
+                uuid = UUID.randomUUID().toString(),
+            )
+
+            if (journalpostId != null) {
+                val hendelse = ArbeidstakerHendelse(
+                    type = HendelseType.SM_MER_VEILEDNING,
+                    ferdigstill = false,
+                    data = journalpostId, // Må tilpasse Esyfovarsel slik at det blir distribuert til ikke-digitale brukere
+                    arbeidstakerFnr = personIdent,
+                    orgnummer = null,
+                )
+                producer.sendVarselTilEsyfovarsel(hendelse)
+                // Legg til sending til isyfo
+                varselRepository.storeUtsendtVarsel(
+                    personIdent = merOppfolgingVarselDTO.personIdent,
+                    utbetalingId = merOppfolgingVarselDTO.utbetalingId,
+                    sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
+
+                )
+            } else {
+                log.warn("Fetched journalpost id is null, skipped sending varsel")
+            }
+        } catch (e: Exception) {
+            log.error(
+                "Skipped sending varsel due to exception: ${e.cause}, ${e.message}",
+            )
+        }
     }
 
     fun getUtsendtVarsel(fnr: String): UtsendtVarsel? {

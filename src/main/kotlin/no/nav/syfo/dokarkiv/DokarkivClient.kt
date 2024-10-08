@@ -61,12 +61,12 @@ class DokarkivClient(
             when (response.statusCode) {
                 HttpStatus.CREATED -> {
                     log.info("Sending to dokarkiv successful, journalpost created")
-                    response.body
+                    response.body!!
                 }
 
                 HttpStatus.CONFLICT -> {
                     log.info("Sending to dokarkiv successful, journalpost was created before")
-                    response.body
+                    response.body!!
                 }
 
                 HttpStatus.UNAUTHORIZED -> {
