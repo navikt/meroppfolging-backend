@@ -5,10 +5,10 @@ import no.nav.syfo.logger
 import no.nav.syfo.pdl.PdlClient
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingVarselDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingVarselKafkaProducer
+import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.syfo.syfoopppdfgen.PdfgenService
 
 @Service
 class VarselService(
@@ -18,7 +18,7 @@ class VarselService(
     private val senOppfolgingVarselKafkaProducer: SenOppfolgingVarselKafkaProducer,
     private val pdfgenService: PdfgenService,
     private val dokarkivClient: DokarkivClient,
-    ) {
+) {
     private val log = logger()
 
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
@@ -56,28 +56,28 @@ class VarselService(
                 uuid = UUID.randomUUID().toString(),
             )
             if (journalpostId != null) {
-                    val hendelse = ArbeidstakerHendelse(
-                        type = HendelseType.SM_MER_VEILEDNING,
-                        ferdigstill = false,
-                        data = journalpostId, // Må tilpasse Esyfovarsel slik at det blir distribuert til ikke-digitale brukere
-                        arbeidstakerFnr = personIdent,
-                        orgnummer = null,
-                    )
-                    producer.sendVarselTilEsyfovarsel(hendelse)
+                val hendelse = ArbeidstakerHendelse(
+                    type = HendelseType.SM_MER_VEILEDNING,
+                    ferdigstill = false,
+                    data = journalpostId, // Må tilpasse Esyfovarsel slik at det blir distribuert til ikke-digitale brukere
+                    arbeidstakerFnr = personIdent,
+                    orgnummer = null,
+                )
+                producer.sendVarselTilEsyfovarsel(hendelse)
 
-                    val utsendtVarselUUID = varselRepository.storeUtsendtVarsel(
-                        personIdent = merOppfolgingVarselDTO.personIdent,
-                        utbetalingId = merOppfolgingVarselDTO.utbetalingId,
-                        sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
-                    )
-                    senOppfolgingVarselKafkaProducer.publishVarsel(
-                        KSenOppfolgingVarselDTO(
-                            uuid = utsendtVarselUUID,
-                            personident = merOppfolgingVarselDTO.personIdent,
-                            createdAt = LocalDateTime.now(),
-                        ),
-                    )
-                } else {
+                val utsendtVarselUUID = varselRepository.storeUtsendtVarsel(
+                    personIdent = merOppfolgingVarselDTO.personIdent,
+                    utbetalingId = merOppfolgingVarselDTO.utbetalingId,
+                    sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
+                )
+                senOppfolgingVarselKafkaProducer.publishVarsel(
+                    KSenOppfolgingVarselDTO(
+                        uuid = utsendtVarselUUID,
+                        personident = merOppfolgingVarselDTO.personIdent,
+                        createdAt = LocalDateTime.now(),
+                    ),
+                )
+            } else {
                 log.warn("Fetched journalpost id is null, skipped sending varsel")
             }
         } catch (e: Exception) {
