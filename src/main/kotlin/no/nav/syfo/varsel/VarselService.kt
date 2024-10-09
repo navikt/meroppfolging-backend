@@ -45,21 +45,25 @@ class VarselService(
     fun sendMerOppfolgingVarsel(
         merOppfolgingVarselDTO: MerOppfolgingVarselDTO,
     ) {
-        // Hent PDF og journalfør. Avbryte utsending dersom journalføring feiler. Så sikrer vi at jobben prøver på nytt.
         val personIdent = merOppfolgingVarselDTO.personIdent
         try {
             val pdf = pdfgenService.getMerVeiledningPdf(personIdent)
 
-            val journalpostId = dokarkivClient.postDocumentToDokarkiv(
+            val dokarkivResponse = dokarkivClient.postDocumentToDokarkiv(
                 fnr = personIdent,
                 pdf = pdf,
                 uuid = UUID.randomUUID().toString(),
             )
-            if (journalpostId != null) {
+            if (dokarkivResponse != null) {
                 val hendelse = ArbeidstakerHendelse(
                     type = HendelseType.SM_MER_VEILEDNING,
                     ferdigstill = false,
-                    data = journalpostId, // Må tilpasse Esyfovarsel slik at det blir distribuert til ikke-digitale brukere
+                    data = VarselData(
+                        VarselDataJournalpost(dokarkivResponse.journalpostId.toString(), null),
+                        null,
+                        null,
+                        null,
+                    ),
                     arbeidstakerFnr = personIdent,
                     orgnummer = null,
                 )
