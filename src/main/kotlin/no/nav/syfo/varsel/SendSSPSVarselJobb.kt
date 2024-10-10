@@ -2,15 +2,18 @@ package no.nav.syfo.varsel
 
 import no.nav.syfo.leaderelection.LeaderElectionClient
 import no.nav.syfo.logger
+import no.nav.syfo.varsel.database.SendingDueDateDAO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Component
 class SendSSPSVarselJobb(
     private val varselService: VarselService,
     private val leaderElectionClient: LeaderElectionClient,
     @Value("\${toggle.ssps.varselutsending}") private var varselutsendingEnabledForEnvironment: Boolean,
+    private var sendingDueDateDAO: SendingDueDateDAO,
 ) {
     private val log = logger()
     private val logName = "[${SendSSPSVarselJobb::class.simpleName}]"
@@ -31,8 +34,17 @@ class SendSSPSVarselJobb(
         varslerToSendToday.forEach {
             try {
                 varselService.sendMerOppfolgingVarsel(it)
+                sendingDueDateDAO.deleteSendingDueDate(it.sykmeldingId)
                 antallVarslerSendt++
             } catch (e: RuntimeException) {
+                val dueDate = sendingDueDateDAO.getSendingDueDate(it.personIdent, it.sykmeldingId, it.utbetalingId)
+                if ((dueDate != null)) {
+                    if (dueDate.isEqual(LocalDateTime.now()) || dueDate.isAfter(LocalDateTime.now().plusDays(1))) {
+                        log.error("[TOO MANY DAYS]: SSPS varsel must be sent before $dueDate!")
+                    }
+                } else {
+                    sendingDueDateDAO.persistSendingDueDate(it)
+                }
                 log.error("$logName Feil i utsending av varsel. ${e.message}", e)
             }
         }
