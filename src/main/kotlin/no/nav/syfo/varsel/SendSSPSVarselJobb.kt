@@ -26,32 +26,50 @@ class SendSSPSVarselJobb(
 
         log.info("$logName Starter jobb")
 
-        var antallVarslerSendt = 0
-
         val varslerToSendToday = varselService.findMerOppfolgingVarselToBeSent()
         log.info("$logName Planlegger å sende ${varslerToSendToday.size} varsler totalt")
 
-        varslerToSendToday.forEach {
-            try {
-                varselService.sendMerOppfolgingVarsel(it)
-                sendingDueDateDAO.deleteSendingDueDate(it.sykmeldingId)
-                antallVarslerSendt++
-            } catch (e: RuntimeException) {
-                val dueDate = sendingDueDateDAO.getSendingDueDate(it.personIdent, it.sykmeldingId, it.utbetalingId)
-                if ((dueDate != null)) {
-                    if (dueDate.isEqual(LocalDateTime.now()) || dueDate.isAfter(LocalDateTime.now().plusDays(1))) {
-                        log.error("[TOO MANY DAYS]: SSPS varsel must be sent before $dueDate!")
-                    }
-                } else {
-                    sendingDueDateDAO.persistSendingDueDate(it)
-                }
-                log.error("$logName Feil i utsending av varsel. ${e.message}", e)
-            }
-        }
+        val antallVarslerSendt = sendVarslerWithHandling(varslerToSendToday)
 
         log.info("$logName Sendte $antallVarslerSendt varsler")
         log.info("$logName Avslutter jobb")
 
         return antallVarslerSendt
+    }
+
+    private fun sendVarslerWithHandling(varsler: List<MerOppfolgingVarselDTO>): Int {
+        var antallVarslerSendt = 0
+
+        varsler.forEach { varsel ->
+            try {
+                sendVarsel(varsel)
+                antallVarslerSendt++
+            } catch (e: RuntimeException) {
+                handleSendVarselError(varsel, e)
+            }
+        }
+
+        return antallVarslerSendt
+    }
+
+    private fun sendVarsel(varsel: MerOppfolgingVarselDTO) {
+        varselService.sendMerOppfolgingVarsel(varsel)
+        sendingDueDateDAO.deleteSendingDueDate(varsel.sykmeldingId)
+    }
+
+    private fun handleSendVarselError(varsel: MerOppfolgingVarselDTO, e: RuntimeException) {
+        log.error("$logName Feil i utsending av varsel. ${e.message}", e)
+
+        val dueDate = sendingDueDateDAO.getSendingDueDate(varsel.personIdent, varsel.sykmeldingId, varsel.utbetalingId)
+
+        if (dueDate == null) {
+            sendingDueDateDAO.persistSendingDueDate(varsel)
+        } else if (dueDate.isDueDatePassed()) {
+            log.error("[TOO MANY DAYS]: SSPS varsel must be sent before $dueDate!")
+        }
+    }
+
+    private fun LocalDateTime.isDueDatePassed(): Boolean {
+        return this.isEqual( LocalDateTime.now())
     }
 }
