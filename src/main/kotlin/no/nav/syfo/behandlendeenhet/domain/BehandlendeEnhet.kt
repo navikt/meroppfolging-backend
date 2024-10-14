@@ -10,7 +10,8 @@ data class BehandlendeEnhet(
     var navn: String,
 )
 
-fun BehandlendeEnhet.isPilot(isProd: Boolean): Boolean {
+fun BehandlendeEnhet.isPilot(clusterName: String): Boolean {
+    val isProd = "prod-gcp" == clusterName
     if (isProd) {
         return listOf(OVRE_EIKER_ENHETSNUMMER, ASKER_ENHETSNUMMER, NORDRE_AKER_ENHETSNUMMER).contains(this.enhetId)
     }

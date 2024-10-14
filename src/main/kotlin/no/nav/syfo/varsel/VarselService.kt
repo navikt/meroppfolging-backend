@@ -25,7 +25,6 @@ class VarselService(
     @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
 ) {
     private val log = logger()
-    val isProd = "prod-gcp" == clusterName
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
         return varselRepository.fetchMerOppfolgingVarselToBeSent()
             .filter {
@@ -33,7 +32,7 @@ class VarselService(
             }
             .filter {
                 val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(it.personIdent)
-                !behandlendeEnhet.isPilot(isProd = isProd)
+                !behandlendeEnhet.isPilot(clusterName)
             }
     }
 

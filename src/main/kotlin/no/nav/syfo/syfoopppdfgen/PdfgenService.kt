@@ -66,7 +66,7 @@ class PdfgenService(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-        val isPilotUser = behandlendeEnhet.isPilot(isProd = isProd)
+        val isPilotUser = behandlendeEnhet.isPilot(clusterName)
         val isUserReservert = dkifClient.person(personIdent)?.kanVarsles == true
 
         return when {

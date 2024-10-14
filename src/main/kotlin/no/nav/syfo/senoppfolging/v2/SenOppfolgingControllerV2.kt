@@ -76,7 +76,6 @@ class SenOppfolgingControllerV2(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-        val isProd = "prod-gcp" == clusterName
         val isVarselUtsendt = varselService.getUtsendtVarsel(personIdent) != null
         log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
 
@@ -101,7 +100,7 @@ class SenOppfolgingControllerV2(
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
 
         return SenOppfolgingStatusDTOV2(
-            isPilot = behandlendeEnhet.isPilot(isProd = isProd),
+            isPilot = behandlendeEnhet.isPilot(clusterName),
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
