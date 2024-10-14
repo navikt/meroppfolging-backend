@@ -8,6 +8,7 @@ import io.mockk.verify
 import junit.framework.TestCase.assertEquals
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
+import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
@@ -53,6 +54,7 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
         val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
         val metric = mockk<Metric>(relaxed = true)
         val senOppfolgingVarselKafkaProducer = mockk<SenOppfolgingVarselKafkaProducer>(relaxed = true)
+        val behandlendeEnhetsClient = mockk<BehandlendeEnhetClient>(relaxed = true)
         val varselService =
             VarselService(
                 esyfovarselProducer,
@@ -60,7 +62,8 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
                 pdlClient,
                 senOppfolgingVarselKafkaProducer,
                 pdfgenService,
-                dokarkivClient
+                dokarkivClient,
+                behandlendeEnhetsClient,
             )
         val responseDao = mockk<ResponseDao>(relaxed = true)
 
