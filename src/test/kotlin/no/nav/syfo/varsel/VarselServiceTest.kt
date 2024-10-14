@@ -9,7 +9,10 @@ import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
+import io.mockk.mockk
 import no.nav.syfo.LocalApplication
+import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
 import no.nav.syfo.pdl.stubHentPerson
@@ -54,6 +57,7 @@ class VarselServiceTest : DescribeSpec() {
 
         val pdlServer = WireMockServer(8080)
         listener(WireMockListener(pdlServer, ListenerMode.PER_TEST))
+        val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
 
         beforeTest {
             pdlServer.stubHentPerson(yearsOld = 55)
@@ -104,6 +108,26 @@ class VarselServiceTest : DescribeSpec() {
                     gjenstaendeSykedager = "70",
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
                 )
+                every { behandlendeEnhetClient.getBehandlendeEnhet(any()) } returns BehandlendeEnhet(
+                    "0314",
+                    "Testkontor",
+                )
+                /*every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
+                    "0314",
+                    "Testkontor",
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
+                    "0314",
+                    "Testkontor",
+                )*/
+
+                /*createMockdataForFnr(
+                    fnr = "12345678910",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )*/
+
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 
