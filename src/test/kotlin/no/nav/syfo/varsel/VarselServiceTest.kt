@@ -108,18 +108,18 @@ class VarselServiceTest : DescribeSpec() {
                     gjenstaendeSykedager = "70",
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
                 )
-                every { behandlendeEnhetClient.getBehandlendeEnhet(any()) } returns BehandlendeEnhet(
-                    "0314",
-                    "Testkontor",
-                )
-                /*every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
-                    "0314",
-                    "Testkontor",
-                )
                 every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
                     "0314",
                     "Testkontor",
-                )*/
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet( "12345678911") } returns BehandlendeEnhet(
+                    "0314",
+                    "Testkontor",
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678912") } returns BehandlendeEnhet(
+                    "0314",
+                    "Testkontor",
+                )
 
                 /*createMockdataForFnr(
                     fnr = "12345678910",
