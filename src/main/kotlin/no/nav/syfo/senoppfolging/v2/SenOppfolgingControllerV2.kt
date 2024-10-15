@@ -17,7 +17,6 @@ import no.nav.syfo.logger
 import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.AlreadyRespondedException
-import no.nav.syfo.senoppfolging.NoUtsendtVarselException
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus
@@ -76,7 +75,6 @@ class SenOppfolgingControllerV2(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-        val isVarselUtsendt = varselService.getUtsendtVarsel(personIdent) != null
         log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
 
         if (!pilotEnabledForEnvironment || hasRespondedToV1Form(personIdent)) {
@@ -87,7 +85,6 @@ class SenOppfolgingControllerV2(
                 responseTime = null,
                 maxDate = null,
                 gjenstaendeSykedager = null,
-                isVarselUtsendt = isVarselUtsendt,
             )
         }
 
@@ -106,7 +103,6 @@ class SenOppfolgingControllerV2(
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
             maxDate = sykepengerMaxDateResponse?.maxDate,
             gjenstaendeSykedager = sykepengerMaxDateResponse?.gjenstaendeSykedager,
-            isVarselUtsendt = isVarselUtsendt,
         )
     }
 
@@ -135,18 +131,13 @@ class SenOppfolgingControllerV2(
 
         val createdAt = LocalDateTime.now()
         val latestVarsel = varselService.getUtsendtVarsel(personident)
-        if (latestVarsel == null) {
-            log.error("No varsel found. This should not happen.")
-            throw NoUtsendtVarselException()
-        }
-
         val id =
             responseDao.saveFormResponse(
                 personIdent = PersonIdentNumber(personident),
                 questionResponses = senOppfolgingDTOV2.senOppfolgingFormV2.map { it.toQuestionResponse() },
                 formType = FormType.SEN_OPPFOLGING_V2,
                 createdAt = createdAt,
-                utsendtVarselUUID = latestVarsel.uuid,
+                utsendtVarselUUID = latestVarsel?.uuid,
             )
 
         val pdf = syfoopfpdfgenService.getSenOppfolgingPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
@@ -164,7 +155,7 @@ class SenOppfolgingControllerV2(
                     personIdent = personident,
                     createdAt = createdAt,
                     response = senOppfolgingDTOV2.senOppfolgingFormV2,
-                    varselId = latestVarsel.uuid
+                    varselId = latestVarsel?.uuid
                 ),
             )
 
