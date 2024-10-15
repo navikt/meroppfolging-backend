@@ -52,6 +52,7 @@ kafka.schema.registry: "kafka.schema.registry"
 
 toggle.pilot: "true"
 toggle.ssps.varselutsending: "false"
+send.varsel.job.cron: "0 */5 * * * *"
 
 azure:
   app:
