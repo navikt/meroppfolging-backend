@@ -24,7 +24,7 @@ class ResponseDao(
         questionResponses: List<QuestionResponse>,
         formType: FormType,
         createdAt: LocalDateTime,
-        utsendtVarselUUID: UUID?,
+        utsendtVarselUUID: UUID? = null,
     ): UUID {
         val uuid = UUID.randomUUID()
         val lagreSql =

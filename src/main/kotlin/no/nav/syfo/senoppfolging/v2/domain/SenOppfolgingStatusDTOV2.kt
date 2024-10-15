@@ -9,7 +9,6 @@ data class SenOppfolgingStatusDTOV2(
     val responseTime: String?,
     val maxDate: String?,
     val gjenstaendeSykedager: String?,
-    val isVarselUtsendt: Boolean,
 )
 
 enum class ResponseStatus {
