@@ -23,7 +23,7 @@ class PdfgenService(
     val behandlendeEnhetClient: BehandlendeEnhetClient,
     val dkifClient: DkifClient,
     @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
-    ) {
+) {
     private val log = logger()
 
     private val urlForReservedUsers = "/oppfolging/mer_veiledning_for_reserverte"
@@ -72,17 +72,19 @@ class PdfgenService(
             isUserReservert -> syfooppfpdfgenClient.getMerVeiledningPdf(
                 pdfEndpoint = urlForReservedUsers,
                 utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
-                maxDate = sykepengerMaxDateResponse?.maxDate
+                maxDate = sykepengerMaxDateResponse?.maxDate,
             )
+
             isPilotUser -> syfooppfpdfgenClient.getMerVeiledningPilotUserPdf(
                 pdfEndpoint = urlForDigitalPilotUsers,
                 daysLeft = sykepengerMaxDateResponse?.gjenstaendeSykedager,
-                maxDate = sykepengerMaxDateResponse?.maxDate
+                maxDate = sykepengerMaxDateResponse?.maxDate,
             )
+
             else -> syfooppfpdfgenClient.getMerVeiledningPdf(
                 pdfEndpoint = urlForDigitalUsers,
                 utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
-                maxDate = sykepengerMaxDateResponse?.maxDate
+                maxDate = sykepengerMaxDateResponse?.maxDate,
             )
         }
     }

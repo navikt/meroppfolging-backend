@@ -114,7 +114,7 @@ class VarselServiceTest : DescribeSpec() {
                     "0624",
                     "Testkontor",
                 )
-                every { behandlendeEnhetClient.getBehandlendeEnhet( "12345678911") } returns BehandlendeEnhet(
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns BehandlendeEnhet(
                     "0624",
                     "Testkontor",
                 )
@@ -122,7 +122,6 @@ class VarselServiceTest : DescribeSpec() {
                     "0624",
                     "Testkontor",
                 )
-
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 
@@ -151,11 +150,10 @@ class VarselServiceTest : DescribeSpec() {
                     "0624",
                     "Testkontor",
                 )
-                every { behandlendeEnhetClient.getBehandlendeEnhet( "12345678911") } returns BehandlendeEnhet(
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns BehandlendeEnhet(
                     "0314",
                     "Testkontor",
                 )
-
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 
