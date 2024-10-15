@@ -11,12 +11,11 @@ class SendSSPSVarselJobb(
     private val varselService: VarselService,
     private val leaderElectionClient: LeaderElectionClient,
     @Value("\${toggle.ssps.varselutsending}") private var varselutsendingEnabledForEnvironment: Boolean,
-    @Value("\${send.varsel.job.cron}") private var utsendingCron: String,
 ) {
     private val log = logger()
     private val logName = "[${SendSSPSVarselJobb::class.simpleName}]"
 
-    @Scheduled(cron = "#{@sendSSPSVarselJobb.utsendingCron}")
+    @Scheduled(cron = "\${send.varsel.job.cron}")
     fun sendVarsler(): Int {
         if (!varselutsendingEnabledForEnvironment || !leaderElectionClient.isPodLeader()) {
             return 0
