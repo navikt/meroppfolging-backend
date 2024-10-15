@@ -9,7 +9,6 @@ import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
-import io.mockk.mockk
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
@@ -40,6 +39,9 @@ class VarselServiceTest : DescribeSpec() {
     @MockkBean(relaxed = true)
     lateinit var dokarkivClient: DokarkivClient
 
+    @MockkBean(relaxed = true)
+    lateinit var behandlendeEnhetClient: BehandlendeEnhetClient
+
     @Autowired
     lateinit var varselService: VarselService
 
@@ -57,7 +59,6 @@ class VarselServiceTest : DescribeSpec() {
 
         val pdlServer = WireMockServer(8080)
         listener(WireMockListener(pdlServer, ListenerMode.PER_TEST))
-        val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
 
         beforeTest {
             pdlServer.stubHentPerson(yearsOld = 55)
@@ -108,25 +109,52 @@ class VarselServiceTest : DescribeSpec() {
                     gjenstaendeSykedager = "70",
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
                 )
+
                 every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
-                    "0314",
+                    "0624",
+                    "Testkontor",
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet( "12345678911") } returns BehandlendeEnhet(
+                    "0624",
+                    "Testkontor",
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678912") } returns BehandlendeEnhet(
+                    "0624",
+                    "Testkontor",
+                )
+
+
+                val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
+
+                merOppfolgingVarselToBeSent.size shouldBe 1
+                merOppfolgingVarselToBeSent[0].personIdent shouldBe "12345678910"
+            }
+
+            it("Should find only one oppfolging varsel to be sent") {
+                // Should send varsel
+                createMockdataForFnr(
+                    fnr = "12345678910",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                // No varsel due to not pilot user
+                createMockdataForFnr(
+                    fnr = "12345678911",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
+                    "0624",
                     "Testkontor",
                 )
                 every { behandlendeEnhetClient.getBehandlendeEnhet( "12345678911") } returns BehandlendeEnhet(
                     "0314",
                     "Testkontor",
                 )
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678912") } returns BehandlendeEnhet(
-                    "0314",
-                    "Testkontor",
-                )
-
-                /*createMockdataForFnr(
-                    fnr = "12345678910",
-                    activeSykmelding = true,
-                    gjenstaendeSykedager = "70",
-                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
-                )*/
 
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()

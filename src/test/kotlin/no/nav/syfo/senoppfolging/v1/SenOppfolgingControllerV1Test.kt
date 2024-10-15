@@ -64,6 +64,7 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
                 pdfgenService,
                 dokarkivClient,
                 behandlendeEnhetsClient,
+                "local",
             )
         val responseDao = mockk<ResponseDao>(relaxed = true)
 

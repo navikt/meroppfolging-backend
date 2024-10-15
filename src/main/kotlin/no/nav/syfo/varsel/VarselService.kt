@@ -22,6 +22,7 @@ class VarselService(
     private val pdfgenService: PdfgenService,
     private val dokarkivClient: DokarkivClient,
     private val behandlendeEnhetClient: BehandlendeEnhetClient,
+    @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String
 ) {
     private val log = logger()
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
@@ -31,7 +32,7 @@ class VarselService(
             }
             .filter {
                 val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(it.personIdent)
-                behandlendeEnhet.isPilot()
+                behandlendeEnhet.isPilot(clusterName)
             }
     }
 

@@ -22,7 +22,8 @@ class PdfgenService(
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val behandlendeEnhetClient: BehandlendeEnhetClient,
     val dkifClient: DkifClient,
-) {
+    @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
+    ) {
     private val log = logger()
 
     private val urlForReservedUsers = "/oppfolging/mer_veiledning_for_reserverte"
@@ -64,7 +65,7 @@ class PdfgenService(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-        val isPilotUser = behandlendeEnhet.isPilot()
+        val isPilotUser = behandlendeEnhet.isPilot(clusterName)
         val isUserReservert = dkifClient.person(personIdent)?.kanVarsles == true
 
         return when {
