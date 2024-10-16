@@ -130,7 +130,6 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should find only one oppfolging varsel to be sent") {
-                // Should send varsel
                 createMockdataForFnr(
                     fnr = "12345678910",
                     activeSykmelding = true,
@@ -138,7 +137,6 @@ class VarselServiceTest : DescribeSpec() {
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
                 )
 
-                // No varsel due to not pilot user
                 createMockdataForFnr(
                     fnr = "12345678911",
                     activeSykmelding = true,
