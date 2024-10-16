@@ -150,7 +150,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             it("Should return isPilot=true when user belongs to pilot") {
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
                 every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns BehandlendeEnhet(
-                    "0314",
+                    "0331",
                     "Testkontor",
                 )
                 val status = controller.status()

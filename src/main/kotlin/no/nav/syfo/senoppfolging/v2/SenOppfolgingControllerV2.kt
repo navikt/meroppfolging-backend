@@ -41,7 +41,6 @@ import java.time.format.DateTimeFormatter
 @RestController
 @RequestMapping("/api/v2/senoppfolging")
 @ProtectedWithClaims(issuer = "tokenx", combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
-@Suppress("LongParameterList")
 class SenOppfolgingControllerV2(
     @Value("\${MEROPPFOLGING_FRONTEND_CLIENT_ID}")
     val merOppfolgingFrontendClientId: String,
@@ -75,7 +74,6 @@ class SenOppfolgingControllerV2(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-        val isProd = "prod-gcp" == clusterName
         log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
 
         if (!pilotEnabledForEnvironment || hasRespondedToV1Form(personIdent)) {
@@ -98,7 +96,7 @@ class SenOppfolgingControllerV2(
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
 
         return SenOppfolgingStatusDTOV2(
-            isPilot = behandlendeEnhet.isPilot(isProd = isProd),
+            isPilot = behandlendeEnhet.isPilot(clusterName),
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),

@@ -7,3 +7,6 @@ config:
 exceptions:
   TooGenericExceptionCaught:
     active: false
+complexity:
+  LongParameterList:
+    active: false

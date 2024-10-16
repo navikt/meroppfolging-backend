@@ -10,6 +10,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import no.nav.syfo.LocalApplication
+import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
 import no.nav.syfo.pdl.stubHentPerson
@@ -36,6 +38,9 @@ class VarselServiceTest : DescribeSpec() {
 
     @MockkBean(relaxed = true)
     lateinit var dokarkivClient: DokarkivClient
+
+    @MockkBean(relaxed = true)
+    lateinit var behandlendeEnhetClient: BehandlendeEnhetClient
 
     @Autowired
     lateinit var varselService: VarselService
@@ -103,6 +108,49 @@ class VarselServiceTest : DescribeSpec() {
                     activeSykmelding = false,
                     gjenstaendeSykedager = "70",
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
+                    "0624",
+                    "Testkontor",
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns BehandlendeEnhet(
+                    "0624",
+                    "Testkontor",
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678912") } returns BehandlendeEnhet(
+                    "0624",
+                    "Testkontor",
+                )
+
+                val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
+
+                merOppfolgingVarselToBeSent.size shouldBe 1
+                merOppfolgingVarselToBeSent[0].personIdent shouldBe "12345678910"
+            }
+
+            it("Should find only one oppfolging varsel to be sent") {
+                createMockdataForFnr(
+                    fnr = "12345678910",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                createMockdataForFnr(
+                    fnr = "12345678911",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
+                    "0624",
+                    "Testkontor",
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns BehandlendeEnhet(
+                    "0314",
+                    "Testkontor",
                 )
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()

@@ -37,7 +37,6 @@ import java.time.LocalDateTime
 @RestController
 @RequestMapping("/api/v1/senoppfolging")
 @ProtectedWithClaims(issuer = "tokenx", combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
-@Suppress("LongParameterList")
 class SenOppfolgingControllerV1(
     @Value("\${MEROPPFOLGING_FRONTEND_CLIENT_ID}")
     val merOppfolgingFrontendClientId: String,

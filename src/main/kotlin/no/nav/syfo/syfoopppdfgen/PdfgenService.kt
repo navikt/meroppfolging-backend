@@ -25,7 +25,6 @@ class PdfgenService(
     @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
 ) {
     private val log = logger()
-    val isProd = "prod-gcp" == clusterName
 
     private val urlForReservedUsers = "/oppfolging/mer_veiledning_for_reserverte"
     private val urlForDigitalUsers = "/oppfolging/mer_veiledning_for_digitale"
@@ -66,24 +65,26 @@ class PdfgenService(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-        val isPilotUser = behandlendeEnhet.isPilot(isProd = isProd)
+        val isPilotUser = behandlendeEnhet.isPilot(clusterName)
         val isUserReservert = dkifClient.person(personIdent)?.kanVarsles == true
 
         return when {
             isUserReservert -> syfooppfpdfgenClient.getMerVeiledningPdf(
                 pdfEndpoint = urlForReservedUsers,
                 utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
-                maxDate = sykepengerMaxDateResponse?.maxDate
+                maxDate = sykepengerMaxDateResponse?.maxDate,
             )
+
             isPilotUser -> syfooppfpdfgenClient.getMerVeiledningPilotUserPdf(
                 pdfEndpoint = urlForDigitalPilotUsers,
                 daysLeft = sykepengerMaxDateResponse?.gjenstaendeSykedager,
-                maxDate = sykepengerMaxDateResponse?.maxDate
+                maxDate = sykepengerMaxDateResponse?.maxDate,
             )
+
             else -> syfooppfpdfgenClient.getMerVeiledningPdf(
                 pdfEndpoint = urlForDigitalUsers,
                 utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
-                maxDate = sykepengerMaxDateResponse?.maxDate
+                maxDate = sykepengerMaxDateResponse?.maxDate,
             )
         }
     }
