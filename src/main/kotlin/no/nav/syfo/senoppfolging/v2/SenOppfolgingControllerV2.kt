@@ -122,8 +122,6 @@ class SenOppfolgingControllerV2(
                 from = cutoffDate,
             )
 
-        varselService.ferdigstillMerOppfolgingVarsel(personident)
-
         if (response.isNotEmpty()) {
             throw AlreadyRespondedException()
         }
@@ -138,6 +136,8 @@ class SenOppfolgingControllerV2(
                 createdAt = createdAt,
                 utsendtVarselUUID = latestVarsel?.uuid,
             )
+
+        varselService.ferdigstillMerOppfolgingVarsel(personident)
 
         val pdf = syfoopfpdfgenService.getSenOppfolgingPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
         if (pdf == null) {
@@ -154,7 +154,7 @@ class SenOppfolgingControllerV2(
                     personIdent = personident,
                     createdAt = createdAt,
                     response = senOppfolgingDTOV2.senOppfolgingFormV2,
-                    varselId = latestVarsel?.uuid
+                    varselId = latestVarsel?.uuid,
                 ),
             )
 
