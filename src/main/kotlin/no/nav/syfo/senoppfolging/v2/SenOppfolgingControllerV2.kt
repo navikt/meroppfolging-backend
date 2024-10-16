@@ -41,7 +41,6 @@ import java.time.format.DateTimeFormatter
 @RestController
 @RequestMapping("/api/v2/senoppfolging")
 @ProtectedWithClaims(issuer = "tokenx", combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
-@Suppress("LongParameterList")
 class SenOppfolgingControllerV2(
     @Value("\${MEROPPFOLGING_FRONTEND_CLIENT_ID}")
     val merOppfolgingFrontendClientId: String,
