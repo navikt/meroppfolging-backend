@@ -18,7 +18,7 @@ class SendSSPSVarselJobb(
     private val log = logger()
     private val logName = "[${SendSSPSVarselJobb::class.simpleName}]"
 
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "\${send.varsel.job.cron}")
     fun sendVarsler(): Int {
         if (!varselutsendingEnabledForEnvironment || !leaderElectionClient.isPodLeader()) {
             return 0

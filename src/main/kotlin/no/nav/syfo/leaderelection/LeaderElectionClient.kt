@@ -30,7 +30,7 @@ class LeaderElectionClient(
 
     private fun callElectorPath(path: String): String? {
         return try {
-            restTemplate.getForObject("http://$path", String::class.java)
+            restTemplate.getForObject(path, String::class.java)
         } catch (e: HttpClientErrorException) {
             log.error("Error calling elector path: ${e.message}", e)
             null
