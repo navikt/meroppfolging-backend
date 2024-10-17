@@ -12,18 +12,17 @@ import java.util.concurrent.ExecutionException
 class SenOppfolgingSvarKafkaProducer(
     private val kafkaTemplate: KafkaTemplate<String, KSenOppfolgingSvarDTO>,
 ) {
-    fun publishResponse(
-        hendelse: KSenOppfolgingSvarDTO,
-    ) {
+    fun publishResponse(hendelse: KSenOppfolgingSvarDTO) {
         try {
-            log.info("SenOppfolgingSvarProducer: Publiserer  sen-oppfolging-svar")
-            kafkaTemplate.send(
-                ProducerRecord(
-                    SEN_OPPFOLGING_SVAR_TOPIC,
-                    UUID.randomUUID().toString(),
-                    hendelse,
-                ),
-            ).get()
+            log.info("SenOppfolgingSvarProducer: Publiserer sen-oppfolging-svar")
+            kafkaTemplate
+                .send(
+                    ProducerRecord(
+                        SEN_OPPFOLGING_SVAR_TOPIC,
+                        UUID.randomUUID().toString(),
+                        hendelse,
+                    ),
+                ).get()
         } catch (e: ExecutionException) {
             log.error(
                 "ExecutionException was thrown when attempting to " +

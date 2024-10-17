@@ -22,6 +22,7 @@ class VarselRepository(
             from UTSENDT_VARSEL
             where person_ident = :person_ident
             AND UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY
+            ORDER BY UTSENDT_TIDSPUNKT desc
             """.trimIndent()
 
         val parameters =
@@ -48,7 +49,7 @@ class VarselRepository(
             mapOf(
                 "uuid" to utsendtVarselUUID,
                 "person_ident" to personIdent,
-                "utsendt_tidspunkt" to LocalDateTime.now(),
+                "utsendt_tidspunkt" to LocalDate.now(),
                 "utbetaling_id" to utbetalingId,
                 "sykmelding_id" to sykmeldingId,
             )
