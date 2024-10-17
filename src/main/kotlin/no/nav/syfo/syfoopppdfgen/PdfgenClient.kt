@@ -24,7 +24,6 @@ class PdfgenClient(
         pdfEndpoint: String,
         utbetaltTom: String?,
         maxDate: String?,
-
     ): ByteArray {
         try {
             val requestEntity =
@@ -57,17 +56,18 @@ class PdfgenClient(
         headers.contentType = MediaType.APPLICATION_JSON
         headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
 
-        val body = PdfgenRequest(
-            BrevdataMerVeiledning(
-                sendtdato = formatDateForLetter(LocalDate.now()),
-                utbetaltTom = utbetaltTom,
-                maxdato = maxDate,
-            ),
-        )
+        val body =
+            PdfgenRequest(
+                BrevdataMerVeiledning(
+                    sendtdato = formatDateForLetter(LocalDate.now()),
+                    utbetaltTom = utbetaltTom,
+                    maxdato = maxDate,
+                ),
+            )
         return HttpEntity(body, headers)
     }
 
-    fun getMerVeiledningPilotUserPdf(
+    fun getMerVeiledningDigitalUserPdf(
         pdfEndpoint: String,
         daysLeft: String?,
         maxDate: String?,
@@ -103,13 +103,14 @@ class PdfgenClient(
         headers.contentType = MediaType.APPLICATION_JSON
         headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
 
-        val body = PdfgenRequest(
-            BrevdataMerVeiledningPilot(
-                sendtdato = formatDateForLetter(LocalDate.now()),
-                daysLeft = daysLeft,
-                maxdato = maxDate,
-            ),
-        )
+        val body =
+            PdfgenRequest(
+                BrevdataMerVeiledningPilot(
+                    sendtdato = formatDateForLetter(LocalDate.now()),
+                    daysLeft = daysLeft,
+                    maxdato = maxDate,
+                ),
+            )
         return HttpEntity(body, headers)
     }
 
@@ -152,11 +153,11 @@ class PdfgenClient(
         val body =
             PdfgenRequest(
                 brevdata =
-                BrevdataSenOppfolging(
-                    daysUntilMaxDate = daysUntilMaxDate,
-                    behovForOppfolging = behovForOppfolging,
-                    sentDate = formatDateForLetter(LocalDate.now()),
-                ),
+                    BrevdataSenOppfolging(
+                        daysUntilMaxDate = daysUntilMaxDate,
+                        behovForOppfolging = behovForOppfolging,
+                        sentDate = formatDateForLetter(LocalDate.now()),
+                    ),
             )
         return HttpEntity(body, headers)
     }

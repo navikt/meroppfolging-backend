@@ -16,34 +16,43 @@ class VarselRepository(
     val maxDateLimit = 14
 
     fun getUtsendtVarsel(personIdent: String): UtsendtVarsel? {
-        val sql = """
-        select uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id
-        from UTSENDT_VARSEL
-        where person_ident = :person_ident
-        AND UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY
-        """.trimIndent()
+        val sql =
+            """
+            select uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id
+            from UTSENDT_VARSEL
+            where person_ident = :person_ident
+            AND UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY
+            ORDER BY UTSENDT_TIDSPUNKT desc
+            """.trimIndent()
 
-        val parameters = mapOf(
-            "person_ident" to personIdent,
-        )
+        val parameters =
+            mapOf(
+                "person_ident" to personIdent,
+            )
 
         return namedParameterJdbcTemplate.query(sql, parameters, UtsendtVarselRowMapper()).firstOrNull()
     }
 
-    fun storeUtsendtVarsel(personIdent: String, utbetalingId: String, sykmeldingId: String): UUID {
-        val sql = """
-        INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
-        VALUES (:uuid, :person_ident, :utsendt_tidspunkt, :utbetaling_id, :sykmelding_id)
-        """.trimIndent()
+    fun storeUtsendtVarsel(
+        personIdent: String,
+        utbetalingId: String,
+        sykmeldingId: String,
+    ): UUID {
+        val sql =
+            """
+            INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
+            VALUES (:uuid, :person_ident, :utsendt_tidspunkt, :utbetaling_id, :sykmelding_id)
+            """.trimIndent()
 
         val utsendtVarselUUID = UUID.randomUUID()
-        val parameters = mapOf(
-            "uuid" to utsendtVarselUUID,
-            "person_ident" to personIdent,
-            "utsendt_tidspunkt" to LocalDate.now(),
-            "utbetaling_id" to utbetalingId,
-            "sykmelding_id" to sykmeldingId,
-        )
+        val parameters =
+            mapOf(
+                "uuid" to utsendtVarselUUID,
+                "person_ident" to personIdent,
+                "utsendt_tidspunkt" to LocalDate.now(),
+                "utbetaling_id" to utbetalingId,
+                "sykmelding_id" to sykmeldingId,
+            )
 
         namedParameterJdbcTemplate.update(sql, parameters)
         return utsendtVarselUUID
@@ -65,23 +74,27 @@ class VarselRepository(
 }
 
 internal class UtsendtVarselRowMapper : RowMapper<UtsendtVarsel> {
-    override fun mapRow(rs: ResultSet, rowNum: Int): UtsendtVarsel {
-        return UtsendtVarsel(
+    override fun mapRow(
+        rs: ResultSet,
+        rowNum: Int,
+    ): UtsendtVarsel =
+        UtsendtVarsel(
             uuid = UUID.fromString(rs.getString("uuid")),
             personIdent = rs.getString("person_ident"),
             utsendtTidspunkt = rs.getTimestamp("utsendt_tidspunkt").toLocalDateTime(),
             utbetalingId = rs.getString("utbetaling_id"),
             sykmeldingId = rs.getString("sykmelding_id"),
         )
-    }
 }
 
 internal class MerOppfolgingVarselDTOMapper : RowMapper<MerOppfolgingVarselDTO> {
-    override fun mapRow(rs: ResultSet, rowNum: Int): MerOppfolgingVarselDTO {
-        return MerOppfolgingVarselDTO(
+    override fun mapRow(
+        rs: ResultSet,
+        rowNum: Int,
+    ): MerOppfolgingVarselDTO =
+        MerOppfolgingVarselDTO(
             personIdent = rs.getString("person_ident"),
             utbetalingId = rs.getString("utbetaling_id"),
             sykmeldingId = rs.getString("sykmelding_id"),
         )
-    }
 }
