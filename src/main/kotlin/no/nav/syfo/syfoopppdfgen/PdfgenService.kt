@@ -12,6 +12,7 @@ import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.fremtidigSituasjonSvar
+import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -23,6 +24,7 @@ class PdfgenService(
     val behandlendeEnhetClient: BehandlendeEnhetClient,
     val dkifClient: DkifClient,
     @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
+    val sykepengedagerInformasjonDAO: SykepengedagerInformasjonDAO,
 ) {
     private val log = logger()
 
@@ -62,28 +64,28 @@ class PdfgenService(
     }
 
     fun getMerVeiledningPdf(personIdent: String): ByteArray {
-        val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse2()
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
         val isPilotUser = behandlendeEnhet.isPilot(clusterName)
         val isUserReservert = dkifClient.person(personIdent)?.kanVarsles == true
+        val sykepengerMaxDateResponse = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByFnr(personIdent)
 
         return when {
             isUserReservert -> syfooppfpdfgenClient.getMerVeiledningPdf(
                 pdfEndpoint = urlForReservedUsers,
-                utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
-                maxDate = sykepengerMaxDateResponse?.maxDate,
+                utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom.toString(),
+                maxDate = sykepengerMaxDateResponse?.forelopigBeregnetSlutt.toString(),
             )
 
             isPilotUser -> syfooppfpdfgenClient.getMerVeiledningPilotUserPdf(
                 pdfEndpoint = urlForDigitalPilotUsers,
-                daysLeft = sykepengerMaxDateResponse?.gjenstaendeSykedager,
-                maxDate = sykepengerMaxDateResponse?.maxDate,
+                daysLeft = sykepengerMaxDateResponse?.gjenstaendeSykedager.toString(),
+                maxDate = sykepengerMaxDateResponse?.forelopigBeregnetSlutt.toString(),
             )
 
             else -> syfooppfpdfgenClient.getMerVeiledningPdf(
                 pdfEndpoint = urlForDigitalUsers,
-                utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
-                maxDate = sykepengerMaxDateResponse?.maxDate,
+                utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom.toString(),
+                maxDate = sykepengerMaxDateResponse?.forelopigBeregnetSlutt.toString(),
             )
         }
     }
