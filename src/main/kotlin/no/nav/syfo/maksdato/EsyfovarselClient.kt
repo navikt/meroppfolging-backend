@@ -1,7 +1,6 @@
 package no.nav.syfo.maksdato
 
 import no.nav.syfo.NAV_CALL_ID_HEADER
-import no.nav.syfo.auth.azuread.AzureAdClient
 import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.auth.tokendings.TokendingsClient
 import no.nav.syfo.createCallId
@@ -23,25 +22,12 @@ class EsyfovarselClient(
     private val tokenDingsClient: TokendingsClient,
     @Value("\${esyfovarsel.url}") private val baseUrl: String,
     @Value("\${esyfovarsel.id}") private var targetApp: String,
-    private val azureAdClient: AzureAdClient,
-    @Value("\${esyfovarsel.scope}") private val esyfovarselScope: String,
 ) {
     private val log = logger()
 
     fun getSykepengerMaxDateResponse(token: String): SykepengerMaxDateResponse? {
         val exchangedToken = tokenDingsClient.exchangeToken(token, targetApp)
         val httpEntity = createHttpEntity(exchangedToken)
-
-        return try {
-            getResponse(httpEntity)
-        } catch (e: RestClientResponseException) {
-            handleException(e, httpEntity)
-        }
-    }
-
-    fun getSykepengerMaxDateResponse2(): SykepengerMaxDateResponse? {
-        val token = azureAdClient.getSystemToken(esyfovarselScope)
-        val httpEntity = createHttpEntity(token)
 
         return try {
             getResponse(httpEntity)
