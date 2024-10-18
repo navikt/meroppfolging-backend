@@ -94,7 +94,7 @@ class VarselService(
             }
         } catch (e: Exception) {
             log.error(
-                "Skipped sending varsel due to exception: ${e.cause}, ${e.message}",
+                "Skipped sending varsel due to exception: ${e.cause}, $e",
             )
         }
     }
