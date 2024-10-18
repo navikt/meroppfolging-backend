@@ -81,6 +81,8 @@ spec:
         - application: veilarbregistrering
           namespace: paw
         - application: sykepengedager-informasjon
+        - application: digdir-krr-proxy
+          namespace: team-rocket
       external:
         - host: dokarkiv.prod-fss-pub.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
