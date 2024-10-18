@@ -67,25 +67,25 @@ class PdfgenService(
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
         val isPilotUser = behandlendeEnhet.isPilot(clusterName)
         val isUserReservert = dkifClient.person(personIdent)?.kanVarsles == true
-        val sykepengerMaxDateResponse = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByFnr(personIdent)
+        val sykepengerInformasjon = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByFnr(personIdent)
 
         return when {
             isUserReservert -> syfooppfpdfgenClient.getMerVeiledningPdf(
                 pdfEndpoint = urlForReservedUsers,
-                utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom.toString(),
-                maxDate = sykepengerMaxDateResponse?.forelopigBeregnetSlutt.toString(),
+                utbetaltTom = sykepengerInformasjon?.utbetaltTom.toString(),
+                maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
             )
 
             isPilotUser -> syfooppfpdfgenClient.getMerVeiledningPilotUserPdf(
                 pdfEndpoint = urlForDigitalPilotUsers,
-                daysLeft = sykepengerMaxDateResponse?.gjenstaendeSykedager.toString(),
-                maxDate = sykepengerMaxDateResponse?.forelopigBeregnetSlutt.toString(),
+                daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
+                maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
             )
 
             else -> syfooppfpdfgenClient.getMerVeiledningPdf(
                 pdfEndpoint = urlForDigitalUsers,
-                utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom.toString(),
-                maxDate = sykepengerMaxDateResponse?.forelopigBeregnetSlutt.toString(),
+                utbetaltTom = sykepengerInformasjon?.utbetaltTom.toString(),
+                maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
             )
         }
     }

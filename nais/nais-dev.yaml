@@ -103,8 +103,6 @@ spec:
       value: http://esyfovarsel
     - name: ESYFOVARSEL_ID
       value: dev-gcp:team-esyfo:esyfovarsel
-    - name: ESYFOVARSEL_SCOPE
-      value: dev-gcp.team-esyfo.esyfovarsel
     - name: SYFOBEHANDLENDEENHET_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
