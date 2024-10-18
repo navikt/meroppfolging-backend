@@ -99,6 +99,62 @@ class DokarkivClient(
             null
         }
     }
+    fun postDocumentToDokarkiv2(fnr: String, pdf: ByteArray, uuid: String, token: String): DokarkivResponse? {
+        return try {
+            val response = RestTemplate().postForEntity(
+                url,
+                createHttpEntity(
+                    token,
+                    DokarkivRequest.create(
+                        avsenderMottaker = AvsenderMottaker.create(fnr),
+                        dokumenter = listOf(Dokument.create(listOf(Dokumentvariant.create(pdf, uuid)))),
+                        uuid = uuid,
+                    ),
+                ),
+                DokarkivResponse::class.java,
+            )
+
+            when (response.statusCode) {
+                HttpStatus.CREATED -> {
+                    log.info("Sending to dokarkiv successful, journalpost created")
+                    response.body!!
+                }
+
+                HttpStatus.CONFLICT -> {
+                    log.info("Sending to dokarkiv successful, journalpost was created before")
+                    response.body!!
+                }
+
+                HttpStatus.UNAUTHORIZED -> {
+                    log.error("Failed to post document to Dokarkiv: Unable to authorize")
+                    null
+                }
+
+                else -> {
+                    log.error("Failed to post document to Dokarkiv: $response")
+                    null
+                }
+            }
+        } catch (e: HttpClientErrorException) {
+            log.error("Client error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
+            null
+        } catch (e: HttpServerErrorException) {
+            log.error("Server error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
+
+            null
+        } catch (e: ResourceAccessException) {
+            log.error(
+                "Resource access error while posting document to Dokarkiv, " +
+                    "message: ${e.message}, cause: ${e.cause}"
+            )
+            null
+        } catch (e: RestClientException) {
+            log.error(
+                "Unexpected error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
+            )
+            null
+        }
+    }
 
     private fun createHttpEntity(
         exchangedToken: String,

@@ -75,6 +75,8 @@ class VarselServiceTest : DescribeSpec() {
                         utbetalingId = "utbetalingId",
                         sykmeldingId = "sykmeldingId",
                     ),
+                    "",
+                    "",
                 )
 
                 val utsendtVarsel = varselService.getUtsendtVarsel("12345678910")
@@ -160,7 +162,7 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should not store utsendt varsel if pdfgen fails") {
-                every { pdfgenService.getMerVeiledningPdf(any()) } throws Exception("Help me")
+                every { pdfgenService.getMerVeiledningPdf(any(), any()) } throws Exception("Help me")
 
                 varselService.sendMerOppfolgingVarsel(
                     MerOppfolgingVarselDTO(
@@ -168,6 +170,8 @@ class VarselServiceTest : DescribeSpec() {
                         utbetalingId = "utbetalingId",
                         sykmeldingId = "sykmeldingId",
                     ),
+                    "",
+                    "",
                 )
 
                 val utsendtVarsel = varselService.getUtsendtVarsel("12345678910")
@@ -176,7 +180,7 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should not store utsendt varsel journalforing fails") {
-                every { pdfgenService.getMerVeiledningPdf(any()) } returns ByteArray(1)
+                every { pdfgenService.getMerVeiledningPdf(any(), any()) } returns ByteArray(1)
                 every { dokarkivClient.postDocumentToDokarkiv(any(), any(), any()) } throws Exception("Help me")
 
                 varselService.sendMerOppfolgingVarsel(
@@ -185,6 +189,8 @@ class VarselServiceTest : DescribeSpec() {
                         utbetalingId = "utbetalingId",
                         sykmeldingId = "sykmeldingId",
                     ),
+                    "",
+                    "",
                 )
 
                 val utsendtVarsel = varselService.getUtsendtVarsel("12345678910")
@@ -193,7 +199,7 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should store utsendt varsel post to dokarkiv OK") {
-                every { pdfgenService.getMerVeiledningPdf(any()) } returns ByteArray(1)
+                every { pdfgenService.getMerVeiledningPdf(any(), any()) } returns ByteArray(1)
                 every {
                     dokarkivClient.postDocumentToDokarkiv(any(), any(), any())
                 } returns DokarkivResponse(null, 1, null, "status", null)
@@ -204,6 +210,8 @@ class VarselServiceTest : DescribeSpec() {
                         utbetalingId = "utbetalingId",
                         sykmeldingId = "sykmeldingId",
                     ),
+                    "",
+                    "",
                 )
 
                 val utsendtVarsel = varselService.getUtsendtVarsel("12345678910")

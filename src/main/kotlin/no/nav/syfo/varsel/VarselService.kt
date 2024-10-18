@@ -9,6 +9,7 @@ import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingVarselDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingVarselKafkaProducer
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
@@ -49,18 +50,22 @@ class VarselService(
         producer.sendVarselTilEsyfovarsel(hendelse)
     }
 
+    @Async
     @Suppress("MaxLineLength")
     fun sendMerOppfolgingVarsel(
         merOppfolgingVarselDTO: MerOppfolgingVarselDTO,
+        tokenForPdf: String,
+        tokenAAD: String
     ) {
         val personIdent = merOppfolgingVarselDTO.personIdent
         try {
-            val pdf = pdfgenService.getMerVeiledningPdf(personIdent)
+            val pdf = pdfgenService.getMerVeiledningPdf(personIdent, tokenForPdf)
 
-            val dokarkivResponse = dokarkivClient.postDocumentToDokarkiv(
+            val dokarkivResponse = dokarkivClient.postDocumentToDokarkiv2(
                 fnr = personIdent,
                 pdf = pdf,
                 uuid = UUID.randomUUID().toString(),
+                token = tokenAAD,
             )
             if (dokarkivResponse != null) {
                 val hendelse = ArbeidstakerHendelse(

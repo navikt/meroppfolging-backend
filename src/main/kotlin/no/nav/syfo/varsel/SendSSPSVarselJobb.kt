@@ -1,5 +1,9 @@
 package no.nav.syfo.varsel
 
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.syfo.auth.TokenUtil
+import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
+import no.nav.syfo.auth.azuread.AzureAdClient
 import no.nav.syfo.leaderelection.LeaderElectionClient
 import no.nav.syfo.logger
 import no.nav.syfo.varsel.database.SendingDueDateDAO
@@ -14,6 +18,9 @@ class SendSSPSVarselJobb(
     private val leaderElectionClient: LeaderElectionClient,
     @Value("\${toggle.ssps.varselutsending}") private var varselutsendingEnabledForEnvironment: Boolean,
     private var sendingDueDateDAO: SendingDueDateDAO,
+    val tokenValidationContextHolder: TokenValidationContextHolder,
+    private val azureAdClient: AzureAdClient,
+    @Value("\${dokarkiv.scope}") private val dokarkivScope: String,
 ) {
     private val log = logger()
     private val logName = "[${SendSSPSVarselJobb::class.simpleName}]"
@@ -29,7 +36,11 @@ class SendSSPSVarselJobb(
         val varslerToSendToday = varselService.findMerOppfolgingVarselToBeSent()
         log.info("$logName Planlegger å sende ${varslerToSendToday.size} varsler totalt")
 
-        val antallVarslerSendt = sendVarslerWithHandling(varslerToSendToday)
+        // Fetch AAD token
+        val tokenAAD = azureAdClient.getSystemToken(dokarkivScope)
+        // System token
+        val tokenForPdf = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
+        val antallVarslerSendt = sendVarslerWithHandling(varslerToSendToday, tokenForPdf, tokenAAD)
 
         log.info("$logName Sendte $antallVarslerSendt varsler")
         log.info("$logName Avslutter jobb")
@@ -37,12 +48,20 @@ class SendSSPSVarselJobb(
         return antallVarslerSendt
     }
 
-    private fun sendVarslerWithHandling(varsler: List<MerOppfolgingVarselDTO>): Int {
+    private fun sendVarslerWithHandling(
+        varsler: List<MerOppfolgingVarselDTO>,
+        tokenForPdf: String,
+        tokenAAD: String
+    ): Int {
         var antallVarslerSendt = 0
 
         varsler.forEach { varsel ->
             try {
-                sendVarsel(varsel)
+                sendVarsel(
+                    varsel,
+                    tokenForPdf,
+                    tokenAAD
+                )
                 antallVarslerSendt++
             } catch (e: RuntimeException) {
                 handleSendVarselError(varsel, e)
@@ -52,8 +71,16 @@ class SendSSPSVarselJobb(
         return antallVarslerSendt
     }
 
-    private fun sendVarsel(varsel: MerOppfolgingVarselDTO) {
-        varselService.sendMerOppfolgingVarsel(varsel)
+    private fun sendVarsel(
+        varsel: MerOppfolgingVarselDTO,
+        tokenForPdf: String,
+        tokenAAD: String
+    ) {
+        varselService.sendMerOppfolgingVarsel(
+            varsel,
+            tokenForPdf,
+            tokenAAD
+        )
         sendingDueDateDAO.deleteSendingDueDate(varsel.sykmeldingId)
     }
 
