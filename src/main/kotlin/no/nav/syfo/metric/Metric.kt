@@ -12,6 +12,10 @@ constructor(
     private val registry: MeterRegistry,
 ) {
     fun countSenOppfolgingSubmitted() = countEvent("sen_oppfolging_submitted")
+    fun countSenOppfolgingRequestYes() = countEvent("sen_oppfolging_submitted_yes")
+    fun countSenOppfolgingRequestNo() = countEvent("sen_oppfolging_submitted_yes")
+    fun countSenOppfolgingSubmittedYes() = countEvent("sen_oppfolging_submitted_yes")
+    fun countSenOppfolgingSubmittedNO() = countEvent("sen_oppfolging_submitted_no")
 
     fun countCallVeilarbregistreringComplete() = countEvent("call_veilarbregistrering_complete")
 

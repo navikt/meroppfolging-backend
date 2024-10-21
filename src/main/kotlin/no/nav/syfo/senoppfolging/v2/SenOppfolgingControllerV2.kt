@@ -22,6 +22,7 @@ import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
+import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
 import no.nav.syfo.syfoopppdfgen.PdfgenService
@@ -157,6 +158,11 @@ class SenOppfolgingControllerV2(
                     varselId = latestVarsel?.uuid,
                 ),
             )
+        if (senOppfolgingDTOV2.senOppfolgingFormV2.behovForOppfolging()) {
+            metric.countSenOppfolgingSubmittedYes()
+        } else {
+            metric.countSenOppfolgingSubmittedNO()
+        }
 
         metric.countSenOppfolgingPilotSubmitted()
     }
