@@ -75,6 +75,7 @@ class VarselService(
                     arbeidstakerFnr = personIdent,
                     orgnummer = null,
                 )
+                log.info("[ACHTUNG]: ${hendelse.data}")
                 producer.sendVarselTilEsyfovarsel(hendelse)
 
                 val utsendtVarselUUID = varselRepository.storeUtsendtVarsel(
