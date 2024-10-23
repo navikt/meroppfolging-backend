@@ -67,7 +67,7 @@ class VarselService(
                     type = HendelseType.SM_MER_VEILEDNING,
                     ferdigstill = false,
                     data = VarselData(
-                        VarselDataJournalpost(uuid, dokarkivResponse.journalpostId.toString()),
+                        VarselDataJournalpost(uuid = uuid, id = dokarkivResponse.journalpostId.toString()),
                         null,
                         null,
                         null,
