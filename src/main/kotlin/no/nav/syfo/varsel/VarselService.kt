@@ -62,7 +62,7 @@ class VarselService(
                 pdf = pdf,
                 uuid = uuid,
             )
-            if (dokarkivResponse != null) {
+            if (dokarkivResponse != null && dokarkivResponse.journalpostId != null) {
                 val hendelse = ArbeidstakerHendelse(
                     type = HendelseType.SM_MER_VEILEDNING,
                     ferdigstill = false,
