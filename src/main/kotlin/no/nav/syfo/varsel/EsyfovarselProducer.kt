@@ -21,7 +21,7 @@ class EsyfovarselProducer(
             kafkaTemplate.send(
                 ProducerRecord(
                     ESYFOVARSEL_TOPIC,
-                    UUID.randomUUID().toString(),
+                    "123-asas",
                     hendelse,
                 ),
             ).get()
