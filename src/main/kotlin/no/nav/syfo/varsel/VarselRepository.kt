@@ -58,17 +58,29 @@ class VarselRepository(
     }
 
     fun fetchMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
+
         val sql = """
-            SELECT spdi.person_ident, spdi.utbetaling_id, sykmelding.sykmelding_id FROM sykepengedager_informasjon spdi
-            LEFT JOIN UTSENDT_VARSEL utsendt_varsel ON spdi.utbetaling_id = utsendt_varsel.utbetaling_id
-            LEFT JOIN COPY_UTSENDT_VARSEL_ESYFOVARSEL ON spdi.person_ident = COPY_UTSENDT_VARSEL_ESYFOVARSEL.fnr
-            JOIN SYKMELDING sykmelding ON spdi.person_ident = sykmelding.employee_identification_number
-            WHERE spdi.gjenstaende_sykedager < $gjenstaendeSykedagerLimit
-            AND spdi.FORELOPIG_BEREGNET_SLUTT >= current_date + INTERVAL '$maxDateLimit' DAY
-            AND sykmelding.tom > CURRENT_TIMESTAMP
-            AND (utsendt_varsel.UTSENDT_TIDSPUNKT IS NULL OR utsendt_varsel.UTSENDT_TIDSPUNKT <= NOW() - INTERVAL '$nyttVarselLimit' DAY)
-            AND (COPY_UTSENDT_VARSEL_ESYFOVARSEL.UTSENDT_TIDSPUNKT IS NULL OR COPY_UTSENDT_VARSEL_ESYFOVARSEL.UTSENDT_TIDSPUNKT <= NOW() - INTERVAL '$nyttVarselLimit' DAY); 
-            """
+                SELECT utbetaling_id, person_ident
+FROM sykepengedager_informasjon AS spdi
+         JOIN SYKMELDING sykmelding ON spdi.person_ident = sykmelding.employee_identification_number
+WHERE utbetaling_id =
+      (SELECT spdi2.utbetaling_id
+       FROM sykepengedager_informasjon AS spdi2
+       WHERE spdi.person_ident = spdi2.person_ident
+       ORDER BY spdi.utbetaling_created_at DESC
+       LIMIT 1)
+  AND GJENSTAENDE_SYKEDAGER < $gjenstaendeSykedagerLimit
+  AND sykmelding.tom > CURRENT_TIMESTAMP
+  AND FORELOPIG_BEREGNET_SLUTT >= current_date + INTERVAL '$maxDateLimit' DAY
+  AND spdi.person_ident NOT IN
+    (SELECT utsendt_varsel.person_ident
+    FROM UTSENDT_VARSEL
+    WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY)
+  AND spdi.person_ident NOT IN
+    (SELECT copy_utsendt_varsel_esyfovarsel.fnr
+    FROM copy_utsendt_varsel_esyfovarsel
+    WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY)
+        """.trimIndent()
 
         return namedParameterJdbcTemplate.query(sql, MerOppfolgingVarselDTOMapper())
     }
