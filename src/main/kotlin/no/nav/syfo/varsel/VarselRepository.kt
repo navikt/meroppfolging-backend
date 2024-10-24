@@ -58,28 +58,29 @@ class VarselRepository(
     }
 
     fun fetchMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
-        val sql = """
-            SELECT utbetaling_id, person_ident
+        val sql =
+            """
+            SELECT spdi.utbetaling_id, spdi.person_ident, spdi.gjenstaende_sykedager, spdi.forelopig_beregnet_slutt, sykmelding.sykmelding_id
             FROM sykepengedager_informasjon AS spdi
             JOIN SYKMELDING sykmelding ON spdi.person_ident = sykmelding.employee_identification_number
-            WHERE utbetaling_id =
+            WHERE spdi.utbetaling_id =
                 (SELECT spdi2.utbetaling_id
                 FROM sykepengedager_informasjon AS spdi2
                 WHERE spdi.person_ident = spdi2.person_ident
-                ORDER BY spdi.utbetaling_created_at DESC
+                ORDER BY utbetaling_created_at DESC
                 LIMIT 1)
-            AND GJENSTAENDE_SYKEDAGER < $gjenstaendeSykedagerLimit
-        AND sykmelding.tom > CURRENT_TIMESTAMP
-        AND FORELOPIG_BEREGNET_SLUTT >= current_date + INTERVAL '$maxDateLimit' DAY
-        AND spdi.person_ident NOT IN
-            (SELECT utsendt_varsel.person_ident
-            FROM UTSENDT_VARSEL
-            WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY)
-        AND spdi.person_ident NOT IN
-            (SELECT copy_utsendt_varsel_esyfovarsel.fnr
-            FROM copy_utsendt_varsel_esyfovarsel
-            WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY); 
-            """
+            AND spdi.gjenstaende_sykedager < $gjenstaendeSykedagerLimit
+            AND sykmelding.tom > CURRENT_TIMESTAMP
+            AND spdi.forelopig_beregnet_slutt >= current_date + INTERVAL '$maxDateLimit' DAY
+            AND spdi.person_ident NOT IN
+                (SELECT utsendt_varsel.person_ident
+                FROM UTSENDT_VARSEL
+                WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY)
+            AND spdi.person_ident NOT IN
+                (SELECT copy_utsendt_varsel_esyfovarsel.fnr
+                FROM copy_utsendt_varsel_esyfovarsel
+                WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY); 
+            """.trimIndent()
 
         return namedParameterJdbcTemplate.query(sql, MerOppfolgingVarselDTOMapper())
     }

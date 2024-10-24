@@ -3,7 +3,6 @@ package no.nav.syfo.varsel
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
 import no.nav.syfo.sykepengedagerinformasjon.domain.SykepengedagerInformasjonDTO
@@ -82,10 +81,13 @@ class VarselRepositoryTest : DescribeSpec() {
                 forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
             )
 
-
             varselRepository.storeUtsendtVarsel(personIdent, utbetalingId, sykmeldingId)
 
             val candidates = varselRepository.fetchMerOppfolgingVarselToBeSent()
+            val stored = varselRepository.getUtsendtVarsel("12345678910")
+
+            println(candidates.toString())
+            println(stored)
 
             candidates.size shouldBe 0
         }
