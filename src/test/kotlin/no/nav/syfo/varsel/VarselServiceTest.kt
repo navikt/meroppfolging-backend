@@ -65,6 +65,7 @@ class VarselServiceTest : DescribeSpec() {
             jdbcTemplate.execute("TRUNCATE TABLE UTSENDT_VARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKMELDING CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKEPENGEDAGER_INFORMASJON CASCADE")
+            jdbcTemplate.execute("TRUNCATE TABLE COPY_UTSENDT_VARSEL_ESYFOVARSEL CASCADE")
         }
 
         describe("VarselService") {
@@ -150,6 +151,46 @@ class VarselServiceTest : DescribeSpec() {
                 )
                 every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns BehandlendeEnhet(
                     "0314",
+                    "Testkontor",
+                )
+
+                val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
+
+                merOppfolgingVarselToBeSent.size shouldBe 1
+                merOppfolgingVarselToBeSent[0].personIdent shouldBe "12345678910"
+            }
+
+            it("Should find only one oppfolging varsel to be sent due to duplicate") {
+                createMockdataForFnr(
+                    fnr = "12345678910",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                createMockdataForFnr(
+                    fnr = "12345678911",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+                jdbcTemplate.execute(
+                    """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL VALUES ('UUID', '12345678911', 'test_type', CURRENT_TIMESTAMP);
+                """.trimIndent(),
+                )
+                jdbcTemplate.execute(
+                    """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL VALUES ('UUID', '12345678911', 'test_type', CURRENT_TIMESTAMP - INTERVAL '1 DAY');
+                """.trimIndent(),
+                )
+
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
+                    "0624",
+                    "Testkontor",
+                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns BehandlendeEnhet(
+                    "0624",
                     "Testkontor",
                 )
 

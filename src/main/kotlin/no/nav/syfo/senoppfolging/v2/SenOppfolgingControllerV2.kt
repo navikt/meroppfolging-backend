@@ -115,6 +115,12 @@ class SenOppfolgingControllerV2(
             return
         }
 
+        /*if (senOppfolgingDTOV2.senOppfolgingFormV2.behovForOppfolging()) {
+            metric.countSenOppfolgingRequestYes()
+        } else {
+            metric.countSenOppfolgingRequestNo()
+        }*/
+
         val personident = tokenValidator.validateTokenXClaims().getFnr()
         val response =
             responseDao.find(

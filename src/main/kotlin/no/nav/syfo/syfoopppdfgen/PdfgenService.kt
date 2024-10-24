@@ -78,6 +78,7 @@ class PdfgenService(
 
             isPilotUser -> syfooppfpdfgenClient.getMerVeiledningPilotUserPdf(
                 pdfEndpoint = urlForDigitalPilotUsers,
+                // sykepengerInformasjon.receivedAt> "prodsettingstidspunkt"
                 daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
                 maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
             )
