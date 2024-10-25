@@ -45,7 +45,7 @@ class VarselRepositoryTest : DescribeSpec() {
         val personIdent = "12345678910"
         val utbetalingId = "123"
         val sykmeldingId = "321"
-        
+
         describe("VarselRepository") {
             it("Should return 1 varsel") {
                 createMockdataForFnr(
