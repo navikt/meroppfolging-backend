@@ -45,51 +45,51 @@ class VarselRepositoryTest : DescribeSpec() {
         val personIdent = "12345678910"
         val utbetalingId = "123"
         val sykmeldingId = "321"
+        
+        describe("VarselRepository") {
+            it("Should return 1 varsel") {
+                createMockdataForFnr(
+                    fnr = "12345678910",
+                    sykmeldingId = sykmeldingId,
+                    utbetalingId = utbetalingId,
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+                val candidates = varselRepository.fetchMerOppfolgingVarselToBeSent()
 
-        it("Should return 1 varsel") {
-            // Should send varsel
-            createMockdataForFnr(
-                fnr = "12345678910",
-                sykmeldingId = sykmeldingId,
-                utbetalingId = utbetalingId,
-                activeSykmelding = true,
-                gjenstaendeSykedager = "70",
-                forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
-            )
-            val candidates = varselRepository.fetchMerOppfolgingVarselToBeSent()
+                candidates.size shouldBe 1
+            }
 
-            candidates.size shouldBe 1
-        }
+            it("Should return 0 varsel if there ") {
+                createMockdataForFnr(
+                    fnr = "12345678910",
+                    sykmeldingId = sykmeldingId,
+                    utbetalingId = utbetalingId,
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
 
-        it("Should return 0 varsel if there ") {
-            // Should send varsel
-            createMockdataForFnr(
-                fnr = "12345678910",
-                sykmeldingId = sykmeldingId,
-                utbetalingId = utbetalingId,
-                activeSykmelding = true,
-                gjenstaendeSykedager = "70",
-                forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
-            )
+                createMockdataForFnr(
+                    fnr = "12345678910",
+                    sykmeldingId = sykmeldingId,
+                    utbetalingId = "456",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
 
-            createMockdataForFnr(
-                fnr = "12345678910",
-                sykmeldingId = sykmeldingId,
-                utbetalingId = "456",
-                activeSykmelding = true,
-                gjenstaendeSykedager = "70",
-                forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
-            )
+                varselRepository.storeUtsendtVarsel(personIdent, utbetalingId, sykmeldingId)
 
-            varselRepository.storeUtsendtVarsel(personIdent, utbetalingId, sykmeldingId)
+                val candidates = varselRepository.fetchMerOppfolgingVarselToBeSent()
+                val stored = varselRepository.getUtsendtVarsel("12345678910")
 
-            val candidates = varselRepository.fetchMerOppfolgingVarselToBeSent()
-            val stored = varselRepository.getUtsendtVarsel("12345678910")
+                println(candidates.toString())
+                println(stored)
 
-            println(candidates.toString())
-            println(stored)
-
-            candidates.size shouldBe 0
+                candidates.size shouldBe 0
+            }
         }
     }
 
