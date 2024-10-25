@@ -66,7 +66,7 @@ class PdfgenService(
     fun getMerVeiledningPdf(personIdent: String): ByteArray {
         val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
         val isPilotUser = behandlendeEnhet.isPilot(clusterName)
-        val isUserReservert = dkifClient.person(personIdent)?.kanVarsles == true
+        val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
         val sykepengerInformasjon = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByFnr(personIdent)
 
         return when {
