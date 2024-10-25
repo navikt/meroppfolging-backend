@@ -56,18 +56,19 @@ class VarselService(
         val personIdent = merOppfolgingVarselDTO.personIdent
         try {
             val pdf = pdfgenService.getMerVeiledningPdf(personIdent)
+            val uuid = UUID.randomUUID().toString()
 
             val dokarkivResponse = dokarkivClient.postDocumentToDokarkiv(
                 fnr = personIdent,
                 pdf = pdf,
-                uuid = UUID.randomUUID().toString(),
+                uuid = uuid,
             )
             if (dokarkivResponse != null) {
                 val hendelse = ArbeidstakerHendelse(
                     type = HendelseType.SM_MER_VEILEDNING,
                     ferdigstill = false,
                     data = VarselData(
-                        VarselDataJournalpost(dokarkivResponse.journalpostId.toString(), null),
+                        VarselDataJournalpost(uuid = uuid, id = dokarkivResponse.journalpostId.toString()),
                         null,
                         null,
                         null,
