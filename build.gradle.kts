@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.3.4"
+    id("org.springframework.boot") version "3.3.5"
     id("io.spring.dependency-management") version "1.1.6"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     kotlin("jvm") version "1.9.23"
@@ -28,7 +28,7 @@ val mockkVersion = "1.13.13"
 val wiremockVersion = "3.9.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val detektVersion = "1.23.7"
-val testcontainersVersion = "1.20.2"
+val testcontainersVersion = "1.20.3"
 val springMockkVersion = "4.0.2"
 
 dependencies {

@@ -57,12 +57,13 @@ class VarselService(
         try {
             val pdf = pdfgenService.getMerVeiledningPdf(personIdent)
             val uuid = UUID.randomUUID().toString()
+
             val dokarkivResponse = dokarkivClient.postDocumentToDokarkiv(
                 fnr = personIdent,
                 pdf = pdf,
                 uuid = uuid,
             )
-            if (dokarkivResponse != null && dokarkivResponse.journalpostId != null) {
+            if (dokarkivResponse != null) {
                 val hendelse = ArbeidstakerHendelse(
                     type = HendelseType.SM_MER_VEILEDNING,
                     ferdigstill = false,
@@ -75,7 +76,6 @@ class VarselService(
                     arbeidstakerFnr = personIdent,
                     orgnummer = null,
                 )
-                log.info("[ACHTUNG]: ${hendelse.data}")
                 producer.sendVarselTilEsyfovarsel(hendelse)
 
                 val utsendtVarselUUID = varselRepository.storeUtsendtVarsel(
