@@ -19,16 +19,16 @@ fun BehandlendeEnhet.isPilot(clusterName: String): Boolean {
     }
 
     return (
-            listOf(
-                TEST_ENHETSNUMMER,
-                TEST_ENHETSNUMMER_2,
-                "1037",
-                "1742",
-                "0105",
-                "1532",
-                "1169",
-                "1837",
-                "0806",
-            ).contains(this.enhetId)
-            )
+        listOf(
+            TEST_ENHETSNUMMER,
+            TEST_ENHETSNUMMER_2,
+            "1037",
+            "1742",
+            "0105",
+            "1532",
+            "1169",
+            "1837",
+            "0806",
+        ).contains(this.enhetId)
+        )
 }
