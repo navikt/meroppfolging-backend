@@ -61,7 +61,7 @@ class VarselRepositoryTest : DescribeSpec() {
                 candidates.size shouldBe 1
             }
 
-            it("Should return 0 varsel if there ") {
+            it("Should return 0 varsel if there are several utbetalingIds for the same person with sent varsel") {
                 createMockdataForFnr(
                     fnr = "12345678910",
                     sykmeldingId = sykmeldingId,
@@ -83,10 +83,6 @@ class VarselRepositoryTest : DescribeSpec() {
                 varselRepository.storeUtsendtVarsel(personIdent, utbetalingId, sykmeldingId)
 
                 val candidates = varselRepository.fetchMerOppfolgingVarselToBeSent()
-                val stored = varselRepository.getUtsendtVarsel("12345678910")
-
-                println(candidates.toString())
-                println(stored)
 
                 candidates.size shouldBe 0
             }
