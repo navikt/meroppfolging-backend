@@ -4,7 +4,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.util.*
 
 @Repository
