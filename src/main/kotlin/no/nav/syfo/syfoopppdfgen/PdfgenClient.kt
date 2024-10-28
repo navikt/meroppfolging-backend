@@ -153,11 +153,11 @@ class PdfgenClient(
         val body =
             PdfgenRequest(
                 brevdata =
-                    BrevdataSenOppfolging(
-                        daysUntilMaxDate = daysUntilMaxDate,
-                        behovForOppfolging = behovForOppfolging,
-                        sentDate = formatDateForLetter(LocalDate.now()),
-                    ),
+                BrevdataSenOppfolging(
+                    daysUntilMaxDate = daysUntilMaxDate,
+                    behovForOppfolging = behovForOppfolging,
+                    sentDate = formatDateForLetter(LocalDate.now()),
+                ),
             )
         return HttpEntity(body, headers)
     }
