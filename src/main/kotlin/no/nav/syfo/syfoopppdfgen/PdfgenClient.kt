@@ -67,16 +67,18 @@ class PdfgenClient(
         return HttpEntity(body, headers)
     }
 
-    fun getMerVeiledningPilotUserPdf(
+    fun getMerVeiledningDigitalUserPdf(
         pdfEndpoint: String,
         daysLeft: String?,
         maxDate: String?,
+        utbetaltTom: String?,
     ): ByteArray {
         try {
             val requestEntity =
-                getMerVeiledningPilotUserPdfRequestEntity(
+                getMerVeiledningDigitalUserPdfRequestEntity(
                     maxDate = maxDate,
                     daysLeft = daysLeft,
+                    utbetaltTom = utbetaltTom,
                 )
             return restTemplate
                 .exchange(
@@ -95,9 +97,10 @@ class PdfgenClient(
         }
     }
 
-    private fun getMerVeiledningPilotUserPdfRequestEntity(
+    private fun getMerVeiledningDigitalUserPdfRequestEntity(
         daysLeft: String?,
         maxDate: String?,
+        utbetaltTom: String?,
     ): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -108,6 +111,7 @@ class PdfgenClient(
                 sendtdato = formatDateForLetter(LocalDate.now()),
                 daysLeft = daysLeft,
                 maxdato = maxDate,
+                utbetaltTom = utbetaltTom,
             ),
         )
         return HttpEntity(body, headers)
@@ -116,13 +120,15 @@ class PdfgenClient(
     fun getSenOppfolgingPdf(
         kvitteringEndpoint: String,
         behovForOppfolging: Boolean,
+        maxDate: String?,
         daysUntilMaxDate: String?,
     ): ByteArray {
         try {
             val requestEntity =
                 getSenOppfolgingPdfRequestEntity(
-                    daysUntilMaxDate = daysUntilMaxDate,
                     behovForOppfolging = behovForOppfolging,
+                    maxDate = maxDate,
+                    daysUntilMaxDate = daysUntilMaxDate,
                 )
             return restTemplate
                 .exchange(
@@ -142,8 +148,9 @@ class PdfgenClient(
     }
 
     private fun getSenOppfolgingPdfRequestEntity(
-        daysUntilMaxDate: String?,
         behovForOppfolging: Boolean,
+        maxDate: String?,
+        daysUntilMaxDate: String?,
     ): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -153,9 +160,10 @@ class PdfgenClient(
             PdfgenRequest(
                 brevdata =
                 BrevdataSenOppfolging(
-                    daysUntilMaxDate = daysUntilMaxDate,
-                    behovForOppfolging = behovForOppfolging,
                     sentDate = formatDateForLetter(LocalDate.now()),
+                    behovForOppfolging = behovForOppfolging,
+                    maxdato = maxDate,
+                    daysUntilMaxDate = daysUntilMaxDate,
                 ),
             )
         return HttpEntity(body, headers)

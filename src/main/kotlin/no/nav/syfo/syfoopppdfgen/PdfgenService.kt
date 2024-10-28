@@ -3,8 +3,6 @@ package no.nav.syfo.syfoopppdfgen
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
-import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
-import no.nav.syfo.behandlendeenhet.domain.isPilot
 import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.logger
 import no.nav.syfo.maksdato.EsyfovarselClient
@@ -13,7 +11,6 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.fremtidigSituasjonSvar
 import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
@@ -21,16 +18,13 @@ class PdfgenService(
     val syfooppfpdfgenClient: PdfgenClient,
     val esyfovarselClient: EsyfovarselClient,
     val tokenValidationContextHolder: TokenValidationContextHolder,
-    val behandlendeEnhetClient: BehandlendeEnhetClient,
     val dkifClient: DkifClient,
-    @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
     val sykepengedagerInformasjonDAO: SykepengedagerInformasjonDAO,
 ) {
     private val log = logger()
 
     private val urlForReservedUsers = "/oppfolging/mer_veiledning_for_reserverte"
-    private val urlForDigitalUsers = "/oppfolging/mer_veiledning_for_digitale"
-    private val urlForDigitalPilotUsers = "/senoppfolging/landing"
+    private val urlForDigitalUsers = "/senoppfolging/landing"
 
     private fun getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar: FremtidigSituasjonSvar): String {
         return when (fremtidigSituasjonSvar) {
@@ -47,7 +41,7 @@ class PdfgenService(
         }
     }
 
-    fun getSenOppfolgingPdf(
+    fun getSenOppfolgingReceiptPdf(
         answersToQuestions: List<SenOppfolgingQuestionV2>,
     ): ByteArray? {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
@@ -59,13 +53,12 @@ class PdfgenService(
         return syfooppfpdfgenClient.getSenOppfolgingPdf(
             kvitteringEndpoint = kvitteringEndpoint,
             behovForOppfolging = behovForOppfolging,
+            maxDate = sykepengerMaxDateResponse?.maxDate,
             daysUntilMaxDate = sykepengerMaxDateResponse?.gjenstaendeSykedager,
         )
     }
 
-    fun getMerVeiledningPdf(personIdent: String): ByteArray {
-        val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-        val isPilotUser = behandlendeEnhet.isPilot(clusterName)
+    fun getMerVeiledningLandingPdf(personIdent: String): ByteArray {
         val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
         val sykepengerInformasjon = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByFnr(personIdent)
 
@@ -76,15 +69,9 @@ class PdfgenService(
                 maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
             )
 
-            isPilotUser -> syfooppfpdfgenClient.getMerVeiledningPilotUserPdf(
-                pdfEndpoint = urlForDigitalPilotUsers,
-                // sykepengerInformasjon.receivedAt> "prodsettingstidspunkt"
-                daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
-                maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
-            )
-
-            else -> syfooppfpdfgenClient.getMerVeiledningPdf(
+            else -> syfooppfpdfgenClient.getMerVeiledningDigitalUserPdf(
                 pdfEndpoint = urlForDigitalUsers,
+                daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
                 utbetaltTom = sykepengerInformasjon?.utbetaltTom.toString(),
                 maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
             )

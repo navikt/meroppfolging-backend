@@ -130,7 +130,7 @@ class VarselServiceTest : DescribeSpec() {
                 merOppfolgingVarselToBeSent[0].personIdent shouldBe "12345678910"
             }
 
-            it("Should find only one oppfolging varsel to be sent") {
+            it("Should find every oppfolging varsel to be sent") {
                 createMockdataForFnr(
                     fnr = "12345678910",
                     activeSykmelding = true,
@@ -156,8 +156,7 @@ class VarselServiceTest : DescribeSpec() {
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 
-                merOppfolgingVarselToBeSent.size shouldBe 1
-                merOppfolgingVarselToBeSent[0].personIdent shouldBe "12345678910"
+                merOppfolgingVarselToBeSent.size shouldBe 2
             }
 
             it("Should find only one oppfolging varsel to be sent due to duplicate") {
@@ -201,7 +200,7 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should not store utsendt varsel if pdfgen fails") {
-                every { pdfgenService.getMerVeiledningPdf(any()) } throws Exception("Help me")
+                every { pdfgenService.getMerVeiledningLandingPdf(any()) } throws Exception("Help me")
 
                 varselService.sendMerOppfolgingVarsel(
                     MerOppfolgingVarselDTO(
@@ -217,7 +216,7 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should not store utsendt varsel journalforing fails") {
-                every { pdfgenService.getMerVeiledningPdf(any()) } returns ByteArray(1)
+                every { pdfgenService.getMerVeiledningLandingPdf(any()) } returns ByteArray(1)
                 every { dokarkivClient.postDocumentToDokarkiv(any(), any(), any()) } throws Exception("Help me")
 
                 varselService.sendMerOppfolgingVarsel(
@@ -234,7 +233,7 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should store utsendt varsel post to dokarkiv OK") {
-                every { pdfgenService.getMerVeiledningPdf(any()) } returns ByteArray(1)
+                every { pdfgenService.getMerVeiledningLandingPdf(any()) } returns ByteArray(1)
                 every {
                     dokarkivClient.postDocumentToDokarkiv(any(), any(), any())
                 } returns DokarkivResponse(null, 1, null, "status", null)

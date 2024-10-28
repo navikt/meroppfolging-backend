@@ -13,7 +13,6 @@ import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormResponse
-import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 import no.nav.syfo.dokarkiv.DokarkivClient
@@ -22,7 +21,6 @@ import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
-import no.nav.syfo.senoppfolging.v1.domain.SenOppfolgingQuestionTypeV1
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.NO_RESPONSE
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_IKKE_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_OPPFOLGING
@@ -54,13 +52,10 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
             varselService = varselService,
             metric = metric,
             responseDao = responseDao,
-            behandlendeEnhetClient = behandlendeEnhetClient,
-            pilotEnabledForEnvironment = true,
             senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
             esyfovarselClient = esyfovarselClient,
             syfoopfpdfgenService = syfoopfpdfgenService,
             dokarkivClient = dokarkivClient,
-            clusterName = "local",
 
         ).apply {
             this.tokenValidator = tokenValidator
@@ -133,20 +128,6 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                 status.responseStatus shouldBe NO_RESPONSE
             }
 
-            it("Should return isPilot=false when user responded to v1 form") {
-                every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
-                every { responseDao.find(any(), FormType.SEN_OPPFOLGING_V1, any()) } returns listOf(
-                    QuestionResponse(SenOppfolgingQuestionTypeV1.ONSKER_OPPFOLGING.name, "", "JA", "Ja"),
-                )
-                every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns BehandlendeEnhet(
-                    "0314",
-                    "Testkontor",
-                )
-                val status = controller.status()
-                status.responseStatus shouldBe NO_RESPONSE
-                status.isPilot shouldBe false
-            }
-
             it("Should return isPilot=true when user belongs to pilot") {
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
                 every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns BehandlendeEnhet(
@@ -164,7 +145,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                     "0314",
                     "Testkontor",
                 )
-                every { syfoopfpdfgenService.getSenOppfolgingPdf(any()) } returns ByteArray(1)
+                every { syfoopfpdfgenService.getSenOppfolgingReceiptPdf(any()) } returns ByteArray(1)
                 val responses = listOf(
                     SenOppfolgingQuestionV2(BEHOV_FOR_OPPFOLGING, "Hei", "JA", "Ja"),
                 )
