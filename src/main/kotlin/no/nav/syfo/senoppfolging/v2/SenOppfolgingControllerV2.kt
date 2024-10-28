@@ -117,7 +117,7 @@ class SenOppfolgingControllerV2(
 
         varselService.ferdigstillMerOppfolgingVarsel(personident)
 
-        val pdf = syfoopfpdfgenService.getSenOppfolgingPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
+        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
         if (pdf == null) {
             log.error("Failed to generate PDF")
         } else {

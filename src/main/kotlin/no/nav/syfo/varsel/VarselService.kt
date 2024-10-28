@@ -46,7 +46,7 @@ class VarselService(
     ) {
         val personIdent = merOppfolgingVarselDTO.personIdent
         try {
-            val pdf = pdfgenService.getMerVeiledningPdf(personIdent)
+            val pdf = pdfgenService.getMerVeiledningLandingPdf(personIdent)
             val uuid = UUID.randomUUID().toString()
 
             val dokarkivResponse = dokarkivClient.postDocumentToDokarkiv(
