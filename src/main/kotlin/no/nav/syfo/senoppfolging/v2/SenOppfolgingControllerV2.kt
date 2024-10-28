@@ -7,7 +7,6 @@ import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
-import no.nav.syfo.behandlendeenhet.domain.isPilot
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.dokarkiv.DokarkivClient
@@ -79,7 +78,7 @@ class SenOppfolgingControllerV2(
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
 
         return SenOppfolgingStatusDTOV2(
-            isPilot = isPilot(),
+            isPilot = true,
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
