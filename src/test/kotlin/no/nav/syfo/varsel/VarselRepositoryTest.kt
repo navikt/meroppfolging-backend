@@ -45,6 +45,7 @@ class VarselRepositoryTest : DescribeSpec() {
         val personIdent = "12345678910"
         val utbetalingId = "123"
         val sykmeldingId = "321"
+        val sykmeldingId2 = "321-2"
 
         describe("VarselRepository") {
             it("Should return 1 varsel") {
@@ -85,6 +86,30 @@ class VarselRepositoryTest : DescribeSpec() {
                 val candidates = varselRepository.fetchMerOppfolgingVarselToBeSent()
 
                 candidates.size shouldBe 0
+            }
+
+            it("Should return 1 varsel if there are several sykmeldinger for the same person") {
+                createMockdataForFnr(
+                    fnr = "12345678910",
+                    sykmeldingId = sykmeldingId,
+                    utbetalingId = utbetalingId,
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                createMockdataForFnr(
+                    fnr = "12345678910",
+                    sykmeldingId = sykmeldingId2,
+                    utbetalingId = "456",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                val candidates = varselRepository.fetchMerOppfolgingVarselToBeSent()
+                candidates.size shouldBe 1
+                candidates[0].sykmeldingId shouldBe sykmeldingId2
             }
         }
     }
