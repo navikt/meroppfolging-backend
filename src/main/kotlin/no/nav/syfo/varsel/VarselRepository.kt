@@ -69,6 +69,12 @@ class VarselRepository(
                 WHERE spdi.person_ident = spdi2.person_ident
                 ORDER BY utbetaling_created_at DESC
                 LIMIT 1)
+            AND sykmelding.sykmelding_id = 
+                (SELECT latest_sykmelding.sykmelding_id 
+                FROM sykmelding AS latest_sykmelding
+                WHERE sykmelding.employee_identification_number = latest_sykmelding.employee_identification_number
+                ORDER BY latest_sykmelding.created_at DESC
+                LIMIT 1)       
             AND spdi.gjenstaende_sykedager < $gjenstaendeSykedagerLimit
             AND sykmelding.tom > CURRENT_TIMESTAMP
             AND spdi.forelopig_beregnet_slutt >= current_date + INTERVAL '$maxDateLimit' DAY
