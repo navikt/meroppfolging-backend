@@ -2,6 +2,7 @@ package no.nav.syfo.varsel
 
 import no.nav.syfo.leaderelection.LeaderElectionClient
 import no.nav.syfo.logger
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.varsel.database.SendingDueDateDAO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
@@ -14,6 +15,7 @@ class SendSSPSVarselJobb(
     private val leaderElectionClient: LeaderElectionClient,
     @Value("\${toggle.ssps.varselutsending}") private var varselutsendingEnabledForEnvironment: Boolean,
     private var sendingDueDateDAO: SendingDueDateDAO,
+    private val metric: Metric,
 ) {
     private val log = logger()
     private val logName = "[${SendSSPSVarselJobb::class.simpleName}]"
@@ -27,6 +29,7 @@ class SendSSPSVarselJobb(
         log.info("$logName Starter jobb")
 
         val varslerToSendToday = varselService.findMerOppfolgingVarselToBeSent()
+        metric.countSenOppfolgingVarslerToBeSent(varslerToSendToday.size.toDouble())
         log.info("$logName Planlegger å sende ${varslerToSendToday.size} varsler totalt")
 
         val antallVarslerSendt = sendVarslerWithHandling(varslerToSendToday)

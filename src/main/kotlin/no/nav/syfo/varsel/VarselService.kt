@@ -2,6 +2,7 @@ package no.nav.syfo.varsel
 
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.logger
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.pdl.PdlClient
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingVarselDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingVarselKafkaProducer
@@ -18,6 +19,7 @@ class VarselService(
     private val senOppfolgingVarselKafkaProducer: SenOppfolgingVarselKafkaProducer,
     private val pdfgenService: PdfgenService,
     private val dokarkivClient: DokarkivClient,
+    private val metric: Metric,
 ) {
     private val log = logger()
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
@@ -37,6 +39,7 @@ class VarselService(
             arbeidstakerFnr = fnr,
             orgnummer = null,
         )
+        metric.countSenOppfolgingFerdigstilt()
         producer.sendVarselTilEsyfovarsel(hendelse)
     }
 

@@ -93,6 +93,11 @@ class SenOppfolgingControllerV2(
     fun submitForm(
         @RequestBody senOppfolgingDTOV2: SenOppfolgingDTOV2,
     ) {
+        if (senOppfolgingDTOV2.senOppfolgingFormV2.behovForOppfolging()) {
+            metric.countSenOppfolgingRequestYes()
+        } else {
+            metric.countSenOppfolgingRequestNo()
+        }
         val personident = tokenValidator.validateTokenXClaims().getFnr()
         val response =
             responseDao.find(
@@ -137,9 +142,9 @@ class SenOppfolgingControllerV2(
                 ),
             )
         if (senOppfolgingDTOV2.senOppfolgingFormV2.behovForOppfolging()) {
-            metric.countSenOppfolgingSubmittedYes()
+            metric.countSenOppfolgingV2Submitted()
         } else {
-            metric.countSenOppfolgingSubmittedNO()
+            metric.countSenOppfolgingV2SubmittedNo()
         }
 
         metric.countSenOppfolgingV2Submitted()
