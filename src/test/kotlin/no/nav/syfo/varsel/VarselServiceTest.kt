@@ -129,7 +129,7 @@ class VarselServiceTest : DescribeSpec() {
                 merOppfolgingVarselToBeSent[0].personIdent shouldBe "12345678910"
             }
 
-            it("Should find only one oppfolging varsel to be sent") {
+            it("Should find every oppfolging varsel to be sent") {
                 createMockdataForFnr(
                     fnr = "12345678910",
                     activeSykmelding = true,
@@ -155,8 +155,7 @@ class VarselServiceTest : DescribeSpec() {
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 
-                merOppfolgingVarselToBeSent.size shouldBe 1
-                merOppfolgingVarselToBeSent[0].personIdent shouldBe "12345678910"
+                merOppfolgingVarselToBeSent.size shouldBe 2
             }
 
             it("Should not store utsendt varsel if pdfgen fails") {
