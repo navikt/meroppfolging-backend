@@ -15,7 +15,7 @@ constructor(
 
     fun countCallVeilarbregistreringComplete() = countEvent("call_veilarbregistrering_complete")
 
-    fun countSenOppfolgingPilotSubmitted() = countEvent("sen_oppfolging_pilot_submitted")
+    fun countSenOppfolgingV2Submitted() = countEvent("sen_oppfolging_V2_submitted")
 
     fun countEvent(name: String) {
         registry

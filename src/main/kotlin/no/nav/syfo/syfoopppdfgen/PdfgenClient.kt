@@ -67,14 +67,14 @@ class PdfgenClient(
         return HttpEntity(body, headers)
     }
 
-    fun getMerVeiledningPilotUserPdf(
+    fun getMerVeiledningDigitalUserPdf(
         pdfEndpoint: String,
         daysLeft: String?,
         maxDate: String?,
     ): ByteArray {
         try {
             val requestEntity =
-                getMerVeiledningPilotUserPdfRequestEntity(
+                getMerVeiledningDigitalUserPdfRequestEntity(
                     maxDate = maxDate,
                     daysLeft = daysLeft,
                 )
@@ -95,7 +95,7 @@ class PdfgenClient(
         }
     }
 
-    private fun getMerVeiledningPilotUserPdfRequestEntity(
+    private fun getMerVeiledningDigitalUserPdfRequestEntity(
         daysLeft: String?,
         maxDate: String?,
     ): HttpEntity<PdfgenRequest> {

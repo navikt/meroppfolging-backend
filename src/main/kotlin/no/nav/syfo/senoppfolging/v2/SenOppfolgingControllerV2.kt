@@ -7,7 +7,6 @@ import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
-import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.isPilot
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormType
@@ -50,13 +49,10 @@ class SenOppfolgingControllerV2(
     val varselService: VarselService,
     val metric: Metric,
     val responseDao: ResponseDao,
-    val behandlendeEnhetClient: BehandlendeEnhetClient,
     val senOppfolgingSvarKafkaProducer: SenOppfolgingSvarKafkaProducer,
     val esyfovarselClient: EsyfovarselClient,
     val dokarkivClient: DokarkivClient,
-    @Value("\${toggle.pilot}") private var pilotEnabledForEnvironment: Boolean,
     val syfoopfpdfgenService: PdfgenService,
-    @Value("\${NAIS_CLUSTER_NAME}") private var clusterName: String,
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
@@ -73,19 +69,6 @@ class SenOppfolgingControllerV2(
     fun status(): SenOppfolgingStatusDTOV2 {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
-        val behandlendeEnhet = behandlendeEnhetClient.getBehandlendeEnhet(personIdent)
-        log.info("Behandlende enhet: ${behandlendeEnhet.enhetId}")
-
-        if (!pilotEnabledForEnvironment || hasRespondedToV1Form(personIdent)) {
-            return SenOppfolgingStatusDTOV2(
-                isPilot = false,
-                responseStatus = ResponseStatus.NO_RESPONSE,
-                response = null,
-                responseTime = null,
-                maxDate = null,
-                gjenstaendeSykedager = null,
-            )
-        }
 
         val response =
             responseDao.findLatestFormResponse(
@@ -96,7 +79,7 @@ class SenOppfolgingControllerV2(
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
 
         return SenOppfolgingStatusDTOV2(
-            isPilot = behandlendeEnhet.isPilot(clusterName),
+            isPilot = isPilot(),
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
@@ -110,10 +93,6 @@ class SenOppfolgingControllerV2(
     fun submitForm(
         @RequestBody senOppfolgingDTOV2: SenOppfolgingDTOV2,
     ) {
-        if (!pilotEnabledForEnvironment) {
-            return
-        }
-
         val personident = tokenValidator.validateTokenXClaims().getFnr()
         val response =
             responseDao.find(
@@ -158,17 +137,6 @@ class SenOppfolgingControllerV2(
                 ),
             )
 
-        metric.countSenOppfolgingPilotSubmitted()
-    }
-
-    private fun hasRespondedToV1Form(personIdent: String): Boolean {
-        val responseOnV1Form =
-            responseDao.find(
-                PersonIdentNumber(personIdent),
-                FormType.SEN_OPPFOLGING_V1,
-                cutoffDate,
-            )
-
-        return responseOnV1Form.isNotEmpty()
+        metric.countSenOppfolgingV2Submitted()
     }
 }
