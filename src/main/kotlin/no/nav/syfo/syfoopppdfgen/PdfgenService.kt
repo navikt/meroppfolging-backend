@@ -64,6 +64,7 @@ class PdfgenService(
                     utbetaltTom = sykepengerMaxDateResponse?.utbetaltTom,
                     maxDate = sykepengerMaxDateResponse?.maxDate,
                 )
+
             else ->
                 syfooppfpdfgenClient.getMerVeiledningDigitalUserPdf(
                     pdfEndpoint = urlForDigitalUsers,
