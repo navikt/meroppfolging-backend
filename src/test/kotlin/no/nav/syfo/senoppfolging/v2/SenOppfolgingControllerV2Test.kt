@@ -145,7 +145,7 @@ class SenOppfolgingControllerV2Test : DescribeSpec(
                     "0314",
                     "Testkontor",
                 )
-                every { syfoopfpdfgenService.getSenOppfolgingPdf(any()) } returns ByteArray(1)
+                every { syfoopfpdfgenService.getSenOppfolgingReceiptPdf(any()) } returns ByteArray(1)
                 val responses = listOf(
                     SenOppfolgingQuestionV2(BEHOV_FOR_OPPFOLGING, "Hei", "JA", "Ja"),
                 )

@@ -41,7 +41,7 @@ class PdfgenService(
         }
     }
 
-    fun getSenOppfolgingPdf(
+    fun getSenOppfolgingReceiptPdf(
         answersToQuestions: List<SenOppfolgingQuestionV2>,
     ): ByteArray? {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
@@ -53,11 +53,12 @@ class PdfgenService(
         return syfooppfpdfgenClient.getSenOppfolgingPdf(
             kvitteringEndpoint = kvitteringEndpoint,
             behovForOppfolging = behovForOppfolging,
+            maxDate = sykepengerMaxDateResponse?.maxDate,
             daysUntilMaxDate = sykepengerMaxDateResponse?.gjenstaendeSykedager,
         )
     }
 
-    fun getMerVeiledningPdf(personIdent: String): ByteArray {
+    fun getMerVeiledningLandingPdf(personIdent: String): ByteArray {
         val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
         val sykepengerInformasjon = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByFnr(personIdent)
 
@@ -71,6 +72,7 @@ class PdfgenService(
             else -> syfooppfpdfgenClient.getMerVeiledningDigitalUserPdf(
                 pdfEndpoint = urlForDigitalUsers,
                 daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
+                utbetaltTom = sykepengerInformasjon?.utbetaltTom.toString(),
                 maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
             )
         }

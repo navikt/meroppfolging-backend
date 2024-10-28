@@ -7,9 +7,10 @@ data class PdfgenRequest(
 interface Brevdata
 
 class BrevdataSenOppfolging(
-    val daysUntilMaxDate: String?,
-    val behovForOppfolging: Boolean,
     val sentDate: String,
+    val behovForOppfolging: Boolean,
+    val maxdato: String?,
+    val daysUntilMaxDate: String?,
 ) : Brevdata
 
 class BrevdataMerVeiledning(
@@ -22,4 +23,5 @@ class BrevdataMerVeiledningPilot(
     val sendtdato: String,
     val daysLeft: String?,
     val maxdato: String?,
+    val utbetaltTom: String?,
 ) : Brevdata
