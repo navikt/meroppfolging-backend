@@ -59,17 +59,19 @@ class VarselRepository(
 
     fun storeSkipVarselDueToAge(
         personIdent: String,
+        fodselsdato: String?,
     ): UUID {
         val sql =
             """
-            INSERT INTO SKIP_VARSELUTSENDING (person_ident, created_at)
-            VALUES (:person_ident, :created_at)
+            INSERT INTO SKIP_VARSELUTSENDING (person_ident, fodselsdato, created_at)
+            VALUES (:person_ident, :fodselsdato, :created_at)
             """.trimIndent()
 
         val utsendtVarselUUID = UUID.randomUUID()
         val parameters =
             mapOf(
                 "person_ident" to personIdent,
+                "fodselsdato" to fodselsdato,
                 "created_at" to LocalDateTime.now(),
             )
 

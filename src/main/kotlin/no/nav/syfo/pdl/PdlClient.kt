@@ -26,16 +26,22 @@ class PdlClient(
 
     private val log: Logger = LoggerFactory.getLogger(PdlClient::class.qualifiedName)
 
-    fun isBrukerYngreEnnGittMaxAlder(ident: String, maxAlder: Int): Boolean {
+    fun isBrukerYngreEnnGittMaxAlder(ident: String, maxAlder: Int): AgeCheckResult {
         val fodselsdato = hentPersonData(ident)?.getFodselsdato()
         if (fodselsdato == null) {
             log.warn(
                 "Returnert fødselsdato for en person fra PDL er null. " +
                     "Fortsetter som om bruker er yngre enn $maxAlder år da fødselsdato er ukjent.",
             )
-            return true
+            return AgeCheckResult(
+                youngerThanMaxAlder = true,
+                fodselsdato = null,
+            )
         } else {
-            return isAlderMindreEnnGittAr(fodselsdato, maxAlder)
+            return AgeCheckResult(
+                youngerThanMaxAlder = isAlderMindreEnnGittAr(fodselsdato, maxAlder),
+                fodselsdato = fodselsdato,
+            )
         }
     }
 
@@ -89,4 +95,9 @@ class PdlClient(
         return this::class.java.getResource("/pdl/hentPerson.graphql")?.readText()?.replace("[\n\r]", "")
             ?: throw FileNotFoundException("Could not find resource for hentPerson.graphql")
     }
+
+    data class AgeCheckResult(
+        val youngerThanMaxAlder: Boolean,
+        val fodselsdato: String?,
+    )
 }

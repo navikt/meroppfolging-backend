@@ -24,10 +24,11 @@ class VarselService(
         val allVarsler = varselRepository.fetchMerOppfolgingVarselToBeSent()
 
         val filteredVarsler = allVarsler.mapNotNull {
-            if (pdlClient.isBrukerYngreEnnGittMaxAlder(it.personIdent, 67)) {
+            val ageCheckResult = pdlClient.isBrukerYngreEnnGittMaxAlder(it.personIdent, 67)
+            if (ageCheckResult.youngerThanMaxAlder) {
                 it
             } else {
-                varselRepository.storeSkipVarselDueToAge(it.personIdent)
+                varselRepository.storeSkipVarselDueToAge(it.personIdent, ageCheckResult.fodselsdato)
                 null
             }
         }
