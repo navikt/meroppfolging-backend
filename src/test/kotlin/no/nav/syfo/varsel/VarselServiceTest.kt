@@ -2,6 +2,7 @@ package no.nav.syfo.varsel
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.SpykBean
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.extensions.wiremock.ListenerMode
@@ -9,11 +10,13 @@ import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
+import io.mockk.verify
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
+import no.nav.syfo.pdl.PdlClient
 import no.nav.syfo.pdl.stubHentPerson
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
@@ -38,6 +41,9 @@ class VarselServiceTest : DescribeSpec() {
 
     @MockkBean(relaxed = true)
     lateinit var dokarkivClient: DokarkivClient
+
+    @SpykBean
+    lateinit var pdlClient: PdlClient
 
     @MockkBean(relaxed = true)
     lateinit var behandlendeEnhetClient: BehandlendeEnhetClient
@@ -65,6 +71,7 @@ class VarselServiceTest : DescribeSpec() {
             jdbcTemplate.execute("TRUNCATE TABLE UTSENDT_VARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKMELDING CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKEPENGEDAGER_INFORMASJON CASCADE")
+            jdbcTemplate.execute("TRUNCATE TABLE SKIP_VARSELUTSENDING CASCADE")
         }
 
         describe("VarselService") {
@@ -211,6 +218,26 @@ class VarselServiceTest : DescribeSpec() {
                 utsendtVarsel!!.personIdent shouldBe "12345678910"
                 utsendtVarsel.utbetalingId shouldBe "utbetalingId"
                 utsendtVarsel.sykmeldingId shouldBe "sykmeldingId"
+            }
+
+            it("Should not send varsel for those older than max age, and only call PDL once") {
+                pdlServer.stubHentPerson(yearsOld = 67)
+                val personIdent = "12345678910"
+                createMockdataForFnr(
+                    fnr = personIdent,
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                val varselSomSkalSendes = varselService.findMerOppfolgingVarselToBeSent()
+                verify(exactly = 1) { pdlClient.isBrukerYngreEnnGittMaxAlder(any(), any()) }
+                varselSomSkalSendes.size shouldBe 0
+
+                varselService.findMerOppfolgingVarselToBeSent()
+                verify(exactly = 1) { pdlClient.isBrukerYngreEnnGittMaxAlder(any(), any()) }
+
+                varselService.findMerOppfolgingVarselToBeSent()
             }
         }
     }

@@ -57,6 +57,26 @@ class VarselRepository(
         return utsendtVarselUUID
     }
 
+    fun storeSkipVarselDueToAge(
+        personIdent: String,
+    ): UUID {
+        val sql =
+            """
+            INSERT INTO SKIP_VARSELUTSENDING (person_ident, created_at)
+            VALUES (:person_ident, :created_at)
+            """.trimIndent()
+
+        val utsendtVarselUUID = UUID.randomUUID()
+        val parameters =
+            mapOf(
+                "person_ident" to personIdent,
+                "created_at" to LocalDateTime.now(),
+            )
+
+        namedParameterJdbcTemplate.update(sql, parameters)
+        return utsendtVarselUUID
+    }
+
     fun fetchMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
         val sql =
             """
@@ -85,7 +105,10 @@ class VarselRepository(
             AND spdi.person_ident NOT IN
                 (SELECT copy_utsendt_varsel_esyfovarsel.fnr
                 FROM copy_utsendt_varsel_esyfovarsel
-                WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY); 
+                WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY)
+            AND spdi.person_ident NOT IN
+                (SELECT skip_varselutsending.person_ident
+                FROM skip_varselutsending);
             """.trimIndent()
 
         return namedParameterJdbcTemplate.query(sql, MerOppfolgingVarselDTOMapper())
