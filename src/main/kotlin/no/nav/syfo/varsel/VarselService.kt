@@ -21,10 +21,19 @@ class VarselService(
 ) {
     private val log = logger()
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
-        return varselRepository.fetchMerOppfolgingVarselToBeSent()
-            .filter {
-                pdlClient.isBrukerYngreEnnGittMaxAlder(it.personIdent, 67)
+        val allVarsler = varselRepository.fetchMerOppfolgingVarselToBeSent()
+
+        val filteredVarsler = allVarsler.mapNotNull {
+            val ageCheckResult = pdlClient.isBrukerYngreEnnGittMaxAlder(it.personIdent, 67)
+            if (ageCheckResult.youngerThanMaxAlder) {
+                it
+            } else {
+                varselRepository.storeSkipVarselDueToAge(it.personIdent, ageCheckResult.fodselsdato)
+                null
             }
+        }
+
+        return filteredVarsler
     }
 
     fun ferdigstillMerOppfolgingVarsel(
