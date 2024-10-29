@@ -176,12 +176,12 @@ class VarselServiceTest : DescribeSpec() {
                 jdbcTemplate.execute(
                     """
                     INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL VALUES ('UUID', '12345678911', 'test_type', CURRENT_TIMESTAMP);
-                """.trimIndent(),
+                    """.trimIndent(),
                 )
                 jdbcTemplate.execute(
                     """
                     INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL VALUES ('UUID', '12345678911', 'test_type', CURRENT_TIMESTAMP - INTERVAL '1 DAY');
-                """.trimIndent(),
+                    """.trimIndent(),
                 )
 
                 every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
