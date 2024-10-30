@@ -91,7 +91,7 @@ class VarselService(
                     ),
                 )
             } else {
-                log.warn("Fetched journalpost id is null, skipped sending varsel")
+                log.error("Skipped sending varsel due to no DokarkivResponse")
             }
         } catch (e: Exception) {
             log.error(
