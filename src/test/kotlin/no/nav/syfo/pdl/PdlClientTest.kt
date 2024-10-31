@@ -32,19 +32,19 @@ class PdlClientTest : DescribeSpec(
             it("should return true if the user is younger than the given max age") {
                 pdlServer.stubHentPerson(yearsOld = 66)
 
-                pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67) shouldBe true
+                pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67).youngerThanMaxAlder shouldBe true
             }
 
             it("should return false if the user is max age or older") {
                 pdlServer.stubHentPerson(yearsOld = 67)
 
-                pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67) shouldBe false
+                pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67).youngerThanMaxAlder shouldBe false
             }
 
             it("should return true if the birth date is null") {
                 pdlServer.stubHentPerson(yearsOld = null)
 
-                pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67) shouldBe true
+                pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67).youngerThanMaxAlder shouldBe true
             }
         }
     },
