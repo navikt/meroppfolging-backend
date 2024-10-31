@@ -53,39 +53,41 @@ class VarselService(
     }
 
     @Suppress("MaxLineLength")
-    fun sendMerOppfolgingVarsel(
-        merOppfolgingVarselDTO: MerOppfolgingVarselDTO,
-    ) {
+    fun sendMerOppfolgingVarsel(merOppfolgingVarselDTO: MerOppfolgingVarselDTO) {
         val personIdent = merOppfolgingVarselDTO.personIdent
         try {
             val pdf = pdfgenService.getMerVeiledningLandingPdf(personIdent)
             val uuid = UUID.randomUUID().toString()
 
-            val dokarkivResponse = dokarkivClient.postDocumentToDokarkiv(
-                fnr = personIdent,
-                pdf = pdf,
-                uuid = uuid,
-            )
-            if (dokarkivResponse != null) {
-                val hendelse = ArbeidstakerHendelse(
-                    type = HendelseType.SM_MER_VEILEDNING,
-                    ferdigstill = false,
-                    data = VarselData(
-                        VarselDataJournalpost(uuid = uuid, id = dokarkivResponse.journalpostId.toString()),
-                        null,
-                        null,
-                        null,
-                    ),
-                    arbeidstakerFnr = personIdent,
-                    orgnummer = null,
+            val dokarkivResponse =
+                dokarkivClient.postDocumentToDokarkiv(
+                    fnr = personIdent,
+                    pdf = pdf,
+                    uuid = uuid,
                 )
+            if (dokarkivResponse != null) {
+                val hendelse =
+                    ArbeidstakerHendelse(
+                        type = HendelseType.SM_MER_VEILEDNING,
+                        ferdigstill = false,
+                        data =
+                        VarselData(
+                            VarselDataJournalpost(uuid = uuid, id = dokarkivResponse.journalpostId.toString()),
+                            null,
+                            null,
+                            null,
+                        ),
+                        arbeidstakerFnr = personIdent,
+                        orgnummer = null,
+                    )
                 producer.sendVarselTilEsyfovarsel(hendelse)
 
-                val utsendtVarselUUID = varselRepository.storeUtsendtVarsel(
-                    personIdent = merOppfolgingVarselDTO.personIdent,
-                    utbetalingId = merOppfolgingVarselDTO.utbetalingId,
-                    sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
-                )
+                val utsendtVarselUUID =
+                    varselRepository.storeUtsendtVarsel(
+                        personIdent = merOppfolgingVarselDTO.personIdent,
+                        utbetalingId = merOppfolgingVarselDTO.utbetalingId,
+                        sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
+                    )
                 senOppfolgingVarselKafkaProducer.publishVarsel(
                     KSenOppfolgingVarselDTO(
                         uuid = utsendtVarselUUID,
@@ -103,7 +105,16 @@ class VarselService(
         }
     }
 
-    fun getUtsendtVarsel(fnr: String): UtsendtVarsel? {
-        return varselRepository.getUtsendtVarsel(fnr)
+    fun getUtsendtVarsel(fnr: String): Varsel? {
+        val utsendtVarsel = varselRepository.getUtsendtVarsel(fnr)
+        val utsendtVarselEsyfovarselCopy = varselRepository.getUtsendtVarselFromEsyfovarselCopy(fnr)
+
+        val validLatestUtsendtVarsel =
+            listOfNotNull(
+                utsendtVarsel,
+                utsendtVarselEsyfovarselCopy,
+            ).maxByOrNull { it.utsendtTidspunkt }
+
+        return validLatestUtsendtVarsel
     }
 }

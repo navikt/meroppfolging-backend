@@ -99,8 +99,13 @@ class ResponseDao(
     }
 
     @Suppress("SwallowedException")
-    fun find(personIdent: PersonIdentNumber, formType: FormType, from: LocalDate): List<QuestionResponse> {
-        val query = """
+    fun find(
+        personIdent: PersonIdentNumber,
+        formType: FormType,
+        from: LocalDate,
+    ): List<QuestionResponse> {
+        val query =
+            """
             SELECT 
                 question.question_type,
                 question.question_text,
@@ -111,12 +116,13 @@ class ResponseDao(
             WHERE form.person_ident = :person_ident
             AND form.form_type = :form_type
             AND form.created_at > :from_date
-        """.trimIndent()
+            """.trimIndent()
 
-        val namedParameters = MapSqlParameterSource()
-            .addValue("person_ident", personIdent.value)
-            .addValue("form_type", formType.name)
-            .addValue("from_date", Date.valueOf(from))
+        val namedParameters =
+            MapSqlParameterSource()
+                .addValue("person_ident", personIdent.value)
+                .addValue("form_type", formType.name)
+                .addValue("from_date", Date.valueOf(from))
 
         return try {
             namedParameterJdbcTemplate.query(query, namedParameters, QuestionResponseRowMapper())
@@ -125,8 +131,13 @@ class ResponseDao(
         }
     }
 
-    fun findLatestFormResponse(personIdent: PersonIdentNumber, formType: FormType, from: LocalDate): FormResponse? {
-        val query = """
+    fun findLatestFormResponse(
+        personIdent: PersonIdentNumber,
+        formType: FormType,
+        from: LocalDate,
+    ): FormResponse? {
+        val query =
+            """
             SELECT 
                 form.uuid,
                 form.person_ident,
@@ -143,18 +154,23 @@ class ResponseDao(
             AND form.form_type = :form_type
             AND form.created_at > :from_date
             ORDER BY form.created_at DESC
-        """.trimIndent()
+            """.trimIndent()
 
-        val namedParameters = MapSqlParameterSource()
-            .addValue("person_ident", personIdent.value)
-            .addValue("form_type", formType.name)
-            .addValue("from_date", Date.valueOf(from))
+        val namedParameters =
+            MapSqlParameterSource()
+                .addValue("person_ident", personIdent.value)
+                .addValue("form_type", formType.name)
+                .addValue("from_date", Date.valueOf(from))
 
         return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
     }
 
-    fun findLatestFormResponse(personIdent: PersonIdentNumber, formType: FormType): FormResponse? {
-        val query = """
+    fun findLatestFormResponse(
+        personIdent: PersonIdentNumber,
+        formType: FormType,
+    ): FormResponse? {
+        val query =
+            """
             SELECT 
                 form.uuid,
                 form.person_ident,
@@ -170,25 +186,28 @@ class ResponseDao(
             WHERE form.person_ident = :person_ident
             AND form.form_type = :form_type
             ORDER BY form.created_at DESC
-        """.trimIndent()
+            """.trimIndent()
 
-        val namedParameters = MapSqlParameterSource()
-            .addValue("person_ident", personIdent.value)
-            .addValue("form_type", formType.name)
+        val namedParameters =
+            MapSqlParameterSource()
+                .addValue("person_ident", personIdent.value)
+                .addValue("form_type", formType.name)
 
         return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
     }
 
     @Suppress("SwallowedException")
-    private fun executeFormResponseQuery(query: String, namedParameters: SqlParameterSource): List<FormResponse>? {
-        return try {
+    private fun executeFormResponseQuery(
+        query: String,
+        namedParameters: SqlParameterSource,
+    ): List<FormResponse>? =
+        try {
             namedParameterJdbcTemplate.query(
                 query,
                 namedParameters,
-                FormResponseResultSetExtractor()
+                FormResponseResultSetExtractor(),
             )
         } catch (e: EmptyResultDataAccessException) {
             null
         }
-    }
 }

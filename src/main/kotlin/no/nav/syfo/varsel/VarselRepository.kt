@@ -32,6 +32,23 @@ class VarselRepository(
         return namedParameterJdbcTemplate.query(sql, parameters, UtsendtVarselRowMapper()).firstOrNull()
     }
 
+    fun getUtsendtVarselFromEsyfovarselCopy(personIdent: String): UtsendtVarselEsyfovarselCopy? {
+        val sql =
+            """
+            select uuid_esyfovarsel, fnr, utsendt_tidspunkt
+            from COPY_UTSENDT_VARSEL_ESYFOVARSEL
+            where fnr = :person_ident
+            AND utsendt_tidspunkt > NOW() - INTERVAL '$nyttVarselLimit' DAY
+            """.trimIndent()
+
+        val parameters =
+            mapOf(
+                "person_ident" to personIdent,
+            )
+
+        return namedParameterJdbcTemplate.query(sql, parameters, UtsendtVarselEsyfovarselCopyRowMapper()).firstOrNull()
+    }
+
     fun storeUtsendtVarsel(
         personIdent: String,
         utbetalingId: String,
@@ -128,6 +145,18 @@ internal class UtsendtVarselRowMapper : RowMapper<UtsendtVarsel> {
             utsendtTidspunkt = rs.getTimestamp("utsendt_tidspunkt").toLocalDateTime(),
             utbetalingId = rs.getString("utbetaling_id"),
             sykmeldingId = rs.getString("sykmelding_id"),
+        )
+}
+
+internal class UtsendtVarselEsyfovarselCopyRowMapper : RowMapper<UtsendtVarselEsyfovarselCopy> {
+    override fun mapRow(
+        rs: ResultSet,
+        rowNum: Int,
+    ): UtsendtVarselEsyfovarselCopy =
+        UtsendtVarselEsyfovarselCopy(
+            uuid = UUID.fromString(rs.getString("uuid_esyfovarsel")),
+            personIdent = rs.getString("fnr"),
+            utsendtTidspunkt = rs.getTimestamp("utsendt_tidspunkt").toLocalDateTime(),
         )
 }
 

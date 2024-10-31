@@ -35,7 +35,6 @@ import java.util.*
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 class VarselServiceTest : DescribeSpec() {
-
     @MockkBean(relaxed = true)
     lateinit var pdfgenService: PdfgenService
 
@@ -71,6 +70,7 @@ class VarselServiceTest : DescribeSpec() {
             jdbcTemplate.execute("TRUNCATE TABLE UTSENDT_VARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKMELDING CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKEPENGEDAGER_INFORMASJON CASCADE")
+            jdbcTemplate.execute("TRUNCATE TABLE COPY_UTSENDT_VARSEL_ESYFOVARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SKIP_VARSELUTSENDING CASCADE")
         }
 
@@ -88,8 +88,6 @@ class VarselServiceTest : DescribeSpec() {
 
                 utsendtVarsel shouldNotBe null
                 utsendtVarsel!!.personIdent shouldBe "12345678910"
-                utsendtVarsel.utbetalingId shouldBe "utbetalingId"
-                utsendtVarsel.sykmeldingId shouldBe "sykmeldingId"
             }
 
             it("Should find mer oppfolging varsel to be sent") {
@@ -117,18 +115,21 @@ class VarselServiceTest : DescribeSpec() {
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
                 )
 
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
-                    "0624",
-                    "Testkontor",
-                )
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns BehandlendeEnhet(
-                    "0624",
-                    "Testkontor",
-                )
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678912") } returns BehandlendeEnhet(
-                    "0624",
-                    "Testkontor",
-                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns
+                    BehandlendeEnhet(
+                        "0624",
+                        "Testkontor",
+                    )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns
+                    BehandlendeEnhet(
+                        "0624",
+                        "Testkontor",
+                    )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678912") } returns
+                    BehandlendeEnhet(
+                        "0624",
+                        "Testkontor",
+                    )
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 
@@ -151,14 +152,16 @@ class VarselServiceTest : DescribeSpec() {
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
                 )
 
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns BehandlendeEnhet(
-                    "0624",
-                    "Testkontor",
-                )
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns BehandlendeEnhet(
-                    "0314",
-                    "Testkontor",
-                )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns
+                    BehandlendeEnhet(
+                        "0624",
+                        "Testkontor",
+                    )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns
+                    BehandlendeEnhet(
+                        "0314",
+                        "Testkontor",
+                    )
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 
@@ -216,8 +219,98 @@ class VarselServiceTest : DescribeSpec() {
 
                 utsendtVarsel shouldNotBe null
                 utsendtVarsel!!.personIdent shouldBe "12345678910"
-                utsendtVarsel.utbetalingId shouldBe "utbetalingId"
-                utsendtVarsel.sykmeldingId shouldBe "sykmeldingId"
+            }
+
+            it("should return utsendt varsel from COPY_UTSENDT_VARSEL_ESYFOVARSEL") {
+                val uuid = UUID.randomUUID().toString()
+                jdbcTemplate.execute(
+                    """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL(
+                        uuid_esyfovarsel, fnr, type, utsendt_tidspunkt
+                    )
+                    VALUES ('$uuid', 'test-fnr-01', 'type', current_date - INTERVAL '60 days');
+                    """.trimMargin(),
+                )
+
+                val utsendtVarsel = varselService.getUtsendtVarsel("test-fnr-01")
+
+                utsendtVarsel shouldNotBe null
+                utsendtVarsel?.personIdent shouldBe "test-fnr-01"
+            }
+
+            describe(
+                "getUtsendtVarsel",
+            ) {
+                it("should return latest utsendt varsel from COPY_UTSENDT_VARSEL_ESYFOVARSEL") {
+                    val fnr = "test-fnr-01"
+                    val uuidCopy = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL(
+                        uuid_esyfovarsel, fnr, type, utsendt_tidspunkt
+                    )
+                    VALUES ('$uuidCopy', '$fnr', 'type', current_date - INTERVAL '60 days');
+                        """.trimMargin(),
+                    )
+                    val uuid = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                        INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
+                        VALUES ('$uuid','$fnr' , current_date - INTERVAL '65 days', '123', '123')
+                        """.trimIndent().trimMargin(),
+                    )
+
+                    val utsendtVarsel = varselService.getUtsendtVarsel(fnr)
+
+                    utsendtVarsel shouldNotBe null
+                    utsendtVarsel?.uuid.toString() shouldBe uuidCopy
+                }
+                it("should return latest utsendt varsel from UTSENDT_VARSEL") {
+                    val fnr = "test-fnr-01"
+                    val uuidCopy = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL(
+                        uuid_esyfovarsel, fnr, type, utsendt_tidspunkt
+                    )
+                    VALUES ('$uuidCopy', '$fnr', 'type', current_date - INTERVAL '60 days');
+                        """.trimMargin(),
+                    )
+                    val uuid = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                        INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
+                        VALUES ('$uuid','$fnr' , current_date - INTERVAL '55 days', '123', '123')
+                        """.trimIndent().trimMargin(),
+                    )
+
+                    val utsendtVarsel = varselService.getUtsendtVarsel(fnr)
+
+                    utsendtVarsel shouldNotBe null
+                    utsendtVarsel?.uuid.toString() shouldBe uuid
+                }
+                it("should return null when no valid utsendt varsel is found") {
+                    val fnr = "test-fnr-02"
+                    val uuidCopy = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL(
+                        uuid_esyfovarsel, fnr, type, utsendt_tidspunkt
+                    )
+                    VALUES ('$uuidCopy', '$fnr', 'type', current_date - INTERVAL '160 days');
+                        """.trimMargin(),
+                    )
+                    val uuid = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                        INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
+                        VALUES ('$uuid','$fnr' , current_date - INTERVAL '150 days', '123', '123')
+                        """.trimIndent().trimMargin(),
+                    )
+                    val utsendtVarsel = varselService.getUtsendtVarsel(fnr)
+
+                    utsendtVarsel shouldBe null
+                }
             }
 
             it("Should not send varsel for those older than max age, and only call PDL once") {

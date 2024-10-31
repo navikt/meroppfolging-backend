@@ -9,6 +9,7 @@ data class SenOppfolgingStatusDTOV2(
     val responseTime: String?,
     val maxDate: String?,
     val gjenstaendeSykedager: String?,
+    val hasAccessToSenOppfolging: Boolean,
 )
 
 enum class ResponseStatus {
