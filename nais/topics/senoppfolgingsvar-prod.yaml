@@ -25,3 +25,6 @@ spec:
     - team: teamsykefravr
       application: ismeroppfolging
       access: read
+    - team: teamsykefravr
+      application: iskafkamanager
+      access: read
