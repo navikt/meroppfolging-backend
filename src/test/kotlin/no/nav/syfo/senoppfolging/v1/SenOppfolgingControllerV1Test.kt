@@ -61,6 +61,7 @@ class SenOppfolgingControllerV1Test : DescribeSpec(
                 senOppfolgingVarselKafkaProducer,
                 pdfgenService,
                 dokarkivClient,
+                metric
             )
         val responseDao = mockk<ResponseDao>(relaxed = true)
 

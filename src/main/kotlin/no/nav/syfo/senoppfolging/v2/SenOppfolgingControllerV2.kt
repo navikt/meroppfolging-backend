@@ -20,6 +20,7 @@ import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
+import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
 import no.nav.syfo.syfoopppdfgen.PdfgenService
@@ -92,6 +93,11 @@ class SenOppfolgingControllerV2(
     fun submitForm(
         @RequestBody senOppfolgingDTOV2: SenOppfolgingDTOV2,
     ) {
+        if (senOppfolgingDTOV2.senOppfolgingFormV2.behovForOppfolging()) {
+            metric.countSenOppfolgingRequestYes()
+        } else {
+            metric.countSenOppfolgingRequestNo()
+        }
         val personident = tokenValidator.validateTokenXClaims().getFnr()
         val response =
             responseDao.find(
@@ -135,6 +141,11 @@ class SenOppfolgingControllerV2(
                     varselId = latestVarsel?.uuid,
                 ),
             )
+        if (senOppfolgingDTOV2.senOppfolgingFormV2.behovForOppfolging()) {
+            metric.countSenOppfolgingV2Submitted()
+        } else {
+            metric.countSenOppfolgingV2SubmittedNo()
+        }
 
         metric.countSenOppfolgingV2Submitted()
     }
