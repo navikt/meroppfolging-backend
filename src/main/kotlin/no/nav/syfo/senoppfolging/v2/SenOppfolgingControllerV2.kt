@@ -15,6 +15,7 @@ import no.nav.syfo.logger
 import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.AlreadyRespondedException
+import no.nav.syfo.senoppfolging.NoUtsendtVarselException
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus
@@ -70,6 +71,8 @@ class SenOppfolgingControllerV2(
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
 
+        val hasUtsendtVarsel = varselService.getUtsendtVarsel(personIdent) != null
+
         val response =
             responseDao.findLatestFormResponse(
                 PersonIdentNumber(personIdent),
@@ -85,6 +88,7 @@ class SenOppfolgingControllerV2(
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
             maxDate = sykepengerMaxDateResponse?.maxDate,
             gjenstaendeSykedager = sykepengerMaxDateResponse?.gjenstaendeSykedager,
+            hasAccessToSenOppfolging = hasUtsendtVarsel,
         )
     }
 
@@ -111,14 +115,18 @@ class SenOppfolgingControllerV2(
         }
 
         val createdAt = LocalDateTime.now()
-        val latestVarsel = varselService.getUtsendtVarsel(personident)
+        val utsendtVarsel =
+            varselService.getUtsendtVarsel(personident) ?: throw NoUtsendtVarselException().also {
+                log.error("No varsel found. This should not happen.")
+            }
+
         val id =
             responseDao.saveFormResponse(
                 personIdent = PersonIdentNumber(personident),
                 questionResponses = senOppfolgingDTOV2.senOppfolgingFormV2.map { it.toQuestionResponse() },
                 formType = FormType.SEN_OPPFOLGING_V2,
                 createdAt = createdAt,
-                utsendtVarselUUID = latestVarsel?.uuid,
+                utsendtVarselUUID = utsendtVarsel.uuid,
             )
 
         varselService.ferdigstillMerOppfolgingVarsel(personident)
@@ -138,7 +146,7 @@ class SenOppfolgingControllerV2(
                     personIdent = personident,
                     createdAt = createdAt,
                     response = senOppfolgingDTOV2.senOppfolgingFormV2,
-                    varselId = latestVarsel?.uuid,
+                    varselId = utsendtVarsel.uuid,
                 ),
             )
         if (senOppfolgingDTOV2.senOppfolgingFormV2.behovForOppfolging()) {
