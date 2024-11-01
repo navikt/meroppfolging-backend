@@ -132,4 +132,4 @@ spec:
     - name: DKIF_SCOPE
       value: prod-gcp.team-rocket.digdir-krr-proxy
     - name: SEND_VARSEL_JOB_CRON
-      value: 0 0 9 * * *
+      value: 0 9-17 * * *
