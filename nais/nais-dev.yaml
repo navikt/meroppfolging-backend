@@ -99,10 +99,10 @@ spec:
       value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_ID
       value: dev-gcp.teamsykefravr.istilgangskontroll
-    - name: ESYFOVARSEL_URL
-      value: http://esyfovarsel
-    - name: ESYFOVARSEL_ID
-      value: dev-gcp:team-esyfo:esyfovarsel
+    - name: SYKEPENGEDAGER_INFORMASJON_URL
+      value: http://sykepengedager-informasjon
+    - name: SYKEPENGEDAGER_INFORMASJON_ID
+      value: dev-gcp:team-esyfo:sykepengedager-informasjon
     - name: SYFOBEHANDLENDEENHET_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL

@@ -5,7 +5,7 @@ import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.logger
-import no.nav.syfo.maksdato.EsyfovarselClient
+import no.nav.syfo.maksdato.SykepengedagerInformasjonClient
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component
 @Component
 class PdfgenService(
     val syfooppfpdfgenClient: PdfgenClient,
-    val esyfovarselClient: EsyfovarselClient,
+    val sykepengedagerInformasjonClient: SykepengedagerInformasjonClient,
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val dkifClient: DkifClient,
     val sykepengedagerInformasjonDAO: SykepengedagerInformasjonDAO,
@@ -45,7 +45,7 @@ class PdfgenService(
         answersToQuestions: List<SenOppfolgingQuestionV2>,
     ): ByteArray? {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
-        val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
+        val sykepengerMaxDateResponse = sykepengedagerInformasjonClient.getSykepengerMaxDateResponse(token)
         val behovForOppfolging = answersToQuestions.behovForOppfolging()
         val fremtidigSituasjonSvar = answersToQuestions.fremtidigSituasjonSvar()
         val kvitteringEndpoint = getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar)

@@ -12,7 +12,7 @@ import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
-import no.nav.syfo.maksdato.EsyfovarselClient
+import no.nav.syfo.maksdato.SykepengedagerInformasjonClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.AlreadyRespondedException
 import no.nav.syfo.senoppfolging.NoUtsendtVarselException
@@ -51,7 +51,7 @@ class SenOppfolgingControllerV2(
     val metric: Metric,
     val responseDao: ResponseDao,
     val senOppfolgingSvarKafkaProducer: SenOppfolgingSvarKafkaProducer,
-    val esyfovarselClient: EsyfovarselClient,
+    val sykepengedagerInformasjonClient: SykepengedagerInformasjonClient,
     val dokarkivClient: DokarkivClient,
     val syfoopfpdfgenService: PdfgenService,
 ) {
@@ -79,7 +79,7 @@ class SenOppfolgingControllerV2(
                 FormType.SEN_OPPFOLGING_V2,
                 cutoffDate,
             )
-        val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
+        val sykepengerMaxDateResponse = sykepengedagerInformasjonClient.getSykepengerMaxDateResponse(token)
 
         return SenOppfolgingStatusDTOV2(
             isPilot = true,

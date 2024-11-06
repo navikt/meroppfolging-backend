@@ -18,10 +18,10 @@ import org.springframework.web.client.RestTemplate
 const val MAXDATE_PATH = "/api/v1/sykepenger/maxdate"
 
 @Service
-class EsyfovarselClient(
+class SykepengedagerInformasjonClient(
     private val tokenDingsClient: TokendingsClient,
-    @Value("\${esyfovarsel.url}") private val baseUrl: String,
-    @Value("\${esyfovarsel.id}") private var targetApp: String,
+    @Value("\${sykepengedager.informasjon.url}") private val baseUrl: String,
+    @Value("\${sykepengedager.informasjon.id}") private var targetApp: String,
 ) {
     private val log = logger()
 

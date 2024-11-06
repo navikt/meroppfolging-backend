@@ -18,7 +18,7 @@ import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
-import no.nav.syfo.maksdato.EsyfovarselClient
+import no.nav.syfo.maksdato.SykepengedagerInformasjonClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.senoppfolging.NoUtsendtVarselException
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
@@ -45,7 +45,7 @@ class SenOppfolgingControllerV2Test :
             val responseDao = mockk<ResponseDao>(relaxed = true)
             val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
             val senOppfolgingSvarKafkaProducer = mockk<SenOppfolgingSvarKafkaProducer>(relaxed = true)
-            val esyfovarselClient = mockk<EsyfovarselClient>(relaxed = true)
+            val sykepengedagerInformasjonClient = mockk<SykepengedagerInformasjonClient>(relaxed = true)
             val syfoopfpdfgenService = mockk<PdfgenService>(relaxed = true)
             val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
 
@@ -58,7 +58,7 @@ class SenOppfolgingControllerV2Test :
                     metric = metric,
                     responseDao = responseDao,
                     senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
-                    esyfovarselClient = esyfovarselClient,
+                    sykepengedagerInformasjonClient = sykepengedagerInformasjonClient,
                     syfoopfpdfgenService = syfoopfpdfgenService,
                     dokarkivClient = dokarkivClient,
                 ).apply {

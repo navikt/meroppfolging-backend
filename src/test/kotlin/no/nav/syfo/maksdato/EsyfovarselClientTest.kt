@@ -26,7 +26,7 @@ class EsyfovarselClientTest : FunSpec(
         val exchangedToken = "123abc"
         val targetApp = "meroppfolging-backend-test"
         val userToken = "token123"
-        val esyfovarselClient = EsyfovarselClient(tokendingsClient, baseUrl, targetApp)
+        val sykepengedagerInformasjonClient = SykepengedagerInformasjonClient(tokendingsClient, baseUrl, targetApp)
 
         val esyfovarselServer = WireMockServer(9000)
         listener(WireMockListener(esyfovarselServer, ListenerMode.PER_TEST))
@@ -40,7 +40,7 @@ class EsyfovarselClientTest : FunSpec(
                 exchangedToken,
                 SykepengerMaxDateResponse("3.juni 2023", "2023-12-31", "61"),
             )
-            val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
+            val result = sykepengedagerInformasjonClient.getSykepengerMaxDateResponse(userToken)
             result?.maxDate shouldBe "3.juni 2023"
         }
 
@@ -49,7 +49,7 @@ class EsyfovarselClientTest : FunSpec(
                 exchangedToken,
                 SykepengerMaxDateResponse(null, "2023-12-31", "44"),
             )
-            val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
+            val result = sykepengedagerInformasjonClient.getSykepengerMaxDateResponse(userToken)
             result?.maxDate shouldBe null
         }
 
@@ -58,7 +58,7 @@ class EsyfovarselClientTest : FunSpec(
                 exchangedToken,
                 SykepengerMaxDateResponse(null, null, null),
             )
-            val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
+            val result = sykepengedagerInformasjonClient.getSykepengerMaxDateResponse(userToken)
             result?.maxDate shouldBe null
         }
 
@@ -67,7 +67,7 @@ class EsyfovarselClientTest : FunSpec(
                 exchangedToken,
                 SykepengerMaxDateResponse("3.juni 2023", null, "55"),
             )
-            val result = esyfovarselClient.getSykepengerMaxDateResponse(userToken)
+            val result = sykepengedagerInformasjonClient.getSykepengerMaxDateResponse(userToken)
             result?.maxDate shouldBe "3.juni 2023"
         }
     },
