@@ -38,10 +38,6 @@ syfobehandlendeenhet.id: "local:teamsykefravr:syfobehandlendeenhet"
 istilgangskontroll.url: "http://istilgangskontroll"
 istilgangskontroll.id: "local:teamsykefravr:istilgangskontroll"
 
-veilarbregistrering.url: "http://veilarbregistrering"
-veilarbregistrering.id: "local:paw:veilarbregistrering"
-send.to.veilarbregistrering.toggle: "true"
-
 kafka.brokers: ${spring.embedded.kafka.brokers}
 kafka.truststore.path: /truststore
 kafka.keystore.path: /keystore
