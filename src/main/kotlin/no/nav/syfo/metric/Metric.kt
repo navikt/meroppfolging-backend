@@ -11,12 +11,9 @@ class Metric
 constructor(
     private val registry: MeterRegistry,
 ) {
-    fun countSenOppfolgingSubmitted() = countEvent("sen_oppfolging_submitted")
     fun countSenOppfolgingRequestYes() = countEvent("sen_oppfolging_requested_yes")
     fun countSenOppfolgingRequestNo() = countEvent("sen_oppfolging_requested_no")
     fun countSenOppfolgingFerdigstilt() = countEvent("sen_oppfolging_ferdigstilt")
-
-    fun countCallVeilarbregistreringComplete() = countEvent("call_veilarbregistrering_complete")
 
     fun countSenOppfolgingV2Submitted() = countEvent("sen_oppfolging_V2_submitted")
     fun countSenOppfolgingV2SubmittedNo() = countEvent("sen_oppfolging_V2_submitted_no")
