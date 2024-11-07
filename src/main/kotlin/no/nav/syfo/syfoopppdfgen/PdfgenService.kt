@@ -4,9 +4,7 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.dkif.DkifClient
-import no.nav.syfo.logger
 import no.nav.syfo.maksdato.EsyfovarselClient
-import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.fremtidigSituasjonSvar
@@ -21,25 +19,6 @@ class PdfgenService(
     val dkifClient: DkifClient,
     val sykepengedagerInformasjonDAO: SykepengedagerInformasjonDAO,
 ) {
-    private val log = logger()
-
-    private val urlForReservedUsers = "/oppfolging/mer_veiledning_for_reserverte"
-    private val urlForDigitalUsers = "/senoppfolging/landing"
-
-    private fun getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar: FremtidigSituasjonSvar): String {
-        return when (fremtidigSituasjonSvar) {
-            FremtidigSituasjonSvar.USIKKER -> "usikker_receipt"
-            FremtidigSituasjonSvar.BYTTE_JOBB -> "bytte_jobb_receipt"
-            FremtidigSituasjonSvar.FORTSATT_SYK -> "fortsatt_syk_receipt"
-            FremtidigSituasjonSvar.TILBAKE_GRADERT -> "tilbake_gradert_receipt"
-            FremtidigSituasjonSvar.TILBAKE_MED_TILPASNINGER -> "tilbake_med_tilpasninger_receipt"
-            FremtidigSituasjonSvar.TILBAKE_HOS_ARBEIDSGIVER -> "tilbake_hos_arbeidsgiver_receipt"
-            else -> {
-                log.error("Could not map FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
-                throw IllegalArgumentException("Invalid FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
-            }
-        }
-    }
 
     fun getSenOppfolgingReceiptPdf(
         answersToQuestions: List<SenOppfolgingQuestionV2>,
@@ -48,29 +27,26 @@ class PdfgenService(
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
         val behovForOppfolging = answersToQuestions.behovForOppfolging()
         val fremtidigSituasjonSvar = answersToQuestions.fremtidigSituasjonSvar()
-        val kvitteringEndpoint = getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar)
 
-        return syfooppfpdfgenClient.getSenOppfolgingPdf(
-            kvitteringEndpoint = kvitteringEndpoint,
+        return syfooppfpdfgenClient.createSenOppfolgingReceiptPdf(
+            fremtidigSituasjonSvar = fremtidigSituasjonSvar,
             behovForOppfolging = behovForOppfolging,
             maxDate = sykepengerMaxDateResponse?.maxDate,
             daysUntilMaxDate = sykepengerMaxDateResponse?.gjenstaendeSykedager,
         )
     }
 
-    fun getMerVeiledningLandingPdf(personIdent: String): ByteArray {
+    fun getSenOppfolgingLandingPdf(personIdent: String): ByteArray {
         val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
         val sykepengerInformasjon = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByFnr(personIdent)
 
         return when {
-            isUserReservert -> syfooppfpdfgenClient.getMerVeiledningPdf(
-                pdfEndpoint = urlForReservedUsers,
+            isUserReservert -> syfooppfpdfgenClient.createSenOppfolgingLandingReservertPdf(
                 utbetaltTom = sykepengerInformasjon?.utbetaltTom.toString(),
                 maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
             )
 
-            else -> syfooppfpdfgenClient.getMerVeiledningDigitalUserPdf(
-                pdfEndpoint = urlForDigitalUsers,
+            else -> syfooppfpdfgenClient.createSenOppfolgingLandingPdf(
                 daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
                 utbetaltTom = sykepengerInformasjon?.utbetaltTom.toString(),
                 maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),

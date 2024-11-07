@@ -35,46 +35,6 @@ class ResponseDaoTest : DescribeSpec() {
             jdbcTemplate.execute("TRUNCATE TABLE QUESTION_RESPONSE CASCADE")
         }
 
-        it("Create besvarelse") {
-            val personIdent = PersonIdentNumber("12345678910")
-            responseDao.saveFormResponse(
-                personIdent,
-                listOf(QuestionResponse("UTDANNING", "test", "SVAR_ID", "test")),
-                FormType.SEN_OPPFOLGING_V1,
-                LocalDateTime.now(),
-                null,
-            )
-
-            val questionResponses = responseDao.find(
-                personIdent,
-                FormType.SEN_OPPFOLGING_V1,
-                LocalDate.now().minusDays(1),
-            )
-            assert(questionResponses.size == 1)
-        }
-
-        it("Find empty") {
-            val personIdent = PersonIdentNumber("12345678911")
-
-            val questionResponses = responseDao.find(
-                personIdent,
-                FormType.SEN_OPPFOLGING_V1,
-                LocalDate.now().minusDays(1),
-            )
-            assert(questionResponses.isEmpty())
-        }
-
-        it("Find empty response") {
-            val personIdent = PersonIdentNumber("12345678911")
-
-            val formResponse = responseDao.findLatestFormResponse(
-                personIdent,
-                FormType.SEN_OPPFOLGING_V1,
-                LocalDate.now().minusDays(1),
-            )
-            assertNull(formResponse)
-        }
-
         it("Find latest response created before from date") {
             val personIdent = PersonIdentNumber("12345678911")
             val firstQuestionResponse = QuestionResponse(

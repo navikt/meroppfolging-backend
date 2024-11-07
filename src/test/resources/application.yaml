@@ -46,7 +46,6 @@ kafka.schema.registry.user: "kafka.schema.registry.user"
 kafka.schema.registry.password: "kafka.schema.registry.password"
 kafka.schema.registry: "kafka.schema.registry"
 
-toggle.pilot: "true"
 toggle.ssps.varselutsending: "false"
 send.varsel.job.cron: "0 */5 * * * *"
 

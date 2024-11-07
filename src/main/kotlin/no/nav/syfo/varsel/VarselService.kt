@@ -56,7 +56,7 @@ class VarselService(
     fun sendMerOppfolgingVarsel(merOppfolgingVarselDTO: MerOppfolgingVarselDTO) {
         val personIdent = merOppfolgingVarselDTO.personIdent
         try {
-            val pdf = pdfgenService.getMerVeiledningLandingPdf(personIdent)
+            val pdf = pdfgenService.getSenOppfolgingLandingPdf(personIdent)
             val uuid = UUID.randomUUID().toString()
 
             val dokarkivResponse =
