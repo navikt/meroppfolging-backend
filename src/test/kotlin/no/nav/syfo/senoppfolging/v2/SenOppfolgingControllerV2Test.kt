@@ -151,19 +151,7 @@ class SenOppfolgingControllerV2Test :
                     status.responseStatus shouldBe NO_RESPONSE
                 }
 
-                it("Should return isPilot=true when user belongs to pilot") {
-                    every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
-                    every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns
-                        BehandlendeEnhet(
-                            "0331",
-                            "Testkontor",
-                        )
-                    val status = controller.status()
-                    status.responseStatus shouldBe NO_RESPONSE
-                    status.isPilot shouldBe true
-                }
-
-                it("Should journalfore submitted answers for pilot") {
+                it("Should journalfore submitted answers for all uesrs") {
                     every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
                     every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns
                         BehandlendeEnhet(

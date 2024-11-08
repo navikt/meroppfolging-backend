@@ -1,5 +1,6 @@
 package no.nav.syfo.syfoopppdfgen
 
+import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.utils.formatDateForLetter
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -20,21 +21,35 @@ class PdfgenClient(
 ) {
     private val log = LoggerFactory.getLogger(PdfgenClient::class.java)
 
-    fun getMerVeiledningPdf(
-        pdfEndpoint: String,
+    private fun getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar: FremtidigSituasjonSvar): String {
+        return when (fremtidigSituasjonSvar) {
+            FremtidigSituasjonSvar.USIKKER -> "usikker_receipt"
+            FremtidigSituasjonSvar.BYTTE_JOBB -> "bytte_jobb_receipt"
+            FremtidigSituasjonSvar.FORTSATT_SYK -> "fortsatt_syk_receipt"
+            FremtidigSituasjonSvar.TILBAKE_GRADERT -> "tilbake_gradert_receipt"
+            FremtidigSituasjonSvar.TILBAKE_MED_TILPASNINGER -> "tilbake_med_tilpasninger_receipt"
+            FremtidigSituasjonSvar.TILBAKE_HOS_ARBEIDSGIVER -> "tilbake_hos_arbeidsgiver_receipt"
+            else -> {
+                log.error("Could not map FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
+                throw IllegalArgumentException("Invalid FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
+            }
+        }
+    }
+
+    fun createSenOppfolgingLandingReservertPdf(
         utbetaltTom: String?,
         maxDate: String?,
-
     ): ByteArray {
+        val urlForReservedUsers = "$pdfgenUrl/api/v1/genpdf/senoppfolging/oppfolging/mer_veiledning_for_reserverte"
         try {
             val requestEntity =
-                getMerVeiledningPdfRequestEntity(
+                createSenOppfolgingLandingReservertPdfRequestEntity(
                     utbetaltTom = utbetaltTom,
                     maxDate = maxDate,
                 )
             return restTemplate
                 .exchange(
-                    "$pdfgenUrl/api/v1/genpdf$pdfEndpoint",
+                    urlForReservedUsers,
                     HttpMethod.POST,
                     requestEntity,
                     ByteArray::class.java,
@@ -49,7 +64,7 @@ class PdfgenClient(
         }
     }
 
-    private fun getMerVeiledningPdfRequestEntity(
+    private fun createSenOppfolgingLandingReservertPdfRequestEntity(
         utbetaltTom: String?,
         maxDate: String?,
     ): HttpEntity<PdfgenRequest> {
@@ -58,7 +73,7 @@ class PdfgenClient(
         headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
 
         val body = PdfgenRequest(
-            BrevdataMerVeiledning(
+            BrevdataSenOppfolgingLandingReservert(
                 sendtdato = formatDateForLetter(LocalDate.now()),
                 utbetaltTom = utbetaltTom,
                 maxdato = maxDate,
@@ -67,22 +82,22 @@ class PdfgenClient(
         return HttpEntity(body, headers)
     }
 
-    fun getMerVeiledningDigitalUserPdf(
-        pdfEndpoint: String,
+    fun createSenOppfolgingLandingPdf(
         daysLeft: String?,
         maxDate: String?,
         utbetaltTom: String?,
     ): ByteArray {
         try {
+            val url = "$pdfgenUrl/api/v1/genpdf/senoppfolging/landing"
             val requestEntity =
-                getMerVeiledningDigitalUserPdfRequestEntity(
+                createSenOppfolgingLandingPdfRequestEntity(
                     maxDate = maxDate,
                     daysLeft = daysLeft,
                     utbetaltTom = utbetaltTom,
                 )
             return restTemplate
                 .exchange(
-                    "$pdfgenUrl/api/v1/genpdf$pdfEndpoint",
+                    url,
                     HttpMethod.POST,
                     requestEntity,
                     ByteArray::class.java,
@@ -97,7 +112,7 @@ class PdfgenClient(
         }
     }
 
-    private fun getMerVeiledningDigitalUserPdfRequestEntity(
+    private fun createSenOppfolgingLandingPdfRequestEntity(
         daysLeft: String?,
         maxDate: String?,
         utbetaltTom: String?,
@@ -107,7 +122,7 @@ class PdfgenClient(
         headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
 
         val body = PdfgenRequest(
-            BrevdataMerVeiledningPilot(
+            BrevdataSenOppfolgingLanding(
                 sendtdato = formatDateForLetter(LocalDate.now()),
                 daysLeft = daysLeft,
                 maxdato = maxDate,
@@ -117,22 +132,24 @@ class PdfgenClient(
         return HttpEntity(body, headers)
     }
 
-    fun getSenOppfolgingPdf(
-        kvitteringEndpoint: String,
+    fun createSenOppfolgingReceiptPdf(
+        fremtidigSituasjonSvar: FremtidigSituasjonSvar,
         behovForOppfolging: Boolean,
         maxDate: String?,
         daysUntilMaxDate: String?,
     ): ByteArray {
+        val url =
+            "$pdfgenUrl/api/v1/genpdf/senoppfolging/${getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar)}"
         try {
             val requestEntity =
-                getSenOppfolgingPdfRequestEntity(
+                createSenOppfolgingReceiptPdfRequestEntity(
                     behovForOppfolging = behovForOppfolging,
                     maxDate = maxDate,
                     daysUntilMaxDate = daysUntilMaxDate,
                 )
             return restTemplate
                 .exchange(
-                    "$pdfgenUrl/api/v1/genpdf/senoppfolging/$kvitteringEndpoint",
+                    url,
                     HttpMethod.POST,
                     requestEntity,
                     ByteArray::class.java,
@@ -147,7 +164,7 @@ class PdfgenClient(
         }
     }
 
-    private fun getSenOppfolgingPdfRequestEntity(
+    private fun createSenOppfolgingReceiptPdfRequestEntity(
         behovForOppfolging: Boolean,
         maxDate: String?,
         daysUntilMaxDate: String?,
@@ -159,7 +176,7 @@ class PdfgenClient(
         val body =
             PdfgenRequest(
                 brevdata =
-                BrevdataSenOppfolging(
+                BrevdataSenOppfolgingReceipt(
                     sentDate = formatDateForLetter(LocalDate.now()),
                     behovForOppfolging = behovForOppfolging,
                     maxdato = maxDate,
