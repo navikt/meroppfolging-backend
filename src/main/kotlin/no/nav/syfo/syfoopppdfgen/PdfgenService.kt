@@ -9,6 +9,7 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.fremtidigSituasjonSvar
 import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
+import no.nav.syfo.utils.formatDateForLetter
 import org.springframework.stereotype.Component
 
 @Component
@@ -40,17 +41,11 @@ class PdfgenService(
         val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
         val sykepengerInformasjon = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByFnr(personIdent)
 
-        return when {
-            isUserReservert -> syfooppfpdfgenClient.createSenOppfolgingLandingReservertPdf(
-                utbetaltTom = sykepengerInformasjon?.utbetaltTom.toString(),
-                maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
-            )
-
-            else -> syfooppfpdfgenClient.createSenOppfolgingLandingPdf(
-                daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
-                utbetaltTom = sykepengerInformasjon?.utbetaltTom.toString(),
-                maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt.toString(),
-            )
-        }
+        return syfooppfpdfgenClient.createSenOppfolgingLandingPdf(
+            daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
+            utbetaltTom = sykepengerInformasjon?.utbetaltTom?.let { formatDateForLetter(it) },
+            maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt?.let { formatDateForLetter(it) },
+            isForReservertUser = isUserReservert,
+        )
     }
 }
