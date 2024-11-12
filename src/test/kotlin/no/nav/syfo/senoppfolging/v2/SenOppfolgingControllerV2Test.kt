@@ -18,7 +18,6 @@ import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
-import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
@@ -34,6 +33,7 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.syfoopppdfgen.PdfgenService
+import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import no.nav.syfo.varsel.UtsendtVarselEsyfovarselCopy
 import no.nav.syfo.varsel.VarselService
 import java.time.LocalDate
@@ -50,7 +50,7 @@ class SenOppfolgingControllerV2Test :
             val responseDao = mockk<ResponseDao>(relaxed = true)
             val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
             val senOppfolgingSvarKafkaProducer = mockk<SenOppfolgingSvarKafkaProducer>(relaxed = true)
-            val esyfovarselClient = mockk<EsyfovarselClient>(relaxed = true)
+            val sykepengedagerInformasjonService = mockk<SykepengedagerInformasjonService>(relaxed = true)
             val syfoopfpdfgenService = mockk<PdfgenService>(relaxed = true)
             val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
             val isOppfolgingstilfelleClient = mockk<IsOppfolgingstilfelleClient>(relaxed = true)
@@ -64,7 +64,7 @@ class SenOppfolgingControllerV2Test :
                     metric = metric,
                     responseDao = responseDao,
                     senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
-                    esyfovarselClient = esyfovarselClient,
+                    sykepengedagerInformasjonService = sykepengedagerInformasjonService,
                     syfoopfpdfgenService = syfoopfpdfgenService,
                     dokarkivClient = dokarkivClient,
                     isOppfolgingstilfelleClient = isOppfolgingstilfelleClient,
@@ -158,6 +158,7 @@ class SenOppfolgingControllerV2Test :
                         )
                     }
                 }
+
                 describe("should throw erros when") {
                     it("response already exist") {
                         every { responseDao.find(any(), any(), any()) } returns formResponseDb
@@ -230,13 +231,13 @@ class SenOppfolgingControllerV2Test :
                     status.responseStatus shouldBe NO_RESPONSE
                 }
 
-                it("journalfore submitted answers for all uesrs") {
+                it("journalfore submitted answers for all users") {
                     every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns
                         BehandlendeEnhet(
                             "0314",
                             "Testkontor",
                         )
-                    every { syfoopfpdfgenService.getSenOppfolgingReceiptPdf(any()) } returns ByteArray(1)
+                    every { syfoopfpdfgenService.getSenOppfolgingReceiptPdf(ansattFnr, any()) } returns ByteArray(1)
 
                     controller.submitForm(
                         formResponse,

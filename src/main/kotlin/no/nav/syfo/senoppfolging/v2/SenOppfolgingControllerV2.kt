@@ -12,7 +12,6 @@ import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
-import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
@@ -28,6 +27,8 @@ import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
 import no.nav.syfo.syfoopppdfgen.PdfgenService
+import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
+import no.nav.syfo.utils.formatDateForLetter
 import no.nav.syfo.varsel.Varsel
 import no.nav.syfo.varsel.VarselService
 import org.springframework.beans.factory.annotation.Value
@@ -54,8 +55,8 @@ class SenOppfolgingControllerV2(
     val varselService: VarselService,
     val metric: Metric,
     val responseDao: ResponseDao,
+    val sykepengedagerInformasjonService: SykepengedagerInformasjonService,
     val senOppfolgingSvarKafkaProducer: SenOppfolgingSvarKafkaProducer,
-    val esyfovarselClient: EsyfovarselClient,
     val dokarkivClient: DokarkivClient,
     val syfoopfpdfgenService: PdfgenService,
     val isOppfolgingstilfelleClient: IsOppfolgingstilfelleClient,
@@ -80,9 +81,11 @@ class SenOppfolgingControllerV2(
                 FormType.SEN_OPPFOLGING_V2,
                 cutoffDate,
             )
+        val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
+            personIdent
+        )
 
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
-        val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
 
         val oppfolgingstilfelle = isOppfolgingstilfelleClient.getOppfolgingstilfeller(token)
         val varsel = varselService.getUtsendtVarsel(personIdent)
@@ -96,8 +99,8 @@ class SenOppfolgingControllerV2(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            maxDate = sykepengerMaxDateResponse?.maxDate,
-            gjenstaendeSykedager = sykepengerMaxDateResponse?.gjenstaendeSykedager,
+            maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt?.let { formatDateForLetter(it) },
+            gjenstaendeSykedager = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
             hasAccessToSenOppfolging = hasAccess,
         )
     }
@@ -120,6 +123,7 @@ class SenOppfolgingControllerV2(
                 formType = FormType.SEN_OPPFOLGING_V2,
                 from = cutoffDate,
             )
+
         if (response.isNotEmpty()) {
             throw AlreadyRespondedException().also {
                 log.error(
@@ -145,7 +149,7 @@ class SenOppfolgingControllerV2(
 
         varselService.ferdigstillMerOppfolgingVarsel(personident)
 
-        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(formResponse.senOppfolgingFormV2)
+        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(personident, formResponse.senOppfolgingFormV2)
         if (pdf == null) {
             log.error("Failed to generate PDF")
         } else {

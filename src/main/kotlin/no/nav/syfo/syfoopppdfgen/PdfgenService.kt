@@ -1,45 +1,43 @@
 package no.nav.syfo.syfoopppdfgen
 
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.auth.TokenUtil
-import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.dkif.DkifClient
-import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.fremtidigSituasjonSvar
-import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
+import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import no.nav.syfo.utils.formatDateForLetter
 import org.springframework.stereotype.Component
 
 @Component
 class PdfgenService(
     val syfooppfpdfgenClient: PdfgenClient,
-    val esyfovarselClient: EsyfovarselClient,
-    val tokenValidationContextHolder: TokenValidationContextHolder,
     val dkifClient: DkifClient,
-    val sykepengedagerInformasjonDAO: SykepengedagerInformasjonDAO,
+    val sykepengedagerInformasjonService: SykepengedagerInformasjonService,
 ) {
 
     fun getSenOppfolgingReceiptPdf(
+        personIdent: String,
         answersToQuestions: List<SenOppfolgingQuestionV2>,
     ): ByteArray? {
-        val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
-        val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
         val behovForOppfolging = answersToQuestions.behovForOppfolging()
         val fremtidigSituasjonSvar = answersToQuestions.fremtidigSituasjonSvar()
+        val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
+            personIdent
+        )
 
         return syfooppfpdfgenClient.createSenOppfolgingReceiptPdf(
             fremtidigSituasjonSvar = fremtidigSituasjonSvar,
             behovForOppfolging = behovForOppfolging,
-            maxDate = sykepengerMaxDateResponse?.maxDate,
-            daysUntilMaxDate = sykepengerMaxDateResponse?.gjenstaendeSykedager,
+            maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt?.let { formatDateForLetter(it) },
+            daysUntilMaxDate = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
         )
     }
 
     fun getSenOppfolgingLandingPdf(personIdent: String): ByteArray {
         val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
-        val sykepengerInformasjon = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByFnr(personIdent)
+        val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
+            personIdent
+        )
 
         return syfooppfpdfgenClient.createSenOppfolgingLandingPdf(
             daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),

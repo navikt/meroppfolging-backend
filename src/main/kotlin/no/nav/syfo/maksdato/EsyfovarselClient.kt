@@ -17,6 +17,8 @@ import org.springframework.web.client.RestTemplate
 
 const val MAXDATE_PATH = "/api/v1/sykepenger/maxdate"
 
+// The service is not used anymore. Should it (and EsyfovarselClientTest) be removed?
+
 @Service
 class EsyfovarselClient(
     private val tokenDingsClient: TokendingsClient,
