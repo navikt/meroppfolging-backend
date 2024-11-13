@@ -1,6 +1,10 @@
 # Getting Started
 
-### Local development
+## Running unit tests in IntelliJ IDEA
+
+To run unit tests in IntelliJ IDEA, you need to have the Kotest plugin installed.
+
+## Running integration tests
 
 Integration tests use Testcontainers to start a PostgreSQL container.
 To run the tests, you need to have Docker installed on your machine.
@@ -23,7 +27,7 @@ Download and install Rancher Desktop from https://rancherdesktop.io/
   sudo ln -s $HOME/.rd/docker.sock /var/run/docker.sock
   ```
 
-### Reference Documentation
+## Reference Documentation
 
 For further reference, please consider the following sections:
 
@@ -33,7 +37,7 @@ For further reference, please consider the following sections:
 * [Flyway Migration](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/index.html#howto.data-initialization.migration-tool.flyway)
 * [Spring for Apache Kafka](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/index.html#messaging.kafka)
 
-### Additional Links
+## Additional Links
 
 These additional references should also help you:
 
