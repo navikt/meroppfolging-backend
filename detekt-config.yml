@@ -1,6 +1,8 @@
 style:
   MagicNumber:
     active: false
+  ReturnCount:
+    active: false
 config:
   validation: true
   warningsAsErrors: true

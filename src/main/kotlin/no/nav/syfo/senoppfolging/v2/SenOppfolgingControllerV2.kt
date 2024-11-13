@@ -14,7 +14,10 @@ import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.maksdato.EsyfovarselClient
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
+import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
 import no.nav.syfo.senoppfolging.AlreadyRespondedException
+import no.nav.syfo.senoppfolging.NoAccessToSenOppfolgingException
 import no.nav.syfo.senoppfolging.NoUtsendtVarselException
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
@@ -25,6 +28,7 @@ import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
 import no.nav.syfo.syfoopppdfgen.PdfgenService
+import no.nav.syfo.varsel.Varsel
 import no.nav.syfo.varsel.VarselService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -54,6 +58,7 @@ class SenOppfolgingControllerV2(
     val esyfovarselClient: EsyfovarselClient,
     val dokarkivClient: DokarkivClient,
     val syfoopfpdfgenService: PdfgenService,
+    val isOppfolgingstilfelleClient: IsOppfolgingstilfelleClient,
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
@@ -68,18 +73,24 @@ class SenOppfolgingControllerV2(
     @GetMapping("/status", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
     fun status(): SenOppfolgingStatusDTOV2 {
-        val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
-
-        val hasUtsendtVarsel = varselService.getUtsendtVarsel(personIdent) != null
-
         val response =
             responseDao.findLatestFormResponse(
                 PersonIdentNumber(personIdent),
                 FormType.SEN_OPPFOLGING_V2,
                 cutoffDate,
             )
+
+        val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val sykepengerMaxDateResponse = esyfovarselClient.getSykepengerMaxDateResponse(token)
+
+        val oppfolgingstilfelle = isOppfolgingstilfelleClient.getOppfolgingstilfeller(token)
+        val varsel = varselService.getUtsendtVarsel(personIdent)
+        val hasAccess =
+            when (createUserAccess(varsel, oppfolgingstilfelle)) {
+                is UserAccess.Good -> true
+                is UserAccess.Error -> false
+            }
 
         return SenOppfolgingStatusDTOV2(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
@@ -87,20 +98,21 @@ class SenOppfolgingControllerV2(
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
             maxDate = sykepengerMaxDateResponse?.maxDate,
             gjenstaendeSykedager = sykepengerMaxDateResponse?.gjenstaendeSykedager,
-            hasAccessToSenOppfolging = hasUtsendtVarsel,
+            hasAccessToSenOppfolging = hasAccess,
         )
     }
 
     @PostMapping("/submitform")
     @ResponseBody
     fun submitForm(
-        @RequestBody senOppfolgingDTOV2: SenOppfolgingDTOV2,
+        @RequestBody formResponse: SenOppfolgingDTOV2,
     ) {
-        if (senOppfolgingDTOV2.senOppfolgingFormV2.behovForOppfolging()) {
+        if (formResponse.senOppfolgingFormV2.behovForOppfolging()) {
             metric.countSenOppfolgingRequestYes()
         } else {
             metric.countSenOppfolgingRequestNo()
         }
+
         val personident = tokenValidator.validateTokenXClaims().getFnr()
         val response =
             responseDao.find(
@@ -108,21 +120,24 @@ class SenOppfolgingControllerV2(
                 formType = FormType.SEN_OPPFOLGING_V2,
                 from = cutoffDate,
             )
-
         if (response.isNotEmpty()) {
-            throw AlreadyRespondedException()
+            throw AlreadyRespondedException().also {
+                log.error(
+                    "User has already responded in the last 3 months.",
+                )
+            }
         }
 
-        val createdAt = LocalDateTime.now()
-        val utsendtVarsel =
-            varselService.getUtsendtVarsel(personident) ?: throw NoUtsendtVarselException().also {
-                log.error("No varsel found. This should not happen.")
-            }
+        val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
+        val oppfolgingstilfelle = isOppfolgingstilfelleClient.getOppfolgingstilfeller(token)
+        val varsel = varselService.getUtsendtVarsel(personident)
+        val utsendtVarsel = validateVarselAndAccess(varsel, oppfolgingstilfelle)
 
+        val createdAt = LocalDateTime.now()
         val id =
             responseDao.saveFormResponse(
                 personIdent = PersonIdentNumber(personident),
-                questionResponses = senOppfolgingDTOV2.senOppfolgingFormV2.map { it.toQuestionResponse() },
+                questionResponses = formResponse.senOppfolgingFormV2.map { it.toQuestionResponse() },
                 formType = FormType.SEN_OPPFOLGING_V2,
                 createdAt = createdAt,
                 utsendtVarselUUID = utsendtVarsel.uuid,
@@ -130,7 +145,7 @@ class SenOppfolgingControllerV2(
 
         varselService.ferdigstillMerOppfolgingVarsel(personident)
 
-        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(senOppfolgingDTOV2.senOppfolgingFormV2)
+        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(formResponse.senOppfolgingFormV2)
         if (pdf == null) {
             log.error("Failed to generate PDF")
         } else {
@@ -144,11 +159,11 @@ class SenOppfolgingControllerV2(
                     id = id,
                     personIdent = personident,
                     createdAt = createdAt,
-                    response = senOppfolgingDTOV2.senOppfolgingFormV2,
+                    response = formResponse.senOppfolgingFormV2,
                     varselId = utsendtVarsel.uuid,
                 ),
             )
-        if (senOppfolgingDTOV2.senOppfolgingFormV2.behovForOppfolging()) {
+        if (formResponse.senOppfolgingFormV2.behovForOppfolging()) {
             metric.countSenOppfolgingV2Submitted()
         } else {
             metric.countSenOppfolgingV2SubmittedNo()
@@ -156,4 +171,58 @@ class SenOppfolgingControllerV2(
 
         metric.countSenOppfolgingV2Submitted()
     }
+
+    private fun validateVarselAndAccess(
+        varsel: Varsel?,
+        oppfolgingstilfelle: List<Oppfolgingstilfelle>,
+    ): Varsel {
+        val userData = createUserAccess(varsel, oppfolgingstilfelle)
+
+        return when (userData) {
+            is UserAccess.Good -> userData.varsel
+            is UserAccess.Error -> {
+                when (userData.error) {
+                    UserDataError.NoUtsendtVarsel -> throw NoUtsendtVarselException().also {
+                        log.error("User has no valid varsel.")
+                    }
+                    UserDataError.NoAccessToSenOppfolging -> throw NoAccessToSenOppfolgingException().also {
+                        log.error("User is not in a oppfolgingtilfelle + 16 days.")
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun List<Oppfolgingstilfelle>.isInOppfolgingstilfellePlus16Days() =
+    this.firstOrNull()?.let {
+        LocalDate.now().isBefore(it.end.plusDays(17))
+    } ?: false
+
+private enum class UserDataError {
+    NoUtsendtVarsel,
+    NoAccessToSenOppfolging,
+}
+
+private sealed class UserAccess {
+    data class Good(
+        val varsel: Varsel,
+    ) : UserAccess()
+
+    data class Error(
+        val error: UserDataError,
+    ) : UserAccess()
+}
+
+private fun createUserAccess(
+    varsel: Varsel?,
+    oppfolgingstilfelle: List<Oppfolgingstilfelle>,
+): UserAccess {
+    if (!oppfolgingstilfelle.isInOppfolgingstilfellePlus16Days()) {
+        return UserAccess.Error(UserDataError.NoAccessToSenOppfolging)
+    }
+    if (varsel == null) {
+        return UserAccess.Error(UserDataError.NoUtsendtVarsel)
+    }
+    return UserAccess.Good(varsel)
 }
