@@ -40,7 +40,7 @@ class PdfgenClient(
         utbetaltTom: String?,
         maxDate: String?,
     ): ByteArray {
-        val urlForReservedUsers = "$pdfgenUrl/api/v1/genpdf/senoppfolging/oppfolging/mer_veiledning_for_reserverte"
+        val urlForReservedUsers = "$pdfgenUrl/api/v1/genpdf/oppfolging/mer_veiledning_for_reserverte"
         try {
             val requestEntity =
                 createSenOppfolgingLandingReservertPdfRequestEntity(
