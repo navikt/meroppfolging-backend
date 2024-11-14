@@ -20,9 +20,10 @@ data class DokarkivRequest(
             avsenderMottaker: AvsenderMottaker,
             dokumenter: List<Dokument>,
             uuid: String,
+            tittel: String,
         ) = DokarkivRequest(
             avsenderMottaker = avsenderMottaker,
-            tittel = "Kvittering for snart slutt på sykepenger",
+            tittel = tittel,
             bruker = Bruker.create(id = avsenderMottaker.id, idType = avsenderMottaker.idType),
             dokumenter = dokumenter,
             journalfoerendeEnhet = JOURNALFORENDE_ENHET,
@@ -74,8 +75,9 @@ data class Dokument(
     companion object {
         fun create(
             dokumentvarianter: List<Dokumentvariant>,
+            tittel: String
         ) = Dokument(
-            tittel = "Kvittering for snart slutt på sykepenger",
+            tittel = tittel,
             brevkode = "KVITTERING_SNART_SLUTT_PA_SYKEPENGER",
             dokumentvarianter = dokumentvarianter,
         )

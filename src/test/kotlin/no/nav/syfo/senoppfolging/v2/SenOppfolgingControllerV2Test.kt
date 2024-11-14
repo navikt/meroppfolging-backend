@@ -205,7 +205,9 @@ class SenOppfolgingControllerV2Test :
                         verify(exactly = 1) {
                             responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any(), any())
                         }
-                        verify(exactly = 1) { dokarkivClient.postDocumentToDokarkiv(ansattFnr, any(), any()) }
+                        verify(
+                            exactly = 1
+                        ) { dokarkivClient.postDocumentToDokarkiv(ansattFnr, any(), any(), any(), any()) }
                     }
                 }
             }

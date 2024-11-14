@@ -10,12 +10,13 @@ data class Dokumentvariant(
         fun create(
             fysiskDokument: ByteArray,
             uuid: String,
+            filnavnBeforeUUID: String,
         ): Dokumentvariant {
             return Dokumentvariant(
                 filtype = "PDFA",
                 variantformat = "ARKIV",
                 fysiskDokument = fysiskDokument,
-                filnavn = "Kvittering for snart slutt på sykepenger-$uuid",
+                filnavn = "$filnavnBeforeUUID-$uuid",
             )
         }
     }
