@@ -168,8 +168,6 @@ class SenOppfolgingControllerV2(
         } else {
             metric.countSenOppfolgingV2SubmittedNo()
         }
-
-        metric.countSenOppfolgingV2Submitted()
     }
 
     private fun validateVarselAndAccess(
