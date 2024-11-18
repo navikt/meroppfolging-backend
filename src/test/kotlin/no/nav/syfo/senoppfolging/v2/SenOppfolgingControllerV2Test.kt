@@ -33,7 +33,6 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.syfoopppdfgen.PdfgenService
-import no.nav.syfo.sykepengedagerinformasjon.domain.PSykepengedagerInformasjon
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import no.nav.syfo.varsel.UtsendtVarselEsyfovarselCopy
 import no.nav.syfo.varsel.VarselService
