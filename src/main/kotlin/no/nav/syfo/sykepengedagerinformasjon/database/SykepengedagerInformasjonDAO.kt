@@ -59,7 +59,7 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
             .firstOrNull()
     }
 
-    fun fetchSykepengedagerInformasjonByFnr(
+    fun fetchSykepengedagerInformasjonByIdent(
         personIdent: String,
     ): PSykepengedagerInformasjon? {
         val selectStatement = """

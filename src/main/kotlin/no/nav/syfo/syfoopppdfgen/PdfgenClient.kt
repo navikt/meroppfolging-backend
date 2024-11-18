@@ -1,7 +1,7 @@
 package no.nav.syfo.syfoopppdfgen
 
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
-import no.nav.syfo.utils.formatDateForLetter
+import no.nav.syfo.utils.formatDateForDisplay
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
@@ -21,6 +21,10 @@ class PdfgenClient(
 ) {
     private val log = LoggerFactory.getLogger(PdfgenClient::class.java)
 
+    private val pdfGenUrlSenOppfolingForReservedUsers =
+        "$pdfgenUrl/api/v1/genpdf/oppfolging/mer_veiledning_for_reserverte"
+    private val pdfGenUrlSenOppfolgingLanding = "$pdfgenUrl/api/v1/genpdf/senoppfolging/landing"
+
     private fun getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar: FremtidigSituasjonSvar): String {
         return when (fremtidigSituasjonSvar) {
             FremtidigSituasjonSvar.USIKKER -> "usikker_receipt"
@@ -36,65 +40,22 @@ class PdfgenClient(
         }
     }
 
-    fun createSenOppfolgingLandingReservertPdf(
-        utbetaltTom: String?,
-        maxDate: String?,
-    ): ByteArray {
-        val urlForReservedUsers = "$pdfgenUrl/api/v1/genpdf/oppfolging/mer_veiledning_for_reserverte"
-        try {
-            val requestEntity =
-                createSenOppfolgingLandingReservertPdfRequestEntity(
-                    utbetaltTom = utbetaltTom,
-                    maxDate = maxDate,
-                )
-            return restTemplate
-                .exchange(
-                    urlForReservedUsers,
-                    HttpMethod.POST,
-                    requestEntity,
-                    ByteArray::class.java,
-                ).body!!
-        } catch (e: RestClientResponseException) {
-            log.error(
-                "Call to get PDF from pdfgen failed " +
-                    "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
-                e,
-            )
-            throw e
-        }
-    }
-
-    private fun createSenOppfolgingLandingReservertPdfRequestEntity(
-        utbetaltTom: String?,
-        maxDate: String?,
-    ): HttpEntity<PdfgenRequest> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
-
-        val body = PdfgenRequest(
-            BrevdataSenOppfolgingLandingReservert(
-                sendtdato = formatDateForLetter(LocalDate.now()),
-                utbetaltTom = utbetaltTom,
-                maxdato = maxDate,
-            ),
-        )
-        return HttpEntity(body, headers)
-    }
-
     fun createSenOppfolgingLandingPdf(
         daysLeft: String?,
         maxDate: String?,
         utbetaltTom: String?,
+        isForReservertUser: Boolean = false,
     ): ByteArray {
         try {
-            val url = "$pdfgenUrl/api/v1/genpdf/senoppfolging/landing"
+            val url = if (isForReservertUser) pdfGenUrlSenOppfolingForReservedUsers else pdfGenUrlSenOppfolgingLanding
+
             val requestEntity =
                 createSenOppfolgingLandingPdfRequestEntity(
                     maxDate = maxDate,
                     daysLeft = daysLeft,
                     utbetaltTom = utbetaltTom,
                 )
+
             return restTemplate
                 .exchange(
                     url,
@@ -123,7 +84,7 @@ class PdfgenClient(
 
         val body = PdfgenRequest(
             BrevdataSenOppfolgingLanding(
-                sendtdato = formatDateForLetter(LocalDate.now()),
+                sendtdato = formatDateForDisplay(LocalDate.now()),
                 daysLeft = daysLeft,
                 maxdato = maxDate,
                 utbetaltTom = utbetaltTom,
@@ -177,7 +138,7 @@ class PdfgenClient(
             PdfgenRequest(
                 brevdata =
                 BrevdataSenOppfolgingReceipt(
-                    sentDate = formatDateForLetter(LocalDate.now()),
+                    sentDate = formatDateForDisplay(LocalDate.now()),
                     behovForOppfolging = behovForOppfolging,
                     maxdato = maxDate,
                     daysUntilMaxDate = daysUntilMaxDate,
