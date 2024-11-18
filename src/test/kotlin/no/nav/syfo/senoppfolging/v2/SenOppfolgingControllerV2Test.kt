@@ -33,6 +33,7 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.syfoopppdfgen.PdfgenService
+import no.nav.syfo.sykepengedagerinformasjon.domain.PSykepengedagerInformasjon
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import no.nav.syfo.varsel.UtsendtVarselEsyfovarselCopy
 import no.nav.syfo.varsel.VarselService
@@ -189,6 +190,24 @@ class SenOppfolgingControllerV2Test :
                             )
                         }
                     }
+
+                    it("should archive (dokarkiv) submitted answers for all users") {
+                        every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns
+                            BehandlendeEnhet(
+                                "0314",
+                                "Testkontor",
+                            )
+                        every { syfoopfpdfgenService.getSenOppfolgingReceiptPdf(ansattFnr, any()) } returns ByteArray(1)
+
+                        controller.submitForm(
+                            formResponse,
+                        )
+
+                        verify(exactly = 1) {
+                            responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any(), any())
+                        }
+                        verify(exactly = 1) { dokarkivClient.postDocumentToDokarkiv(ansattFnr, any(), any()) }
+                    }
                 }
             }
 
@@ -231,28 +250,12 @@ class SenOppfolgingControllerV2Test :
                     status.responseStatus shouldBe NO_RESPONSE
                 }
 
-                it("journalfore submitted answers for all users") {
-                    every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns
-                        BehandlendeEnhet(
-                            "0314",
-                            "Testkontor",
-                        )
-                    every { syfoopfpdfgenService.getSenOppfolgingReceiptPdf(ansattFnr, any()) } returns ByteArray(1)
-
-                    controller.submitForm(
-                        formResponse,
-                    )
-
-                    verify(exactly = 1) {
-                        responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any(), any())
-                    }
-                    verify(exactly = 1) { dokarkivClient.postDocumentToDokarkiv(ansattFnr, any(), any()) }
-                }
                 it("return hasAccessToSenOppfolging=true") {
                     val status = controller.status()
 
                     status.hasAccessToSenOppfolging shouldBe true
                 }
+
                 it("return hasAccessToSenOppfolging=false when oppfolgingstilfelle ended more than 16 days ago") {
                     every {
                         isOppfolgingstilfelleClient.getOppfolgingstilfeller(any())
@@ -262,6 +265,7 @@ class SenOppfolgingControllerV2Test :
 
                     status.hasAccessToSenOppfolging shouldBe false
                 }
+
                 it("return hasAccessToSenOppfolging=false when no utsendt varsel is found") {
                     every {
                         varselService.getUtsendtVarsel(ansattFnr)
@@ -270,6 +274,25 @@ class SenOppfolgingControllerV2Test :
                     val status = controller.status()
 
                     status.hasAccessToSenOppfolging shouldBe false
+                }
+
+                it("should return maxDate correctly formatted") {
+                    val maxDate = LocalDate.of(2025, 2, 15)
+
+                    every { sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(any()) } returns
+                        PSykepengedagerInformasjon(
+                            "utbetalingId",
+                            ansattFnr,
+                            forelopigBeregnetSlutt = maxDate,
+                            LocalDate.now(),
+                            90,
+                            LocalDateTime.now(),
+                            LocalDateTime.now(),
+                        )
+
+                    val status = controller.status()
+
+                    status.maxDate shouldBe "15. februar 2025"
                 }
             }
         },
