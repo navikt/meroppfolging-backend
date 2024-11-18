@@ -27,8 +27,8 @@ import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
 import no.nav.syfo.syfoopppdfgen.PdfgenService
+import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttFormattedForLetter
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
-import no.nav.syfo.utils.formatDateForLetter
 import no.nav.syfo.varsel.Varsel
 import no.nav.syfo.varsel.VarselService
 import org.springframework.beans.factory.annotation.Value
@@ -99,8 +99,8 @@ class SenOppfolgingControllerV2(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt?.let { formatDateForLetter(it) },
-            gjenstaendeSykedager = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
+            maxDate = sykepengerInformasjon?.forelopigBeregnetSluttFormattedForLetter(),
+            gjenstaendeSykedager = sykepengerInformasjon?.gjenstaendeSykedager,
             hasAccessToSenOppfolging = hasAccess,
         )
     }
