@@ -1,7 +1,7 @@
 package no.nav.syfo.syfoopppdfgen
 
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
-import no.nav.syfo.utils.formatDateForLetter
+import no.nav.syfo.utils.formatDateForDisplay
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
@@ -84,7 +84,7 @@ class PdfgenClient(
 
         val body = PdfgenRequest(
             BrevdataSenOppfolgingLanding(
-                sendtdato = formatDateForLetter(LocalDate.now()),
+                sendtdato = formatDateForDisplay(LocalDate.now()),
                 daysLeft = daysLeft,
                 maxdato = maxDate,
                 utbetaltTom = utbetaltTom,
@@ -138,7 +138,7 @@ class PdfgenClient(
             PdfgenRequest(
                 brevdata =
                 BrevdataSenOppfolgingReceipt(
-                    sentDate = formatDateForLetter(LocalDate.now()),
+                    sentDate = formatDateForDisplay(LocalDate.now()),
                     behovForOppfolging = behovForOppfolging,
                     maxdato = maxDate,
                     daysUntilMaxDate = daysUntilMaxDate,

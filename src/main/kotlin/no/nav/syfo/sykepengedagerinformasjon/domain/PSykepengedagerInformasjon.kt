@@ -1,6 +1,6 @@
 package no.nav.syfo.sykepengedagerinformasjon.domain
 
-import no.nav.syfo.utils.formatDateForLetter
+import no.nav.syfo.utils.formatDateForDisplay
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -14,10 +14,10 @@ data class PSykepengedagerInformasjon(
     val receivedAt: LocalDateTime,
 )
 
-fun PSykepengedagerInformasjon.forelopigBeregnetSluttFormattedForLetter(): String {
-    return formatDateForLetter(this.forelopigBeregnetSlutt)
+fun PSykepengedagerInformasjon.forelopigBeregnetSluttFormatted(): String {
+    return formatDateForDisplay(this.forelopigBeregnetSlutt)
 }
 
-fun PSykepengedagerInformasjon.utbetaltTomFormattedForLetter(): String {
-    return formatDateForLetter(this.utbetaltTom)
+fun PSykepengedagerInformasjon.utbetaltTomFormatted(): String {
+    return formatDateForDisplay(this.utbetaltTom)
 }
