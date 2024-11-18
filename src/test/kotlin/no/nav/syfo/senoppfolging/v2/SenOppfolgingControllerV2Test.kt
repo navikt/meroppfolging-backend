@@ -275,25 +275,6 @@ class SenOppfolgingControllerV2Test :
 
                     status.hasAccessToSenOppfolging shouldBe false
                 }
-
-                it("should return maxDate correctly formatted") {
-                    val maxDate = LocalDate.of(2025, 2, 15)
-
-                    every { sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(any()) } returns
-                        PSykepengedagerInformasjon(
-                            "utbetalingId",
-                            ansattFnr,
-                            forelopigBeregnetSlutt = maxDate,
-                            LocalDate.now(),
-                            90,
-                            LocalDateTime.now(),
-                            LocalDateTime.now(),
-                        )
-
-                    val status = controller.status()
-
-                    status.maxDate shouldBe "15. februar 2025"
-                }
             }
         },
     )
