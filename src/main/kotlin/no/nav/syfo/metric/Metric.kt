@@ -15,7 +15,7 @@ constructor(
     fun countSenOppfolgingRequestNo() = countEvent("sen_oppfolging_requested_no")
     fun countSenOppfolgingFerdigstilt() = countEvent("sen_oppfolging_ferdigstilt")
 
-    fun countSenOppfolgingV2Submitted() = countEvent("sen_oppfolging_V2_submitted")
+    fun countSenOppfolgingV2SubmittedYes() = countEvent("sen_oppfolging_V2_submitted_yes")
     fun countSenOppfolgingV2SubmittedNo() = countEvent("sen_oppfolging_V2_submitted_no")
     fun countSenOppfolgingVarslerToBeSent(count: Double) = countEvent("sen_oppfolging_varsler_to_be_sent", count)
 

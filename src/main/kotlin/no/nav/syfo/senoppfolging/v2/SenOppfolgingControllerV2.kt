@@ -164,7 +164,7 @@ class SenOppfolgingControllerV2(
                 ),
             )
         if (formResponse.senOppfolgingFormV2.behovForOppfolging()) {
-            metric.countSenOppfolgingV2Submitted()
+            metric.countSenOppfolgingV2SubmittedYes()
         } else {
             metric.countSenOppfolgingV2SubmittedNo()
         }
