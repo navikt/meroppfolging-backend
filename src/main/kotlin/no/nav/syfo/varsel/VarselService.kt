@@ -64,6 +64,8 @@ class VarselService(
                     fnr = personIdent,
                     pdf = pdf,
                     uuid = uuid,
+                    "Snart slutt på sykepenger - Informasjon og skjema",
+                    "SSPS-informasjon"
                 )
             if (dokarkivResponse != null) {
                 val hendelse =

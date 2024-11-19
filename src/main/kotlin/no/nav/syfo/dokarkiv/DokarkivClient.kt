@@ -41,19 +41,18 @@ class DokarkivClient(
 
     private val log = LoggerFactory.getLogger(DokarkivClient::class.qualifiedName)
 
-    fun postDocumentToDokarkiv(fnr: String, pdf: ByteArray, uuid: String,): DokarkivResponse? {
+    fun postDocumentToDokarkiv(fnr: String, pdf: ByteArray, uuid: String, title: String, filnavnBeforeUUID: String):
+        DokarkivResponse? {
         return try {
             val token = azureAdClient.getSystemToken(dokarkivScope)
+
+            val dokarkivRequest = createDokarkivRequest(pdf, uuid, filnavnBeforeUUID, title, fnr)
 
             val response = RestTemplate().postForEntity(
                 url,
                 createHttpEntity(
                     token,
-                    DokarkivRequest.create(
-                        avsenderMottaker = AvsenderMottaker.create(fnr),
-                        dokumenter = listOf(Dokument.create(listOf(Dokumentvariant.create(pdf, uuid)))),
-                        uuid = uuid,
-                    ),
+                    dokarkivRequest,
                 ),
                 DokarkivResponse::class.java,
             )
@@ -98,6 +97,29 @@ class DokarkivClient(
             )
             null
         }
+    }
+
+    private fun createDokarkivRequest(
+        pdf: ByteArray,
+        uuid: String,
+        filnavnBeforeUUID: String,
+        title: String,
+        fnr: String,
+    ): DokarkivRequest {
+        val dokumentvarianter = listOf(Dokumentvariant.create(pdf, uuid, filnavnBeforeUUID))
+        val dokumenter = listOf(
+            Dokument.create(
+                dokumentvarianter = dokumentvarianter,
+                tittel = title,
+            ),
+        )
+        val dokarkivRequest = DokarkivRequest.create(
+            avsenderMottaker = AvsenderMottaker.create(fnr),
+            dokumenter = dokumenter,
+            uuid = uuid,
+            tittel = title,
+        )
+        return dokarkivRequest
     }
 
     private fun createHttpEntity(

@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v2/senoppfolging")
@@ -108,13 +109,9 @@ class SenOppfolgingControllerV2(
     @PostMapping("/submitform")
     @ResponseBody
     fun submitForm(
-        @RequestBody formResponse: SenOppfolgingDTOV2,
+        @RequestBody senOppfolgingSvar: SenOppfolgingDTOV2,
     ) {
-        if (formResponse.senOppfolgingFormV2.behovForOppfolging()) {
-            metric.countSenOppfolgingRequestYes()
-        } else {
-            metric.countSenOppfolgingRequestNo()
-        }
+        countMetricsForSvarBeforeProcessing(senOppfolgingSvar)
 
         val personident = tokenValidator.validateTokenXClaims().getFnr()
         val response =
@@ -141,7 +138,7 @@ class SenOppfolgingControllerV2(
         val id =
             responseDao.saveFormResponse(
                 personIdent = PersonIdentNumber(personident),
-                questionResponses = formResponse.senOppfolgingFormV2.map { it.toQuestionResponse() },
+                questionResponses = senOppfolgingSvar.senOppfolgingFormV2.map { it.toQuestionResponse() },
                 formType = FormType.SEN_OPPFOLGING_V2,
                 createdAt = createdAt,
                 utsendtVarselUUID = utsendtVarsel.uuid,
@@ -149,29 +146,11 @@ class SenOppfolgingControllerV2(
 
         varselService.ferdigstillMerOppfolgingVarsel(personident)
 
-        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(personident, formResponse.senOppfolgingFormV2)
-        if (pdf == null) {
-            log.error("Failed to generate PDF")
-        } else {
-            log.info("Generated PDF")
-            dokarkivClient.postDocumentToDokarkiv(fnr = personident, pdf = pdf, uuid = id.toString())
-        }
+        generateAndSendPDFToDokarkiv(personident, senOppfolgingSvar, id)
 
-        senOppfolgingSvarKafkaProducer
-            .publishResponse(
-                KSenOppfolgingSvarDTO(
-                    id = id,
-                    personIdent = personident,
-                    createdAt = createdAt,
-                    response = formResponse.senOppfolgingFormV2,
-                    varselId = utsendtVarsel.uuid,
-                ),
-            )
-        if (formResponse.senOppfolgingFormV2.behovForOppfolging()) {
-            metric.countSenOppfolgingV2SubmittedYes()
-        } else {
-            metric.countSenOppfolgingV2SubmittedNo()
-        }
+        publishSenOppfolgingSvarToKafka(id, personident, createdAt, senOppfolgingSvar, utsendtVarsel)
+
+        countMetricsForSvarAfterProcessing(senOppfolgingSvar)
     }
 
     private fun validateVarselAndAccess(
@@ -192,6 +171,61 @@ class SenOppfolgingControllerV2(
                     }
                 }
             }
+        }
+    }
+
+    private fun generateAndSendPDFToDokarkiv(
+        personident: String,
+        formResponse: SenOppfolgingDTOV2,
+        id: UUID,
+    ) {
+        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(personident, formResponse.senOppfolgingFormV2)
+        if (pdf == null) {
+            log.error("Failed to generate PDF")
+        } else {
+            log.info("Generated PDF")
+            dokarkivClient.postDocumentToDokarkiv(
+                fnr = personident,
+                pdf = pdf,
+                uuid = id.toString(),
+                title = "Snart slutt på sykepenger - Kvittering på ditt svar",
+                filnavnBeforeUUID = "SSPS-kvittering",
+            )
+        }
+    }
+
+    private fun publishSenOppfolgingSvarToKafka(
+        id: UUID,
+        personident: String,
+        createdAt: LocalDateTime,
+        formResponse: SenOppfolgingDTOV2,
+        utsendtVarsel: Varsel,
+    ) {
+        senOppfolgingSvarKafkaProducer
+            .publishResponse(
+                KSenOppfolgingSvarDTO(
+                    id = id,
+                    personIdent = personident,
+                    createdAt = createdAt,
+                    response = formResponse.senOppfolgingFormV2,
+                    varselId = utsendtVarsel.uuid,
+                ),
+            )
+    }
+
+    private fun countMetricsForSvarBeforeProcessing(formResponse: SenOppfolgingDTOV2) {
+        if (formResponse.senOppfolgingFormV2.behovForOppfolging()) {
+            metric.countSenOppfolgingRequestYes()
+        } else {
+            metric.countSenOppfolgingRequestNo()
+        }
+    }
+
+    private fun countMetricsForSvarAfterProcessing(formResponse: SenOppfolgingDTOV2) {
+        if (formResponse.senOppfolgingFormV2.behovForOppfolging()) {
+            metric.countSenOppfolgingV2SubmittedYes()
+        } else {
+            metric.countSenOppfolgingV2SubmittedNo()
         }
     }
 }
