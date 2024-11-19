@@ -8,6 +8,7 @@ import no.nav.syfo.auth.TokenUtil.TokenIssuer.TOKENX
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.besvarelse.database.ResponseDao
+import no.nav.syfo.besvarelse.database.domain.FormResponse
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
@@ -64,7 +65,6 @@ class SenOppfolgingControllerV2(
 ) {
     lateinit var tokenValidator: TokenValidator
     private val log = logger()
-    private val cutoffDate = LocalDate.now().minusMonths(3)
 
     @PostConstruct
     fun init() {
@@ -76,12 +76,6 @@ class SenOppfolgingControllerV2(
     @ResponseBody
     fun status(): SenOppfolgingStatusDTOV2 {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
-        val response =
-            responseDao.findLatestFormResponse(
-                PersonIdentNumber(personIdent),
-                FormType.SEN_OPPFOLGING_V2,
-                cutoffDate,
-            )
         val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
             personIdent
         )
@@ -95,6 +89,8 @@ class SenOppfolgingControllerV2(
                 is UserAccess.Good -> true
                 is UserAccess.Error -> false
             }
+
+        val response = varsel.getResponseOrNull()
 
         return SenOppfolgingStatusDTOV2(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
@@ -114,25 +110,16 @@ class SenOppfolgingControllerV2(
         countMetricsForSvarBeforeProcessing(senOppfolgingSvar)
 
         val personident = tokenValidator.validateTokenXClaims().getFnr()
-        val response =
-            responseDao.find(
-                personIdent = PersonIdentNumber(personident),
-                formType = FormType.SEN_OPPFOLGING_V2,
-                from = cutoffDate,
-            )
-
-        if (response.isNotEmpty()) {
-            throw AlreadyRespondedException().also {
-                log.error(
-                    "User has already responded in the last 3 months.",
-                )
-            }
-        }
 
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
         val oppfolgingstilfelle = isOppfolgingstilfelleClient.getOppfolgingstilfeller(token)
         val varsel = varselService.getUtsendtVarsel(personident)
         val utsendtVarsel = validateVarselAndAccess(varsel, oppfolgingstilfelle)
+
+        varsel.getResponseOrNull()?.let {
+            log.error("User has already responded in the last 3 months.")
+            throw AlreadyRespondedException()
+        }
 
         val createdAt = LocalDateTime.now()
         val id =
@@ -228,6 +215,17 @@ class SenOppfolgingControllerV2(
             metric.countSenOppfolgingV2SubmittedNo()
         }
     }
+
+    private fun Varsel?.getResponseOrNull(): FormResponse? =
+        // run block is necessary as long as users with utsendt varsel has response without varsel id
+        this?.let {
+            responseDao.findResponseByVarselId(it.uuid)
+                ?: responseDao.findLatestFormResponse(
+                    PersonIdentNumber(personIdent),
+                    FormType.SEN_OPPFOLGING_V2,
+                    utsendtTidspunkt.toLocalDate(),
+                )
+        }
 }
 
 private fun List<Oppfolgingstilfelle>.isInOppfolgingstilfellePlus16Days() =
