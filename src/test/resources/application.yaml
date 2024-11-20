@@ -20,9 +20,6 @@ token.x.token.endpoint: "https://tokenx-endpoint"
 isoppfolgingstilfelle.url: "http://isoppfolgingstilfelle"
 isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
 
-esyfovarsel.url: "http://esyfovarsel"
-esyfovarsel.id: "local:team-esyfo:esyfovarsel"
-
 dokarkiv.url: "http://dokarkiv"
 dokarkiv.scope: "local:teamdokumenthandtering:dokarkiv"
 

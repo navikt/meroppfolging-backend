@@ -70,7 +70,6 @@ spec:
           namespace: teamsykefravr
     outbound:
       rules:
-        - application: esyfovarsel
         - application: syfooppdfgen
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
@@ -97,10 +96,6 @@ spec:
       value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_ID
       value: prod-gcp.teamsykefravr.istilgangskontroll
-    - name: ESYFOVARSEL_URL
-      value: http://esyfovarsel
-    - name: ESYFOVARSEL_ID
-      value: prod-gcp:team-esyfo:esyfovarsel
     - name: SYFOBEHANDLENDEENHET_ID
       value: "prod-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
