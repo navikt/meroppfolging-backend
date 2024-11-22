@@ -152,7 +152,7 @@ class ResponseDao(
             JOIN FORM_RESPONSE form ON question.response_id = form.uuid
             WHERE form.person_ident = :person_ident
             AND form.form_type = :form_type
-            AND form.created_at > :from_date
+            AND form.created_at >= :from_date
             ORDER BY form.created_at DESC
             """.trimIndent()
 
@@ -192,6 +192,32 @@ class ResponseDao(
             MapSqlParameterSource()
                 .addValue("person_ident", personIdent.value)
                 .addValue("form_type", formType.name)
+
+        return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
+    }
+
+    fun findResponseByVarselId(varselId: UUID): FormResponse? {
+        val query =
+            """
+            SELECT 
+                form.uuid,
+                form.person_ident,
+                form.created_at,
+                form.form_type,
+                form.utsendt_varsel_uuid,
+                question.question_type,
+                question.question_text,
+                question.answer_type,
+                question.answer_text
+            FROM QUESTION_RESPONSE question
+            JOIN FORM_RESPONSE form ON question.response_id = form.uuid
+            WHERE form.utsendt_varsel_uuid = :varsel_id
+            ORDER BY form.created_at DESC
+            """.trimIndent()
+
+        val namedParameters =
+            MapSqlParameterSource()
+                .addValue("varsel_id", varselId)
 
         return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
     }

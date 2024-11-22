@@ -74,15 +74,19 @@ class SenOppfolgingControllerV2Test :
 
             val ansattFnr = "12345678910"
 
-            val formResponseDb =
-                listOf(
-                    QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "Test question", "Text", "Test answer"),
-                )
-            val formResponse =
+            val questionResponse = QuestionResponse("Test type", "Test question", "Text", "Test answer")
+            val questionResponseReq =
                 SenOppfolgingDTOV2(
                     listOf(
                         SenOppfolgingQuestionV2(BEHOV_FOR_OPPFOLGING, "Test question", "Text", "Test answer"),
                     ),
+                )
+            val formResponse =
+                FormResponse(
+                    UUID.randomUUID(),
+                    PersonIdentNumber(ansattFnr),
+                    LocalDateTime.now().minusDays(1),
+                    SEN_OPPFOLGING_V2,
                 )
 
             val oppfolgingstilfelleActive: List<Oppfolgingstilfelle> =
@@ -93,29 +97,31 @@ class SenOppfolgingControllerV2Test :
                 listOf(Oppfolgingstilfelle(LocalDate.now().minusDays(30), LocalDate.now().minusDays(17)))
 
             val varselUuid = UUID.randomUUID()
+            val varselSentAt = LocalDateTime.now().minusDays(20)
 
             beforeTest {
                 clearAllMocks()
 
                 every { tokenValidator.validateTokenXClaims().getFnr() } returns ansattFnr
                 every { varselService.getUtsendtVarsel(ansattFnr) } returns
-                    UtsendtVarselEsyfovarselCopy(varselUuid, ansattFnr, LocalDateTime.now())
+                    UtsendtVarselEsyfovarselCopy(varselUuid, ansattFnr, varselSentAt)
                 every {
                     isOppfolgingstilfelleClient.getOppfolgingstilfeller(any())
                 } returns oppfolgingstilfelleActive
-                every { responseDao.find(any(), SEN_OPPFOLGING_V2, any()) } returns emptyList()
+                every { responseDao.findResponseByVarselId(any()) } returns null
+                every { responseDao.findLatestFormResponse(any(), any(), any()) } returns null
             }
 
             describe("Form submission") {
                 it("should save form response when oppfolgingstilfelle is active") {
                     controller.submitForm(
-                        formResponse,
+                        questionResponseReq,
                     )
 
                     verify(exactly = 1) {
                         responseDao.saveFormResponse(
                             personIdent = PersonIdentNumber(ansattFnr),
-                            questionResponses = formResponse.senOppfolgingFormV2.map { it.toQuestionResponse() },
+                            questionResponses = questionResponseReq.senOppfolgingFormV2.map { it.toQuestionResponse() },
                             formType = SEN_OPPFOLGING_V2,
                             createdAt = any<LocalDateTime>(),
                             utsendtVarselUUID = varselUuid,
@@ -125,7 +131,7 @@ class SenOppfolgingControllerV2Test :
                         senOppfolgingSvarKafkaProducer.publishResponse(
                             match({
                                 it.personIdent == ansattFnr &&
-                                    it.response == formResponse.senOppfolgingFormV2 &&
+                                    it.response == questionResponseReq.senOppfolgingFormV2 &&
                                     it.varselId == varselUuid
                             }),
                         )
@@ -136,13 +142,13 @@ class SenOppfolgingControllerV2Test :
                         isOppfolgingstilfelleClient.getOppfolgingstilfeller(any())
                     } returns oppfolgingstilfelleEnded16DaysAgo
                     controller.submitForm(
-                        formResponse,
+                        questionResponseReq,
                     )
 
                     verify(exactly = 1) {
                         responseDao.saveFormResponse(
                             personIdent = PersonIdentNumber(ansattFnr),
-                            questionResponses = formResponse.senOppfolgingFormV2.map { it.toQuestionResponse() },
+                            questionResponses = questionResponseReq.senOppfolgingFormV2.map { it.toQuestionResponse() },
                             formType = SEN_OPPFOLGING_V2,
                             createdAt = any<LocalDateTime>(),
                             utsendtVarselUUID = varselUuid,
@@ -152,7 +158,7 @@ class SenOppfolgingControllerV2Test :
                         senOppfolgingSvarKafkaProducer.publishResponse(
                             match({
                                 it.personIdent == ansattFnr &&
-                                    it.response == formResponse.senOppfolgingFormV2 &&
+                                    it.response == questionResponseReq.senOppfolgingFormV2 &&
                                     it.varselId == varselUuid
                             }),
                         )
@@ -160,12 +166,27 @@ class SenOppfolgingControllerV2Test :
                 }
 
                 describe("should throw erros when") {
-                    it("response already exist") {
-                        every { responseDao.find(any(), any(), any()) } returns formResponseDb
+                    it("response with varsel uuid exist") {
+                        every { responseDao.findResponseByVarselId(varselUuid) } returns formResponse
 
                         shouldThrow<AlreadyRespondedException> {
                             controller.submitForm(
-                                formResponse,
+                                questionResponseReq,
+                            )
+                        }
+                    }
+                    it("response submitted after utsendt varsel exist") {
+                        every {
+                            responseDao.findLatestFormResponse(
+                                PersonIdentNumber(ansattFnr),
+                                SEN_OPPFOLGING_V2,
+                                varselSentAt.toLocalDate(),
+                            )
+                        } returns formResponse
+
+                        shouldThrow<AlreadyRespondedException> {
+                            controller.submitForm(
+                                questionResponseReq,
                             )
                         }
                     }
@@ -174,7 +195,7 @@ class SenOppfolgingControllerV2Test :
 
                         shouldThrow<NoUtsendtVarselException> {
                             controller.submitForm(
-                                formResponse,
+                                questionResponseReq,
                             )
                         }
                     }
@@ -185,7 +206,7 @@ class SenOppfolgingControllerV2Test :
 
                         shouldThrow<NoAccessToSenOppfolgingException> {
                             controller.submitForm(
-                                formResponse,
+                                questionResponseReq,
                             )
                         }
                     }
@@ -199,14 +220,14 @@ class SenOppfolgingControllerV2Test :
                         every { syfoopfpdfgenService.getSenOppfolgingReceiptPdf(ansattFnr, any()) } returns ByteArray(1)
 
                         controller.submitForm(
-                            formResponse,
+                            questionResponseReq,
                         )
 
                         verify(exactly = 1) {
                             responseDao.saveFormResponse(any(), any(), SEN_OPPFOLGING_V2, any(), any())
                         }
                         verify(
-                            exactly = 1
+                            exactly = 1,
                         ) { dokarkivClient.postDocumentToDokarkiv(ansattFnr, any(), any(), any(), any()) }
                     }
                 }
@@ -215,14 +236,10 @@ class SenOppfolgingControllerV2Test :
             describe("Get status should") {
                 it("return TRENGER_IKKE_OPPFOLGING when user has answered Nei") {
                     every { responseDao.findLatestFormResponse(any(), SEN_OPPFOLGING_V2, any()) } returns
-                        FormResponse(
-                            UUID.randomUUID(),
-                            PersonIdentNumber(ansattFnr),
-                            LocalDateTime.now().minusDays(1),
-                            SEN_OPPFOLGING_V2,
-                        ).apply {
-                            questionResponses.add(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "NEI", "Nei"))
-                        }
+                        formResponse.copy(
+                            questionResponses =
+                            mutableListOf(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "Text", "NEI", "Nei")),
+                        )
 
                     val status = controller.status()
 
@@ -231,14 +248,10 @@ class SenOppfolgingControllerV2Test :
 
                 it("return TRENGER_OPPFOLGING when user has answered Ja") {
                     every { responseDao.findLatestFormResponse(any(), SEN_OPPFOLGING_V2, any()) } returns
-                        FormResponse(
-                            UUID.randomUUID(),
-                            PersonIdentNumber(ansattFnr),
-                            LocalDateTime.now().minusDays(1),
-                            SEN_OPPFOLGING_V2,
-                        ).apply {
-                            questionResponses.add(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "JA", "Ja"))
-                        }
+                        formResponse.copy(
+                            questionResponses =
+                            mutableListOf(QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "Text", "JA", "Ja")),
+                        )
 
                     val status = controller.status()
 
@@ -275,6 +288,30 @@ class SenOppfolgingControllerV2Test :
                     val status = controller.status()
 
                     status.hasAccessToSenOppfolging shouldBe false
+                }
+                it("return response if response with varsel uuid exist") {
+                    every { responseDao.findResponseByVarselId(varselUuid) } returns
+                        formResponse.copy(questionResponses = mutableListOf(questionResponse))
+
+                    val status = controller.status()
+
+                    status.response shouldBe mutableListOf(questionResponse)
+                }
+                it("response submitted after utsendt varsel exist") {
+                    every {
+                        responseDao.findLatestFormResponse(
+                            PersonIdentNumber(ansattFnr),
+                            SEN_OPPFOLGING_V2,
+                            varselSentAt.toLocalDate(),
+                        )
+                    } returns formResponse
+
+                    every { responseDao.findResponseByVarselId(varselUuid) } returns
+                        formResponse.copy(questionResponses = mutableListOf(questionResponse))
+
+                    val status = controller.status()
+
+                    status.response shouldBe mutableListOf(questionResponse)
                 }
             }
         },
