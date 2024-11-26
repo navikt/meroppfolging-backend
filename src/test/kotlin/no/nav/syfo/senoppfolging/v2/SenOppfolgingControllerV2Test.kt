@@ -21,10 +21,11 @@ import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
-import no.nav.syfo.senoppfolging.AlreadyRespondedException
-import no.nav.syfo.senoppfolging.NoAccessToSenOppfolgingException
-import no.nav.syfo.senoppfolging.NoUtsendtVarselException
+import no.nav.syfo.senoppfolging.exception.AlreadyRespondedException
+import no.nav.syfo.senoppfolging.exception.NoAccessToSenOppfolgingException
+import no.nav.syfo.senoppfolging.exception.NoUtsendtVarselException
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
+import no.nav.syfo.senoppfolging.service.SenOppfolgingService
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.NO_RESPONSE
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_IKKE_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_OPPFOLGING
@@ -36,10 +37,12 @@ import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import no.nav.syfo.varsel.UtsendtVarselEsyfovarselCopy
 import no.nav.syfo.varsel.VarselService
+import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+@SpringBootTest
 class SenOppfolgingControllerV2Test :
     DescribeSpec(
         {
@@ -55,19 +58,24 @@ class SenOppfolgingControllerV2Test :
             val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
             val isOppfolgingstilfelleClient = mockk<IsOppfolgingstilfelleClient>(relaxed = true)
 
+            val senOppfolgingService =
+                SenOppfolgingService(
+                    sykepengedagerInformasjonService = sykepengedagerInformasjonService,
+                    isOppfolgingstilfelleClient = isOppfolgingstilfelleClient,
+                    varselService = varselService,
+                    responseDao = responseDao,
+                    metric = metric,
+                    senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
+                    dokarkivClient = dokarkivClient,
+                    syfoopfpdfgenService = syfoopfpdfgenService,
+                )
+
             val controller =
                 SenOppfolgingControllerV2(
                     merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
                     esyfoProxyClientId = "esyfoProxyClientId",
                     tokenValidationContextHolder = tokenValidationContextHolder,
-                    varselService = varselService,
-                    metric = metric,
-                    responseDao = responseDao,
-                    senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
-                    sykepengedagerInformasjonService = sykepengedagerInformasjonService,
-                    syfoopfpdfgenService = syfoopfpdfgenService,
-                    dokarkivClient = dokarkivClient,
-                    isOppfolgingstilfelleClient = isOppfolgingstilfelleClient,
+                    senOppfolgingService = senOppfolgingService,
                 ).apply {
                     this.tokenValidator = tokenValidator
                 }
