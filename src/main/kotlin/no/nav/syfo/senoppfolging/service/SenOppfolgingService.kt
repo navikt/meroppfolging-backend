@@ -63,7 +63,7 @@ class SenOppfolgingService(
         )
     }
 
-    fun handleSubitForm(
+    fun handleSubmitForm(
         personIdent: String,
         senOppfolgingForm: SenOppfolgingDTOV2,
         varsel: Varsel,
