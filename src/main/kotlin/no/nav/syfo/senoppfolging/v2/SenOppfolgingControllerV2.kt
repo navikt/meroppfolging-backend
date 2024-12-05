@@ -79,11 +79,11 @@ class SenOppfolgingControllerV2(
                 }
             }
         senOppfolgingService.getResponseOrNull(varsel, personIdent)?.let {
-            log.error("User has already responded in the last 3 months.")
+            log.error("User has already responded in the last 3 months. UUID: " + it.uuid)
             throw AlreadyRespondedException()
         }
 
-        senOppfolgingService.handleSubitForm(
+        senOppfolgingService.handleSubmitForm(
             personIdent = personIdent,
             senOppfolgingForm = senOppfolgingSvar,
             varsel = varsel,
