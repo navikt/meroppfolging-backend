@@ -30,6 +30,7 @@ val wiremockKotestExtensionVersion = "3.1.0"
 val detektVersion = "1.23.7"
 val testcontainersVersion = "1.20.4"
 val springMockkVersion = "4.0.2"
+val prometuesMetricsCoreVersion = "1.3.4"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
@@ -45,8 +46,8 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
+    implementation("io.prometheus:prometheus-metrics-core:$prometuesMetricsCoreVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")

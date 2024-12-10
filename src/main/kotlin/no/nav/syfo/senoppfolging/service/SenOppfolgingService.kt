@@ -7,6 +7,7 @@ import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.metric.testCounter
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
@@ -52,6 +53,8 @@ class SenOppfolgingService(
         val hasAccess = userAccess is UserAccess.Good
         val varsel = (userAccess as? UserAccess.Good)?.varsel
         val response = getResponseOrNull(varsel, personIdent)
+
+        testCounter.inc()
 
         return SenOppfolgingStatusDTOV2(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
