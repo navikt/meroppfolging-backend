@@ -66,7 +66,7 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
             SELECT *
             FROM SYKEPENGEDAGER_INFORMASJON
             WHERE person_ident = :person_ident
-            ORDER BY utbetaling_created_at DESC
+            ORDER BY utbetalt_tom DESC, utbetaling_created_at DESC
         """.trimIndent()
 
         val parameters = MapSqlParameterSource()
