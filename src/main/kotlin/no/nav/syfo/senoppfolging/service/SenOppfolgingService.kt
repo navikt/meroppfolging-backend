@@ -20,7 +20,6 @@ import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttFormatted
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
-import no.nav.syfo.utils.formatDateForDisplay
 import no.nav.syfo.varsel.Varsel
 import no.nav.syfo.varsel.VarselService
 import org.springframework.stereotype.Service
@@ -58,7 +57,7 @@ class SenOppfolgingService(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            maxDate = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
+            maxDateFormatted = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
             gjenstaendeSykedager = sykepengerInformasjon?.gjenstaendeSykedager,
             hasAccessToSenOppfolging = hasAccess,
         )
@@ -120,12 +119,12 @@ class SenOppfolgingService(
         id: UUID,
         createdAt: LocalDateTime,
     ) {
-        val submittedDateFormatted = formatDateForDisplay(createdAt.toLocalDate())
+        val submissionDate = createdAt.toLocalDate()
 
         val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(
             personident,
             formResponse.senOppfolgingFormV2,
-            submittedDateFormatted
+            submissionDate
         )
         if (pdf == null) {
             log.error("Failed to generate PDF")

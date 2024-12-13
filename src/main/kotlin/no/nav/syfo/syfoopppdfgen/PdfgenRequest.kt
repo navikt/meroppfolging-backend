@@ -7,14 +7,13 @@ data class PdfgenRequest(
 interface Brevdata
 
 class BrevdataSenOppfolgingReceipt(
-    val sentDate: String,
     val behovForOppfolging: Boolean,
     val questionTextFremtidigSituasjon: String?,
     val answerTextFremtidigSituasjon: String?,
     val questionTextBehovForOppfolging: String?,
     val answerTextBehovForOppfolging: String?,
-    val submittedDateFormatted: String,
-    val maxdato: String?,
+    val submissionDateFormatted: String,
+    val maxdatoFormatted: String?,
     val daysUntilMaxDate: String?,
 ) : Brevdata
 

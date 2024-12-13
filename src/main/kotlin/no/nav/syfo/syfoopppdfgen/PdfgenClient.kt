@@ -26,7 +26,7 @@ class PdfgenClient(
 
     fun createSenOppfolgingLandingPdf(
         daysLeft: String?,
-        maxDate: String?,
+        maxDateFormatted: String?,
         utbetaltTom: String?,
         isForReservertUser: Boolean = false,
     ): ByteArray {
@@ -35,7 +35,7 @@ class PdfgenClient(
 
             val requestEntity =
                 createSenOppfolgingLandingPdfRequestEntity(
-                    maxDate = maxDate,
+                    maxDateFormatted = maxDateFormatted,
                     daysLeft = daysLeft,
                     utbetaltTom = utbetaltTom,
                 )
@@ -59,7 +59,7 @@ class PdfgenClient(
 
     private fun createSenOppfolgingLandingPdfRequestEntity(
         daysLeft: String?,
-        maxDate: String?,
+        maxDateFormatted: String?,
         utbetaltTom: String?,
     ): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders()
@@ -70,7 +70,7 @@ class PdfgenClient(
             BrevdataSenOppfolgingLanding(
                 sendtdato = formatDateForDisplay(LocalDate.now()),
                 daysLeft = daysLeft,
-                maxdato = maxDate,
+                maxdato = maxDateFormatted,
                 utbetaltTom = utbetaltTom,
             ),
         )
@@ -83,8 +83,8 @@ class PdfgenClient(
         answerTextFremtidigSituasjon: String?,
         questionTextBehovForOppfolging: String?,
         answerTextBehovForOppfolging: String?,
-        submittedDateFormatted: String,
-        maxDate: String?,
+        submissionDateFormatted: String,
+        maxDateFormatted: String?,
         daysUntilMaxDate: String?,
     ): ByteArray {
         val url =
@@ -97,8 +97,8 @@ class PdfgenClient(
                     answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
                     questionTextBehovForOppfolging = questionTextBehovForOppfolging,
                     answerTextBehovForOppfolging = answerTextBehovForOppfolging,
-                    submittedDateFormatted = submittedDateFormatted,
-                    maxDate = maxDate,
+                    submissionDateFormatted = submissionDateFormatted,
+                    maxDateFormatted = maxDateFormatted,
                     daysUntilMaxDate = daysUntilMaxDate,
                 )
             return restTemplate
@@ -124,8 +124,8 @@ class PdfgenClient(
         answerTextFremtidigSituasjon: String?,
         questionTextBehovForOppfolging: String?,
         answerTextBehovForOppfolging: String?,
-        submittedDateFormatted: String,
-        maxDate: String?,
+        submissionDateFormatted: String,
+        maxDateFormatted: String?,
         daysUntilMaxDate: String?,
     ): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders()
@@ -136,14 +136,13 @@ class PdfgenClient(
             PdfgenRequest(
                 brevdata =
                 BrevdataSenOppfolgingReceipt(
-                    sentDate = formatDateForDisplay(LocalDate.now()),
                     behovForOppfolging = behovForOppfolging,
                     questionTextFremtidigSituasjon = questionTextFremtidigSituasjon,
                     answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
                     questionTextBehovForOppfolging = questionTextBehovForOppfolging,
                     answerTextBehovForOppfolging = answerTextBehovForOppfolging,
-                    submittedDateFormatted = submittedDateFormatted,
-                    maxdato = maxDate,
+                    submissionDateFormatted = submissionDateFormatted,
+                    maxdatoFormatted = maxDateFormatted,
                     daysUntilMaxDate = daysUntilMaxDate,
                 ),
             )

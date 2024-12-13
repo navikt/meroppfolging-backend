@@ -7,7 +7,9 @@ import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttFormatted
 import no.nav.syfo.sykepengedagerinformasjon.domain.utbetaltTomFormatted
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
+import no.nav.syfo.utils.formatDateForDisplay
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class PdfgenService(
@@ -19,7 +21,7 @@ class PdfgenService(
     fun getSenOppfolgingReceiptPdf(
         personIdent: String,
         answersToQuestions: List<SenOppfolgingQuestionV2>,
-        submittedDateFormatted: String,
+        submissionDate: LocalDate,
     ): ByteArray? {
         val behovForOppfolging = answersToQuestions.behovForOppfolging()
         val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
@@ -39,8 +41,8 @@ class PdfgenService(
             answerTextBehovForOppfolging = answersToQuestions.firstOrNull {
                 it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
             }?.answerText,
-            submittedDateFormatted = submittedDateFormatted,
-            maxDate = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
+            submissionDateFormatted = formatDateForDisplay(submissionDate),
+            maxDateFormatted = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
             daysUntilMaxDate = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
         )
     }
@@ -54,7 +56,7 @@ class PdfgenService(
         return syfooppfpdfgenClient.createSenOppfolgingLandingPdf(
             daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
             utbetaltTom = sykepengerInformasjon?.utbetaltTomFormatted(),
-            maxDate = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
+            maxDateFormatted = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
             isForReservertUser = isUserReservert,
         )
     }
