@@ -1,12 +1,15 @@
 package no.nav.syfo.senoppfolging.v2.domain
 
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class SenOppfolgingStatusDTOV2(
     val responseStatus: ResponseStatus,
     val response: List<QuestionResponse>?,
-    val responseTime: String?,
-    val maxDate: String?,
+    val svarSubmissionDateTime: LocalDateTime?,
+    val maxDate: LocalDate?,
+    val utbetaltTomDate: LocalDate?,
     val gjenstaendeSykedager: Int?,
     val hasAccessToSenOppfolging: Boolean,
 )

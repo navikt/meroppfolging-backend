@@ -18,14 +18,12 @@ import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
 import no.nav.syfo.syfoopppdfgen.PdfgenService
-import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttFormatted
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import no.nav.syfo.varsel.Varsel
 import no.nav.syfo.varsel.VarselService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Service
@@ -56,8 +54,9 @@ class SenOppfolgingService(
         return SenOppfolgingStatusDTOV2(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
-            responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            maxDate = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
+            svarSubmissionDateTime = response?.createdAt,
+            maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt,
+            utbetaltTomDate = sykepengerInformasjon?.utbetaltTom,
             gjenstaendeSykedager = sykepengerInformasjon?.gjenstaendeSykedager,
             hasAccessToSenOppfolging = hasAccess,
         )
