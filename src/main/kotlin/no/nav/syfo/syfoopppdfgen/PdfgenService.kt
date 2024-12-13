@@ -1,9 +1,9 @@
 package no.nav.syfo.syfoopppdfgen
 
 import no.nav.syfo.dkif.DkifClient
+import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
-import no.nav.syfo.senoppfolging.v2.domain.fremtidigSituasjonSvar
 import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttFormatted
 import no.nav.syfo.sykepengedagerinformasjon.domain.utbetaltTomFormatted
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
@@ -19,16 +19,27 @@ class PdfgenService(
     fun getSenOppfolgingReceiptPdf(
         personIdent: String,
         answersToQuestions: List<SenOppfolgingQuestionV2>,
+        submittedDateFormatted: String,
     ): ByteArray? {
         val behovForOppfolging = answersToQuestions.behovForOppfolging()
-        val fremtidigSituasjonSvar = answersToQuestions.fremtidigSituasjonSvar()
         val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
-            personIdent
+            personIdent,
         )
 
         return syfooppfpdfgenClient.createSenOppfolgingReceiptPdf(
-            fremtidigSituasjonSvar = fremtidigSituasjonSvar,
             behovForOppfolging = behovForOppfolging,
+            questionTextFremtidigSituasjon = answersToQuestions.firstOrNull
+                { it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON }?.questionText,
+            answerTextFremtidigSituasjon = answersToQuestions.firstOrNull {
+                it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON
+            }?.answerText,
+            questionTextBehovForOppfolging = answersToQuestions.firstOrNull {
+                it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
+            }?.questionText,
+            answerTextBehovForOppfolging = answersToQuestions.firstOrNull {
+                it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
+            }?.answerText,
+            submittedDateFormatted = submittedDateFormatted,
             maxDate = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
             daysUntilMaxDate = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
         )
@@ -37,7 +48,7 @@ class PdfgenService(
     fun getSenOppfolgingLandingPdf(personIdent: String): ByteArray {
         val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
         val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
-            personIdent
+            personIdent,
         )
 
         return syfooppfpdfgenClient.createSenOppfolgingLandingPdf(

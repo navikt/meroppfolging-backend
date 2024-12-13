@@ -1,6 +1,5 @@
 package no.nav.syfo.syfoopppdfgen
 
-import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.utils.formatDateForDisplay
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -24,21 +23,6 @@ class PdfgenClient(
     private val pdfGenUrlSenOppfolingForReservedUsers =
         "$pdfgenUrl/api/v1/genpdf/oppfolging/mer_veiledning_for_reserverte"
     private val pdfGenUrlSenOppfolgingLanding = "$pdfgenUrl/api/v1/genpdf/senoppfolging/landing"
-
-    private fun getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar: FremtidigSituasjonSvar): String {
-        return when (fremtidigSituasjonSvar) {
-            FremtidigSituasjonSvar.USIKKER -> "usikker_receipt"
-            FremtidigSituasjonSvar.BYTTE_JOBB -> "bytte_jobb_receipt"
-            FremtidigSituasjonSvar.FORTSATT_SYK -> "fortsatt_syk_receipt"
-            FremtidigSituasjonSvar.TILBAKE_GRADERT -> "tilbake_gradert_receipt"
-            FremtidigSituasjonSvar.TILBAKE_MED_TILPASNINGER -> "tilbake_med_tilpasninger_receipt"
-            FremtidigSituasjonSvar.TILBAKE_HOS_ARBEIDSGIVER -> "tilbake_hos_arbeidsgiver_receipt"
-            else -> {
-                log.error("Could not map FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
-                throw IllegalArgumentException("Invalid FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
-            }
-        }
-    }
 
     fun createSenOppfolgingLandingPdf(
         daysLeft: String?,
@@ -94,17 +78,26 @@ class PdfgenClient(
     }
 
     fun createSenOppfolgingReceiptPdf(
-        fremtidigSituasjonSvar: FremtidigSituasjonSvar,
         behovForOppfolging: Boolean,
+        questionTextFremtidigSituasjon: String?,
+        answerTextFremtidigSituasjon: String?,
+        questionTextBehovForOppfolging: String?,
+        answerTextBehovForOppfolging: String?,
+        submittedDateFormatted: String,
         maxDate: String?,
         daysUntilMaxDate: String?,
     ): ByteArray {
         val url =
-            "$pdfgenUrl/api/v1/genpdf/senoppfolging/${getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar)}"
+            "$pdfgenUrl/api/v1/genpdf/senoppfolging/receipt"
         try {
             val requestEntity =
                 createSenOppfolgingReceiptPdfRequestEntity(
                     behovForOppfolging = behovForOppfolging,
+                    questionTextFremtidigSituasjon = questionTextFremtidigSituasjon,
+                    answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
+                    questionTextBehovForOppfolging = questionTextBehovForOppfolging,
+                    answerTextBehovForOppfolging = answerTextBehovForOppfolging,
+                    submittedDateFormatted = submittedDateFormatted,
                     maxDate = maxDate,
                     daysUntilMaxDate = daysUntilMaxDate,
                 )
@@ -127,6 +120,11 @@ class PdfgenClient(
 
     private fun createSenOppfolgingReceiptPdfRequestEntity(
         behovForOppfolging: Boolean,
+        questionTextFremtidigSituasjon: String?,
+        answerTextFremtidigSituasjon: String?,
+        questionTextBehovForOppfolging: String?,
+        answerTextBehovForOppfolging: String?,
+        submittedDateFormatted: String,
         maxDate: String?,
         daysUntilMaxDate: String?,
     ): HttpEntity<PdfgenRequest> {
@@ -140,6 +138,11 @@ class PdfgenClient(
                 BrevdataSenOppfolgingReceipt(
                     sentDate = formatDateForDisplay(LocalDate.now()),
                     behovForOppfolging = behovForOppfolging,
+                    questionTextFremtidigSituasjon = questionTextFremtidigSituasjon,
+                    answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
+                    questionTextBehovForOppfolging = questionTextBehovForOppfolging,
+                    answerTextBehovForOppfolging = answerTextBehovForOppfolging,
+                    submittedDateFormatted = submittedDateFormatted,
                     maxdato = maxDate,
                     daysUntilMaxDate = daysUntilMaxDate,
                 ),

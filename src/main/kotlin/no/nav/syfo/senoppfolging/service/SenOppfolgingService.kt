@@ -20,6 +20,7 @@ import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttFormatted
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
+import no.nav.syfo.utils.formatDateForDisplay
 import no.nav.syfo.varsel.Varsel
 import no.nav.syfo.varsel.VarselService
 import org.springframework.stereotype.Service
@@ -82,7 +83,7 @@ class SenOppfolgingService(
 
         varselService.ferdigstillMerOppfolgingVarsel(personIdent)
 
-        generateAndSendPDFToDokarkiv(personIdent, senOppfolgingForm, id)
+        generateAndSendPDFToDokarkiv(personIdent, senOppfolgingForm, id, createdAt)
 
         publishSenOppfolgingSvarToKafka(id, personIdent, createdAt, senOppfolgingForm, varsel)
 
@@ -117,8 +118,15 @@ class SenOppfolgingService(
         personident: String,
         formResponse: SenOppfolgingDTOV2,
         id: UUID,
+        createdAt: LocalDateTime,
     ) {
-        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(personident, formResponse.senOppfolgingFormV2)
+        val submittedDateFormatted = formatDateForDisplay(createdAt.toLocalDate())
+
+        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(
+            personident,
+            formResponse.senOppfolgingFormV2,
+            submittedDateFormatted
+        )
         if (pdf == null) {
             log.error("Failed to generate PDF")
         } else {
