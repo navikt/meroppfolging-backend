@@ -8,6 +8,7 @@ import org.postgresql.util.PSQLException
 import org.springframework.stereotype.Service
 
 @Service
+@Suppress("SwallowedException")
 class SykepengedagerInformasjonService(private val sykepengedagerInformasjonDAO: SykepengedagerInformasjonDAO) {
     private val log = logger()
 
