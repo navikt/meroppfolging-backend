@@ -83,8 +83,9 @@ class PdfgenClient(
         answerTextFremtidigSituasjon: String?,
         questionTextBehovForOppfolging: String?,
         answerTextBehovForOppfolging: String?,
-        submissionDateFormatted: String,
-        maxDateFormatted: String?,
+        submissionDateISO: String,
+        maxDateISO: String?,
+        utbetaltTomISO: String?,
         daysUntilMaxDate: String?,
     ): ByteArray {
         val url =
@@ -97,8 +98,9 @@ class PdfgenClient(
                     answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
                     questionTextBehovForOppfolging = questionTextBehovForOppfolging,
                     answerTextBehovForOppfolging = answerTextBehovForOppfolging,
-                    submissionDateFormatted = submissionDateFormatted,
-                    maxDateFormatted = maxDateFormatted,
+                    submissionDateISO = submissionDateISO,
+                    maxDateISO = maxDateISO,
+                    utbetaltTomISO = utbetaltTomISO,
                     daysUntilMaxDate = daysUntilMaxDate,
                 )
             return restTemplate
@@ -124,8 +126,9 @@ class PdfgenClient(
         answerTextFremtidigSituasjon: String?,
         questionTextBehovForOppfolging: String?,
         answerTextBehovForOppfolging: String?,
-        submissionDateFormatted: String,
-        maxDateFormatted: String?,
+        submissionDateISO: String,
+        maxDateISO: String?,
+        utbetaltTomISO: String?,
         daysUntilMaxDate: String?,
     ): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders()
@@ -141,8 +144,9 @@ class PdfgenClient(
                     answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
                     questionTextBehovForOppfolging = questionTextBehovForOppfolging,
                     answerTextBehovForOppfolging = answerTextBehovForOppfolging,
-                    submissionDateFormatted = submissionDateFormatted,
-                    maxdatoFormatted = maxDateFormatted,
+                    submissionDateISO = submissionDateISO,
+                    maxdatoISO = maxDateISO,
+                    utbetaltTomISO = utbetaltTomISO,
                     daysUntilMaxDate = daysUntilMaxDate,
                 ),
             )

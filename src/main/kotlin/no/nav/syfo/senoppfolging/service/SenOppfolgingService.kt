@@ -57,7 +57,7 @@ class SenOppfolgingService(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
             responseTime = response?.createdAt?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            maxDateFormatted = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
+            maxDate = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
             gjenstaendeSykedager = sykepengerInformasjon?.gjenstaendeSykedager,
             hasAccessToSenOppfolging = hasAccess,
         )

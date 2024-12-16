@@ -5,11 +5,13 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttFormatted
+import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttISO
 import no.nav.syfo.sykepengedagerinformasjon.domain.utbetaltTomFormatted
+import no.nav.syfo.sykepengedagerinformasjon.domain.utbetaltTomISO
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
-import no.nav.syfo.utils.formatDateForDisplay
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Component
 class PdfgenService(
@@ -17,7 +19,6 @@ class PdfgenService(
     val dkifClient: DkifClient,
     val sykepengedagerInformasjonService: SykepengedagerInformasjonService,
 ) {
-
     fun getSenOppfolgingReceiptPdf(
         personIdent: String,
         answersToQuestions: List<SenOppfolgingQuestionV2>,
@@ -41,8 +42,9 @@ class PdfgenService(
             answerTextBehovForOppfolging = answersToQuestions.firstOrNull {
                 it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
             }?.answerText,
-            submissionDateFormatted = formatDateForDisplay(submissionDate),
-            maxDateFormatted = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
+            submissionDateISO = submissionDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            maxDateISO = sykepengerInformasjon?.forelopigBeregnetSluttISO(),
+            utbetaltTomISO = sykepengerInformasjon?.utbetaltTomISO(),
             daysUntilMaxDate = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
         )
     }

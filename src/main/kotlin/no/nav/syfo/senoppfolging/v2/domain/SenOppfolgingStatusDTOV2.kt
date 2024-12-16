@@ -6,7 +6,7 @@ data class SenOppfolgingStatusDTOV2(
     val responseStatus: ResponseStatus,
     val response: List<QuestionResponse>?,
     val responseTime: String?,
-    val maxDateFormatted: String?,
+    val maxDate: String?,
     val gjenstaendeSykedager: Int?,
     val hasAccessToSenOppfolging: Boolean,
 )
