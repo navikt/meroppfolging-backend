@@ -137,11 +137,13 @@ class SenOppfolgingControllerV2Test :
                     }
                     verify(exactly = 1) {
                         senOppfolgingSvarKafkaProducer.publishResponse(
-                            match({
-                                it.personIdent == ansattFnr &&
-                                    it.response == questionResponseReq.senOppfolgingFormV2 &&
-                                    it.varselId == varselUuid
-                            }),
+                            match(
+                                {
+                                    it.personIdent == ansattFnr &&
+                                        it.response == questionResponseReq.senOppfolgingFormV2 &&
+                                        it.varselId == varselUuid
+                                },
+                            ),
                         )
                     }
                 }
@@ -164,11 +166,13 @@ class SenOppfolgingControllerV2Test :
                     }
                     verify(exactly = 1) {
                         senOppfolgingSvarKafkaProducer.publishResponse(
-                            match({
-                                it.personIdent == ansattFnr &&
-                                    it.response == questionResponseReq.senOppfolgingFormV2 &&
-                                    it.varselId == varselUuid
-                            }),
+                            match(
+                                {
+                                    it.personIdent == ansattFnr &&
+                                        it.response == questionResponseReq.senOppfolgingFormV2 &&
+                                        it.varselId == varselUuid
+                                },
+                            ),
                         )
                     }
                 }
@@ -225,7 +229,9 @@ class SenOppfolgingControllerV2Test :
                                 "0314",
                                 "Testkontor",
                             )
-                        every { syfoopfpdfgenService.getSenOppfolgingReceiptPdf(ansattFnr, any()) } returns ByteArray(1)
+                        every {
+                            syfoopfpdfgenService.getSenOppfolgingReceiptPdf(ansattFnr, any(), any())
+                        } returns ByteArray(1)
 
                         controller.submitForm(
                             questionResponseReq,

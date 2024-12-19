@@ -1,6 +1,5 @@
 package no.nav.syfo.syfoopppdfgen
 
-import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.utils.formatDateForDisplay
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -25,24 +24,9 @@ class PdfgenClient(
         "$pdfgenUrl/api/v1/genpdf/oppfolging/mer_veiledning_for_reserverte"
     private val pdfGenUrlSenOppfolgingLanding = "$pdfgenUrl/api/v1/genpdf/senoppfolging/landing"
 
-    private fun getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar: FremtidigSituasjonSvar): String {
-        return when (fremtidigSituasjonSvar) {
-            FremtidigSituasjonSvar.USIKKER -> "usikker_receipt"
-            FremtidigSituasjonSvar.BYTTE_JOBB -> "bytte_jobb_receipt"
-            FremtidigSituasjonSvar.FORTSATT_SYK -> "fortsatt_syk_receipt"
-            FremtidigSituasjonSvar.TILBAKE_GRADERT -> "tilbake_gradert_receipt"
-            FremtidigSituasjonSvar.TILBAKE_MED_TILPASNINGER -> "tilbake_med_tilpasninger_receipt"
-            FremtidigSituasjonSvar.TILBAKE_HOS_ARBEIDSGIVER -> "tilbake_hos_arbeidsgiver_receipt"
-            else -> {
-                log.error("Could not map FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
-                throw IllegalArgumentException("Invalid FremtidigSituasjonSvar type: $fremtidigSituasjonSvar")
-            }
-        }
-    }
-
     fun createSenOppfolgingLandingPdf(
         daysLeft: String?,
-        maxDate: String?,
+        maxDateFormatted: String?,
         utbetaltTom: String?,
         isForReservertUser: Boolean = false,
     ): ByteArray {
@@ -51,7 +35,7 @@ class PdfgenClient(
 
             val requestEntity =
                 createSenOppfolgingLandingPdfRequestEntity(
-                    maxDate = maxDate,
+                    maxDateFormatted = maxDateFormatted,
                     daysLeft = daysLeft,
                     utbetaltTom = utbetaltTom,
                 )
@@ -75,7 +59,7 @@ class PdfgenClient(
 
     private fun createSenOppfolgingLandingPdfRequestEntity(
         daysLeft: String?,
-        maxDate: String?,
+        maxDateFormatted: String?,
         utbetaltTom: String?,
     ): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders()
@@ -86,7 +70,7 @@ class PdfgenClient(
             BrevdataSenOppfolgingLanding(
                 sendtdato = formatDateForDisplay(LocalDate.now()),
                 daysLeft = daysLeft,
-                maxdato = maxDate,
+                maxdato = maxDateFormatted,
                 utbetaltTom = utbetaltTom,
             ),
         )
@@ -94,18 +78,29 @@ class PdfgenClient(
     }
 
     fun createSenOppfolgingReceiptPdf(
-        fremtidigSituasjonSvar: FremtidigSituasjonSvar,
         behovForOppfolging: Boolean,
-        maxDate: String?,
+        questionTextFremtidigSituasjon: String?,
+        answerTextFremtidigSituasjon: String?,
+        questionTextBehovForOppfolging: String?,
+        answerTextBehovForOppfolging: String?,
+        submissionDateISO: String,
+        maxDateISO: String?,
+        utbetaltTomISO: String?,
         daysUntilMaxDate: String?,
     ): ByteArray {
         val url =
-            "$pdfgenUrl/api/v1/genpdf/senoppfolging/${getSenOppfolgingKvitteringEndpoint(fremtidigSituasjonSvar)}"
+            "$pdfgenUrl/api/v1/genpdf/senoppfolging/receipt"
         try {
             val requestEntity =
                 createSenOppfolgingReceiptPdfRequestEntity(
                     behovForOppfolging = behovForOppfolging,
-                    maxDate = maxDate,
+                    questionTextFremtidigSituasjon = questionTextFremtidigSituasjon,
+                    answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
+                    questionTextBehovForOppfolging = questionTextBehovForOppfolging,
+                    answerTextBehovForOppfolging = answerTextBehovForOppfolging,
+                    submissionDateISO = submissionDateISO,
+                    maxDateISO = maxDateISO,
+                    utbetaltTomISO = utbetaltTomISO,
                     daysUntilMaxDate = daysUntilMaxDate,
                 )
             return restTemplate
@@ -127,7 +122,13 @@ class PdfgenClient(
 
     private fun createSenOppfolgingReceiptPdfRequestEntity(
         behovForOppfolging: Boolean,
-        maxDate: String?,
+        questionTextFremtidigSituasjon: String?,
+        answerTextFremtidigSituasjon: String?,
+        questionTextBehovForOppfolging: String?,
+        answerTextBehovForOppfolging: String?,
+        submissionDateISO: String,
+        maxDateISO: String?,
+        utbetaltTomISO: String?,
         daysUntilMaxDate: String?,
     ): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders()
@@ -138,9 +139,14 @@ class PdfgenClient(
             PdfgenRequest(
                 brevdata =
                 BrevdataSenOppfolgingReceipt(
-                    sentDate = formatDateForDisplay(LocalDate.now()),
                     behovForOppfolging = behovForOppfolging,
-                    maxdato = maxDate,
+                    questionTextFremtidigSituasjon = questionTextFremtidigSituasjon,
+                    answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
+                    questionTextBehovForOppfolging = questionTextBehovForOppfolging,
+                    answerTextBehovForOppfolging = answerTextBehovForOppfolging,
+                    submissionDateISO = submissionDateISO,
+                    maxdatoISO = maxDateISO,
+                    utbetaltTomISO = utbetaltTomISO,
                     daysUntilMaxDate = daysUntilMaxDate,
                 ),
             )
