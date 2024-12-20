@@ -70,21 +70,23 @@ class SenOppfolgingService(
     ) {
         countMetricsForSvarBeforeProcessing(senOppfolgingForm)
 
-        val createdAt = LocalDateTime.now()
-        val id =
+        val currentDateTime = LocalDateTime.now()
+        val currentDate = currentDateTime.toLocalDate()
+
+        val formResponseId =
             responseDao.saveFormResponse(
                 personIdent = PersonIdentNumber(personIdent),
                 questionResponses = senOppfolgingForm.senOppfolgingFormV2.map { it.toQuestionResponse() },
                 formType = FormType.SEN_OPPFOLGING_V2,
-                createdAt = createdAt,
+                createdAt = currentDateTime,
                 utsendtVarselUUID = varsel.uuid,
             )
 
         varselService.ferdigstillMerOppfolgingVarsel(personIdent)
 
-        generateAndSendPDFToDokarkiv(personIdent, senOppfolgingForm, id)
+        generateAndSendPDFToDokarkiv(formResponseId, personIdent, currentDate, senOppfolgingForm)
 
-        publishSenOppfolgingSvarToKafka(id, personIdent, createdAt, senOppfolgingForm, varsel)
+        publishSenOppfolgingSvarToKafka(formResponseId, personIdent, currentDateTime, senOppfolgingForm, varsel)
 
         countMetricsForSvarAfterProcessing(senOppfolgingForm)
     }
@@ -114,11 +116,16 @@ class SenOppfolgingService(
         }
 
     private fun generateAndSendPDFToDokarkiv(
-        personident: String,
-        formResponse: SenOppfolgingDTOV2,
         id: UUID,
+        personident: String,
+        submissionDate: LocalDate,
+        formResponse: SenOppfolgingDTOV2,
     ) {
-        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(personident, formResponse.senOppfolgingFormV2)
+        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(
+            personident,
+            formResponse.senOppfolgingFormV2,
+            submissionDate
+        )
         if (pdf == null) {
             log.error("Failed to generate PDF")
         } else {
