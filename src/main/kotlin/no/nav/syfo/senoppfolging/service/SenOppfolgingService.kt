@@ -168,9 +168,9 @@ class SenOppfolgingService(
 
             dokarkivClient.postDocumentsForsendelseToDokarkiv(
                 fnr = personident,
-                documentsData = documentsData,
                 forsendelseTittel = "SSPS - Utfylling av skjema og kvittering",
                 eksternReferanseId = storedSubmissionId.toString(),
+                documentsData = documentsData,
             )
         }
     }

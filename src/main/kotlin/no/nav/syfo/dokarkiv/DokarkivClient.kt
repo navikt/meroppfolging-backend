@@ -44,19 +44,19 @@ class DokarkivClient(
 
     fun postDocumentsForsendelseToDokarkiv(
         fnr: String,
-        documentsData: List<SingleDocumentData>,
         forsendelseTittel: String,
         eksternReferanseId: String,
+        documentsData: List<SingleDocumentData>,
         isForReservedUser: Boolean = false,
     ): DokarkivResponse? {
         return try {
             val token = azureAdClient.getSystemToken(dokarkivScope)
 
             val dokarkivRequest = createDokarkivRequestForDocuments(
-                documentsData,
+                fnr,
                 forsendelseTittel,
                 eksternReferanseId,
-                fnr,
+                documentsData,
                 isForReservedUser
             )
 
@@ -129,21 +129,21 @@ class DokarkivClient(
 
         return postDocumentsForsendelseToDokarkiv(
             fnr,
-            documentsData,
             forsendelseTittel = title,
             eksternReferanseId,
+            documentsData,
             isForReservedUser
         )
     }
 
     private fun createDokarkivRequestForDocuments(
-        documents: List<SingleDocumentData>,
+        fnr: String,
         forsendelseTittel: String,
         eksternReferanseId: String,
-        fnr: String,
+        documentsData: List<SingleDocumentData>,
         isForReservedUser: Boolean,
     ): DokarkivRequest {
-        val dokumenter: List<Dokument> = documents.map {
+        val dokumenter: List<Dokument> = documentsData.map {
             val dokumentvarianter = listOf(Dokumentvariant.create(fysiskDokument = it.pdf, filnavn = it.filnavn))
 
             Dokument.create(
@@ -155,8 +155,8 @@ class DokarkivClient(
         return DokarkivRequest.create(
             avsenderMottaker = AvsenderMottaker.create(fnr),
             dokumenter = dokumenter,
-            eksternReferanseId = forsendelseTittel,
-            tittel = eksternReferanseId,
+            eksternReferanseId = eksternReferanseId,
+            tittel = forsendelseTittel,
             isForReservedUser,
         )
     }
