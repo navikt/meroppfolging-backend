@@ -14,6 +14,7 @@ import io.mockk.verify
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
+import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
 import no.nav.syfo.pdl.PdlClient
@@ -47,6 +48,9 @@ class VarselServiceTest : DescribeSpec() {
     @MockkBean(relaxed = true)
     lateinit var behandlendeEnhetClient: BehandlendeEnhetClient
 
+    @MockkBean(relaxed = true)
+    lateinit var dkifClient: DkifClient
+
     @Autowired
     lateinit var varselService: VarselService
 
@@ -76,6 +80,8 @@ class VarselServiceTest : DescribeSpec() {
 
         describe("VarselService") {
             it("Should store utsendt varsel") {
+                every { dkifClient.person(any()).kanVarsles } returns true
+
                 varselService.sendMerOppfolgingVarsel(
                     MerOppfolgingVarselDTO(
                         personIdent = "12345678910",
