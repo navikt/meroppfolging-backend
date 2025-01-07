@@ -191,6 +191,7 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should not store utsendt varsel journalforing fails") {
+                every { dkifClient.person(any()).kanVarsles } returns true
                 every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } returns ByteArray(1)
                 every {
                     dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any())
