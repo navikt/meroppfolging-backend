@@ -68,7 +68,7 @@ class VarselService(
                     fnr = personIdent,
                     pdf = pdf,
                     eksternReferanseId = uuid,
-                    title = "Snart slutt på sykepenger - Informasjon og skjema",
+                    title = "Snart slutt på sykepenger – Informasjon om maksdato og spørreskjema",
                     filnavn = "SSPS-informasjon",
                     isForReservedUser = isUserReservert
                 )

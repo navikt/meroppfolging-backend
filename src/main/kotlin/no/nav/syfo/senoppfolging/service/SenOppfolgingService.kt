@@ -134,22 +134,24 @@ class SenOppfolgingService(
             submissionDate
         )
 
-        if (formStepsPdf != null) {
-            documentsData.add(
-                SingleDocumentData(
-                    pdf = formStepsPdf,
-                    filnavn = "SSPS-skjema-utfylling",
-                    title = "Snart slutt på sykepenger - Din utfylling av skjema"
-                )
-            )
-        }
-
+        // On Min side - Dokumenter, the first document in this list will appear as the main document, while others will
+        // appear as attachments for that document
         if (receiptPdf != null) {
             documentsData.add(
                 SingleDocumentData(
                     pdf = receiptPdf,
                     filnavn = "SSPS-kvittering",
-                    title = "Snart slutt på sykepenger - Kvittering på ditt svar",
+                    title = "Spørreskjema ved snart slutt på sykepenger – Kvittering på ditt svar",
+                )
+            )
+        }
+
+        if (formStepsPdf != null) {
+            documentsData.add(
+                SingleDocumentData(
+                    pdf = formStepsPdf,
+                    filnavn = "SSPS-skjema-utfylling",
+                    title = "Spørreskjema ved snart slutt på sykepenger – Din utfylling av skjema"
                 )
             )
         }
@@ -168,7 +170,7 @@ class SenOppfolgingService(
 
             dokarkivClient.postDocumentsForsendelseToDokarkiv(
                 fnr = personident,
-                forsendelseTittel = "SSPS - Utfylling av skjema og kvittering",
+                forsendelseTittel = "Spørreskjema ved snart slutt på sykepenger – Din utfylling og kvittering",
                 eksternReferanseId = storedSubmissionId.toString(),
                 documentsData = documentsData,
             )
