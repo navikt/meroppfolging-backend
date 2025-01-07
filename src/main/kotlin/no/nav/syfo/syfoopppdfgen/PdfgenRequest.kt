@@ -1,5 +1,8 @@
 package no.nav.syfo.syfoopppdfgen
 
+import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
+import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
+
 data class PdfgenRequest(
     val brevdata: Brevdata,
 )
@@ -29,4 +32,9 @@ class BrevdataSenOppfolgingLanding(
     val daysLeft: String?,
     val maxdato: String?,
     val utbetaltTom: String?,
+) : Brevdata
+
+class BrevdataSenOppfolgingFormSteps(
+    val fremtidigSituasjonAnswer: FremtidigSituasjonSvar?,
+    val behovForOppfolgingAnswer: BehovForOppfolgingSvar?,
 ) : Brevdata

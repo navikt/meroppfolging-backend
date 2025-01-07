@@ -1,5 +1,6 @@
 package no.nav.syfo.senoppfolging.service
 
+import SingleDocumentData
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormResponse
 import no.nav.syfo.besvarelse.database.domain.FormType
@@ -84,7 +85,7 @@ class SenOppfolgingService(
 
         varselService.ferdigstillMerOppfolgingVarsel(personIdent)
 
-        generateAndSendPDFToDokarkiv(formResponseId, personIdent, currentDate, senOppfolgingForm)
+        generateAndSendFormStepsAndReceiptPdfsToDokarkiv(formResponseId, personIdent, senOppfolgingForm, currentDate)
 
         publishSenOppfolgingSvarToKafka(formResponseId, personIdent, currentDateTime, senOppfolgingForm, varsel)
 
@@ -115,27 +116,61 @@ class SenOppfolgingService(
                 )
         }
 
-    private fun generateAndSendPDFToDokarkiv(
-        id: UUID,
+    private fun generateAndSendFormStepsAndReceiptPdfsToDokarkiv(
+        storedSubmissionId: UUID,
         personident: String,
-        submissionDate: LocalDate,
         formResponse: SenOppfolgingDTOV2,
+        submissionDate: LocalDate,
     ) {
-        val pdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(
+        val documentsData = mutableListOf<SingleDocumentData>()
+
+        val formStepsPdf = syfoopfpdfgenService.getSenOppfolgingFormStepsPdf(
+            formResponse.senOppfolgingFormV2,
+        )
+
+        val receiptPdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(
             personident,
             formResponse.senOppfolgingFormV2,
             submissionDate
         )
-        if (pdf == null) {
-            log.error("Failed to generate PDF")
+
+        if (formStepsPdf != null) {
+            documentsData.add(
+                SingleDocumentData(
+                    pdf = formStepsPdf,
+                    filnavn = "SSPS-skjema-utfylling",
+                    title = "Snart slutt på sykepenger - Din utfylling av skjema"
+                )
+            )
+        }
+
+        if (receiptPdf != null) {
+            documentsData.add(
+                SingleDocumentData(
+                    pdf = receiptPdf,
+                    filnavn = "SSPS-kvittering",
+                    title = "Snart slutt på sykepenger - Kvittering på ditt svar",
+                )
+            )
+        }
+
+        if (documentsData.size == 0) {
+            log.error("Neither formSteps or receipt PDF was generated, skipping sending forsendelse to dokarkiv")
         } else {
-            log.info("Generated PDF")
-            dokarkivClient.postDocumentToDokarkiv(
+            if (documentsData.size == 1) {
+                log.error(
+                    "Only one of formSteps or receipt PDF generated (${documentsData.first().filnavn}), " +
+                        "sending that one to dokarkiv"
+                )
+            }
+
+            log.info("Sending forsendelse to dokarkiv for formSteps and receipt PDFs")
+
+            dokarkivClient.postDocumentsForsendelseToDokarkiv(
                 fnr = personident,
-                pdf = pdf,
-                uuid = id.toString(),
-                title = "Snart slutt på sykepenger - Kvittering på ditt svar",
-                filnavnBeforeUUID = "SSPS-kvittering",
+                documentsData = documentsData,
+                forsendelseTittel = "SSPS - Utfylling av skjema og kvittering",
+                eksternReferanseId = storedSubmissionId.toString(),
             )
         }
     }

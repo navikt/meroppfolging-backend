@@ -1,5 +1,7 @@
 package no.nav.syfo.syfoopppdfgen
 
+import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
+import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.utils.formatDateForDisplay
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -24,22 +26,11 @@ class PdfgenClient(
         "$pdfgenUrl/api/v1/genpdf/oppfolging/mer_veiledning_for_reserverte"
     private val pdfGenUrlSenOppfolgingLanding = "$pdfgenUrl/api/v1/genpdf/senoppfolging/landing"
 
-    fun createSenOppfolgingLandingPdf(
-        daysLeft: String?,
-        maxDateFormatted: String?,
-        utbetaltTom: String?,
-        isForReservertUser: Boolean = false,
+    fun createPdf(
+        url: String,
+        requestEntity: HttpEntity<PdfgenRequest>,
     ): ByteArray {
         try {
-            val url = if (isForReservertUser) pdfGenUrlSenOppfolingForReservedUsers else pdfGenUrlSenOppfolgingLanding
-
-            val requestEntity =
-                createSenOppfolgingLandingPdfRequestEntity(
-                    maxDateFormatted = maxDateFormatted,
-                    daysLeft = daysLeft,
-                    utbetaltTom = utbetaltTom,
-                )
-
             return restTemplate
                 .exchange(
                     url,
@@ -57,24 +48,77 @@ class PdfgenClient(
         }
     }
 
-    private fun createSenOppfolgingLandingPdfRequestEntity(
-        daysLeft: String?,
-        maxDateFormatted: String?,
-        utbetaltTom: String?,
+    fun createRequestEntity(
+        brevdata: Brevdata,
     ): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
 
-        val body = PdfgenRequest(
+        val body = PdfgenRequest(brevdata)
+        return HttpEntity(body, headers)
+    }
+
+    fun createSenOppfolgingLandingPdf(
+        daysLeft: String?,
+        maxDateFormatted: String?,
+        utbetaltTom: String?,
+        isForReservertUser: Boolean = false,
+    ): ByteArray {
+        val url = if (isForReservertUser) pdfGenUrlSenOppfolingForReservedUsers else pdfGenUrlSenOppfolgingLanding
+
+        val requestEntity =
+            createSenOppfolgingLandingPdfRequestEntity(
+                maxDateFormatted = maxDateFormatted,
+                daysLeft = daysLeft,
+                utbetaltTom = utbetaltTom,
+            )
+
+        return createPdf(url, requestEntity)
+    }
+
+    private fun createSenOppfolgingLandingPdfRequestEntity(
+        daysLeft: String?,
+        maxDateFormatted: String?,
+        utbetaltTom: String?,
+    ): HttpEntity<PdfgenRequest> {
+        val brevDataSenOppfolgingLanding =
             BrevdataSenOppfolgingLanding(
                 sendtdato = formatDateForDisplay(LocalDate.now()),
                 daysLeft = daysLeft,
                 maxdato = maxDateFormatted,
                 utbetaltTom = utbetaltTom,
-            ),
-        )
-        return HttpEntity(body, headers)
+            )
+
+        return createRequestEntity(brevDataSenOppfolgingLanding)
+    }
+
+    fun createSenOppfolgingFormStepsPdf(
+        fremtidigSituasjonSvar: FremtidigSituasjonSvar?,
+        behovForOppfolgingSvar: BehovForOppfolgingSvar?,
+    ): ByteArray {
+        val url =
+            "$pdfgenUrl/api/v1/genpdf/senoppfolging/form_steps"
+        val requestEntity =
+            createSenOppfolgingFormStepsPdfRequestEntity(
+                fremtidigSituasjonSvar,
+                behovForOppfolgingSvar,
+            )
+
+        return createPdf(url, requestEntity)
+    }
+
+    private fun createSenOppfolgingFormStepsPdfRequestEntity(
+        fremtidigSituasjonSvar: FremtidigSituasjonSvar?,
+        behovForOppfolgingSvar: BehovForOppfolgingSvar?,
+    ): HttpEntity<PdfgenRequest> {
+        val brevdataSenOppfolgingFormSteps =
+            BrevdataSenOppfolgingFormSteps(
+                fremtidigSituasjonAnswer = fremtidigSituasjonSvar,
+                behovForOppfolgingAnswer = behovForOppfolgingSvar,
+            )
+
+        return createRequestEntity(brevdataSenOppfolgingFormSteps)
     }
 
     fun createSenOppfolgingReceiptPdf(
@@ -90,34 +134,20 @@ class PdfgenClient(
     ): ByteArray {
         val url =
             "$pdfgenUrl/api/v1/genpdf/senoppfolging/receipt"
-        try {
-            val requestEntity =
-                createSenOppfolgingReceiptPdfRequestEntity(
-                    behovForOppfolging = behovForOppfolging,
-                    questionTextFremtidigSituasjon = questionTextFremtidigSituasjon,
-                    answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
-                    questionTextBehovForOppfolging = questionTextBehovForOppfolging,
-                    answerTextBehovForOppfolging = answerTextBehovForOppfolging,
-                    submissionDateISO = submissionDateISO,
-                    maxDateISO = maxDateISO,
-                    utbetaltTomISO = utbetaltTomISO,
-                    daysUntilMaxDate = daysUntilMaxDate,
-                )
-            return restTemplate
-                .exchange(
-                    url,
-                    HttpMethod.POST,
-                    requestEntity,
-                    ByteArray::class.java,
-                ).body!!
-        } catch (e: RestClientResponseException) {
-            log.error(
-                "Call to get AzureADToken from pdfgen failed " +
-                    "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
-                e,
+        val requestEntity =
+            createSenOppfolgingReceiptPdfRequestEntity(
+                behovForOppfolging = behovForOppfolging,
+                questionTextFremtidigSituasjon = questionTextFremtidigSituasjon,
+                answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
+                questionTextBehovForOppfolging = questionTextBehovForOppfolging,
+                answerTextBehovForOppfolging = answerTextBehovForOppfolging,
+                submissionDateISO = submissionDateISO,
+                maxDateISO = maxDateISO,
+                utbetaltTomISO = utbetaltTomISO,
+                daysUntilMaxDate = daysUntilMaxDate,
             )
-            throw e
-        }
+
+        return createPdf(url, requestEntity)
     }
 
     private fun createSenOppfolgingReceiptPdfRequestEntity(
@@ -131,25 +161,19 @@ class PdfgenClient(
         utbetaltTomISO: String?,
         daysUntilMaxDate: String?,
     ): HttpEntity<PdfgenRequest> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
-
-        val body =
-            PdfgenRequest(
-                brevdata =
-                BrevdataSenOppfolgingReceipt(
-                    behovForOppfolging = behovForOppfolging,
-                    questionTextFremtidigSituasjon = questionTextFremtidigSituasjon,
-                    answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
-                    questionTextBehovForOppfolging = questionTextBehovForOppfolging,
-                    answerTextBehovForOppfolging = answerTextBehovForOppfolging,
-                    submissionDateISO = submissionDateISO,
-                    maxdatoISO = maxDateISO,
-                    utbetaltTomISO = utbetaltTomISO,
-                    daysUntilMaxDate = daysUntilMaxDate,
-                ),
+        val brevdataSenOppfolgingReceipt =
+            BrevdataSenOppfolgingReceipt(
+                behovForOppfolging = behovForOppfolging,
+                questionTextFremtidigSituasjon = questionTextFremtidigSituasjon,
+                answerTextFremtidigSituasjon = answerTextFremtidigSituasjon,
+                questionTextBehovForOppfolging = questionTextBehovForOppfolging,
+                answerTextBehovForOppfolging = answerTextBehovForOppfolging,
+                submissionDateISO = submissionDateISO,
+                maxdatoISO = maxDateISO,
+                utbetaltTomISO = utbetaltTomISO,
+                daysUntilMaxDate = daysUntilMaxDate,
             )
-        return HttpEntity(body, headers)
+
+        return createRequestEntity(brevdataSenOppfolgingReceipt)
     }
 }

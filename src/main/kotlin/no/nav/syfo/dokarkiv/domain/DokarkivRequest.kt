@@ -19,8 +19,9 @@ data class DokarkivRequest(
         fun create(
             avsenderMottaker: AvsenderMottaker,
             dokumenter: List<Dokument>,
-            uuid: String,
+            eksternReferanseId: String,
             tittel: String,
+            isForReservedUser: Boolean,
         ) = DokarkivRequest(
             avsenderMottaker = avsenderMottaker,
             tittel = tittel,
@@ -29,11 +30,11 @@ data class DokarkivRequest(
             journalfoerendeEnhet = JOURNALFORENDE_ENHET,
             journalpostType = "UTGAAENDE",
             tema = "OPP", // Oppfolging
-            kanal = "S",
+            kanal = if (isForReservedUser) "S" else "NAV_NO",
             sak = Sak("GENERELL_SAK"),
             // By default, user can not see documents created by others. Following enables viewing on Mine Saker:
             overstyrInnsynsregler = "VISES_MASKINELT_GODKJENT",
-            eksternReferanseId = uuid,
+            eksternReferanseId = eksternReferanseId,
         )
     }
 }
