@@ -47,7 +47,6 @@ class DokarkivClient(
         forsendelseTittel: String,
         eksternReferanseId: String,
         documentsData: List<SingleDocumentData>,
-        isForReservedUser: Boolean = false,
     ): DokarkivResponse? {
         return try {
             val token = azureAdClient.getSystemToken(dokarkivScope)
@@ -57,7 +56,6 @@ class DokarkivClient(
                 forsendelseTittel,
                 eksternReferanseId,
                 documentsData,
-                isForReservedUser
             )
 
             val response = RestTemplate().postForEntity(
@@ -117,7 +115,6 @@ class DokarkivClient(
         eksternReferanseId: String,
         title: String,
         filnavn: String,
-        isForReservedUser: Boolean = false,
     ): DokarkivResponse? {
         val documentsData = listOf(
             SingleDocumentData(
@@ -132,7 +129,6 @@ class DokarkivClient(
             forsendelseTittel = title,
             eksternReferanseId,
             documentsData,
-            isForReservedUser
         )
     }
 
@@ -141,7 +137,6 @@ class DokarkivClient(
         forsendelseTittel: String,
         eksternReferanseId: String,
         documentsData: List<SingleDocumentData>,
-        isForReservedUser: Boolean,
     ): DokarkivRequest {
         val dokumenter: List<Dokument> = documentsData.map {
             val dokumentvarianter = listOf(Dokumentvariant.create(fysiskDokument = it.pdf, filnavn = it.filnavn))
@@ -157,7 +152,6 @@ class DokarkivClient(
             dokumenter = dokumenter,
             eksternReferanseId = eksternReferanseId,
             tittel = forsendelseTittel,
-            isForReservedUser,
         )
     }
 

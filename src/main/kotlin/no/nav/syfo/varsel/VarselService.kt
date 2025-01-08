@@ -70,7 +70,6 @@ class VarselService(
                     eksternReferanseId = uuid,
                     title = "Snart slutt på sykepenger – Informasjon om maksdato og spørreskjema",
                     filnavn = "SSPS-informasjon",
-                    isForReservedUser = isUserReservert
                 )
             if (dokarkivResponse != null) {
                 val hendelse =

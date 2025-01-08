@@ -10,7 +10,6 @@ data class DokarkivRequest(
     val journalfoerendeEnhet: Int?,
     val journalpostType: String,
     val tema: String,
-    val kanal: String,
     val sak: Sak,
     val overstyrInnsynsregler: String,
     val eksternReferanseId: String,
@@ -21,7 +20,6 @@ data class DokarkivRequest(
             dokumenter: List<Dokument>,
             eksternReferanseId: String,
             tittel: String,
-            isForReservedUser: Boolean,
         ) = DokarkivRequest(
             avsenderMottaker = avsenderMottaker,
             tittel = tittel,
@@ -30,7 +28,6 @@ data class DokarkivRequest(
             journalfoerendeEnhet = JOURNALFORENDE_ENHET,
             journalpostType = "UTGAAENDE",
             tema = "OPP", // Oppfolging
-            kanal = if (isForReservedUser) "S" else "NAV_NO",
             sak = Sak("GENERELL_SAK"),
             // By default, user can not see documents created by others. Following enables viewing on Mine Saker:
             overstyrInnsynsregler = "VISES_MASKINELT_GODKJENT",
