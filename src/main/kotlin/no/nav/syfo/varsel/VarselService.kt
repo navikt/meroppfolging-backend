@@ -1,5 +1,6 @@
 package no.nav.syfo.varsel
 
+import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
@@ -20,6 +21,7 @@ class VarselService(
     private val pdfgenService: PdfgenService,
     private val dokarkivClient: DokarkivClient,
     private val metric: Metric,
+    private val dkifClient: DkifClient,
 ) {
     private val log = logger()
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
@@ -55,17 +57,19 @@ class VarselService(
     @Suppress("MaxLineLength")
     fun sendMerOppfolgingVarsel(merOppfolgingVarselDTO: MerOppfolgingVarselDTO) {
         val personIdent = merOppfolgingVarselDTO.personIdent
+        val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
+
         try {
-            val pdf = pdfgenService.getSenOppfolgingLandingPdf(personIdent)
+            val pdf = pdfgenService.getSenOppfolgingLandingPdf(personIdent, isUserReservert)
             val uuid = UUID.randomUUID().toString()
 
             val dokarkivResponse =
-                dokarkivClient.postDocumentToDokarkiv(
+                dokarkivClient.postSingleDocumentToDokarkiv(
                     fnr = personIdent,
                     pdf = pdf,
-                    uuid = uuid,
-                    "Snart slutt på sykepenger - Informasjon og skjema",
-                    "SSPS-informasjon"
+                    eksternReferanseId = uuid,
+                    title = "Snart slutt på sykepenger – Informasjon om maksdato og spørreskjema",
+                    filnavn = "SSPS-informasjon",
                 )
             if (dokarkivResponse != null) {
                 val hendelse =

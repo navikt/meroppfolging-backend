@@ -14,6 +14,7 @@ import io.mockk.verify
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
 import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
+import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
 import no.nav.syfo.pdl.PdlClient
@@ -47,6 +48,9 @@ class VarselServiceTest : DescribeSpec() {
     @MockkBean(relaxed = true)
     lateinit var behandlendeEnhetClient: BehandlendeEnhetClient
 
+    @MockkBean(relaxed = true)
+    lateinit var dkifClient: DkifClient
+
     @Autowired
     lateinit var varselService: VarselService
 
@@ -76,6 +80,8 @@ class VarselServiceTest : DescribeSpec() {
 
         describe("VarselService") {
             it("Should store utsendt varsel") {
+                every { dkifClient.person(any()).kanVarsles } returns true
+
                 varselService.sendMerOppfolgingVarsel(
                     MerOppfolgingVarselDTO(
                         personIdent = "12345678910",
@@ -169,7 +175,7 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should not store utsendt varsel if pdfgen fails") {
-                every { pdfgenService.getSenOppfolgingLandingPdf(any()) } throws Exception("Help me")
+                every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } throws Exception("Help me")
 
                 varselService.sendMerOppfolgingVarsel(
                     MerOppfolgingVarselDTO(
@@ -185,9 +191,10 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should not store utsendt varsel journalforing fails") {
-                every { pdfgenService.getSenOppfolgingLandingPdf(any()) } returns ByteArray(1)
+                every { dkifClient.person(any()).kanVarsles } returns true
+                every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } returns ByteArray(1)
                 every {
-                    dokarkivClient.postDocumentToDokarkiv(any(), any(), any(), any(), any())
+                    dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any())
                 } throws Exception("Help me")
 
                 varselService.sendMerOppfolgingVarsel(
@@ -204,9 +211,9 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should store utsendt varsel post to dokarkiv OK") {
-                every { pdfgenService.getSenOppfolgingLandingPdf(any()) } returns ByteArray(1)
+                every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } returns ByteArray(1)
                 every {
-                    dokarkivClient.postDocumentToDokarkiv(any(), any(), any(), any(), any())
+                    dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any())
                 } returns DokarkivResponse(null, 1, null, "status", null)
 
                 varselService.sendMerOppfolgingVarsel(

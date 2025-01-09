@@ -1,6 +1,8 @@
 package no.nav.syfo.syfoopppdfgen
 
-import no.nav.syfo.dkif.DkifClient
+import no.nav.syfo.logger
+import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
+import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
@@ -16,41 +18,11 @@ import java.time.format.DateTimeFormatter
 @Component
 class PdfgenService(
     val syfooppfpdfgenClient: PdfgenClient,
-    val dkifClient: DkifClient,
     val sykepengedagerInformasjonService: SykepengedagerInformasjonService,
 ) {
-    fun getSenOppfolgingReceiptPdf(
-        personIdent: String,
-        answersToQuestions: List<SenOppfolgingQuestionV2>,
-        submissionDate: LocalDate,
-    ): ByteArray? {
-        val behovForOppfolging = answersToQuestions.behovForOppfolging()
-        val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
-            personIdent,
-        )
+    private val log = logger()
 
-        return syfooppfpdfgenClient.createSenOppfolgingReceiptPdf(
-            behovForOppfolging = behovForOppfolging,
-            questionTextFremtidigSituasjon = answersToQuestions.firstOrNull
-                { it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON }?.questionText,
-            answerTextFremtidigSituasjon = answersToQuestions.firstOrNull {
-                it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON
-            }?.answerText,
-            questionTextBehovForOppfolging = answersToQuestions.firstOrNull {
-                it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
-            }?.questionText,
-            answerTextBehovForOppfolging = answersToQuestions.firstOrNull {
-                it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
-            }?.answerText,
-            submissionDateISO = submissionDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-            maxDateISO = sykepengerInformasjon?.forelopigBeregnetSluttISO(),
-            utbetaltTomISO = sykepengerInformasjon?.utbetaltTomISO(),
-            daysUntilMaxDate = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
-        )
-    }
-
-    fun getSenOppfolgingLandingPdf(personIdent: String): ByteArray {
-        val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
+    fun getSenOppfolgingLandingPdf(personIdent: String, isUserReservert: Boolean): ByteArray {
         val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
             personIdent,
         )
@@ -61,5 +33,72 @@ class PdfgenService(
             maxDateFormatted = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
             isForReservertUser = isUserReservert,
         )
+    }
+
+    fun getSenOppfolgingFormStepsPdf(
+        answersToQuestions: List<SenOppfolgingQuestionV2>,
+    ): ByteArray? {
+        val fremtidigSituasjonSvar: FremtidigSituasjonSvar? = answersToQuestions.firstOrNull {
+            it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON
+        }?.let {
+            FremtidigSituasjonSvar.valueOf(it.answerType)
+        }
+
+        val behovForOppfolgingSvar: BehovForOppfolgingSvar? = answersToQuestions.firstOrNull {
+            it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
+        }?.let {
+            BehovForOppfolgingSvar.valueOf(it.answerType)
+        }
+
+        try {
+            return syfooppfpdfgenClient.createSenOppfolgingFormStepsPdf(
+                fremtidigSituasjonSvar,
+                behovForOppfolgingSvar,
+            )
+        } catch (e: Exception) {
+            log.error(
+                "Failed to create senOppfolging formSteps PDF, message: ${e.message}, cause: ${e.cause}"
+            )
+
+            return null
+        }
+    }
+
+    fun getSenOppfolgingReceiptPdf(
+        personIdent: String,
+        answersToQuestions: List<SenOppfolgingQuestionV2>,
+        submissionDate: LocalDate,
+    ): ByteArray? {
+        val behovForOppfolging = answersToQuestions.behovForOppfolging()
+        val sykepengerInformasjon = sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(
+            personIdent,
+        )
+
+        try {
+            return syfooppfpdfgenClient.createSenOppfolgingReceiptPdf(
+                behovForOppfolging = behovForOppfolging,
+                questionTextFremtidigSituasjon = answersToQuestions.firstOrNull
+                    { it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON }?.questionText,
+                answerTextFremtidigSituasjon = answersToQuestions.firstOrNull {
+                    it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON
+                }?.answerText,
+                questionTextBehovForOppfolging = answersToQuestions.firstOrNull {
+                    it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
+                }?.questionText,
+                answerTextBehovForOppfolging = answersToQuestions.firstOrNull {
+                    it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
+                }?.answerText,
+                submissionDateISO = submissionDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                maxDateISO = sykepengerInformasjon?.forelopigBeregnetSluttISO(),
+                utbetaltTomISO = sykepengerInformasjon?.utbetaltTomISO(),
+                daysUntilMaxDate = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
+            )
+        } catch (e: Exception) {
+            log.error(
+                "Failed to create senOppfolging receipt PDF, message: ${e.message}, cause: ${e.cause}"
+            )
+
+            return null
+        }
     }
 }
