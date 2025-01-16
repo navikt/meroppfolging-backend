@@ -3,12 +3,12 @@ package no.nav.syfo.senoppfolging.v2.domain
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
 
 data class SenOppfolgingStatusDTOV2(
-    val isPilot: Boolean,
     val responseStatus: ResponseStatus,
     val response: List<QuestionResponse>?,
     val responseTime: String?,
     val maxDate: String?,
-    val gjenstaendeSykedager: String?,
+    val gjenstaendeSykedager: Int?,
+    val hasAccessToSenOppfolging: Boolean,
 )
 
 enum class ResponseStatus {

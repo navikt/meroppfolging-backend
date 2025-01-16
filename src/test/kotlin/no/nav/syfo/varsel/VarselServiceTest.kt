@@ -2,6 +2,7 @@ package no.nav.syfo.varsel
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.ninjasquad.springmockk.MockkBean
+import com.ninjasquad.springmockk.SpykBean
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.extensions.wiremock.ListenerMode
@@ -9,9 +10,14 @@ import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
+import io.mockk.verify
 import no.nav.syfo.LocalApplication
+import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
+import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
+import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
+import no.nav.syfo.pdl.PdlClient
 import no.nav.syfo.pdl.stubHentPerson
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
@@ -30,12 +36,20 @@ import java.util.*
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
 class VarselServiceTest : DescribeSpec() {
-
     @MockkBean(relaxed = true)
     lateinit var pdfgenService: PdfgenService
 
     @MockkBean(relaxed = true)
     lateinit var dokarkivClient: DokarkivClient
+
+    @SpykBean
+    lateinit var pdlClient: PdlClient
+
+    @MockkBean(relaxed = true)
+    lateinit var behandlendeEnhetClient: BehandlendeEnhetClient
+
+    @MockkBean(relaxed = true)
+    lateinit var dkifClient: DkifClient
 
     @Autowired
     lateinit var varselService: VarselService
@@ -60,10 +74,14 @@ class VarselServiceTest : DescribeSpec() {
             jdbcTemplate.execute("TRUNCATE TABLE UTSENDT_VARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKMELDING CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKEPENGEDAGER_INFORMASJON CASCADE")
+            jdbcTemplate.execute("TRUNCATE TABLE COPY_UTSENDT_VARSEL_ESYFOVARSEL CASCADE")
+            jdbcTemplate.execute("TRUNCATE TABLE SKIP_VARSELUTSENDING CASCADE")
         }
 
         describe("VarselService") {
             it("Should store utsendt varsel") {
+                every { dkifClient.person(any()).kanVarsles } returns true
+
                 varselService.sendMerOppfolgingVarsel(
                     MerOppfolgingVarselDTO(
                         personIdent = "12345678910",
@@ -76,8 +94,6 @@ class VarselServiceTest : DescribeSpec() {
 
                 utsendtVarsel shouldNotBe null
                 utsendtVarsel!!.personIdent shouldBe "12345678910"
-                utsendtVarsel.utbetalingId shouldBe "utbetalingId"
-                utsendtVarsel.sykmeldingId shouldBe "sykmeldingId"
             }
 
             it("Should find mer oppfolging varsel to be sent") {
@@ -105,14 +121,61 @@ class VarselServiceTest : DescribeSpec() {
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
                 )
 
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns
+                    BehandlendeEnhet(
+                        "0624",
+                        "Testkontor",
+                    )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns
+                    BehandlendeEnhet(
+                        "0624",
+                        "Testkontor",
+                    )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678912") } returns
+                    BehandlendeEnhet(
+                        "0624",
+                        "Testkontor",
+                    )
+
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 
                 merOppfolgingVarselToBeSent.size shouldBe 1
                 merOppfolgingVarselToBeSent[0].personIdent shouldBe "12345678910"
             }
 
+            it("Should find every oppfolging varsel to be sent") {
+                createMockdataForFnr(
+                    fnr = "12345678910",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                createMockdataForFnr(
+                    fnr = "12345678911",
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns
+                    BehandlendeEnhet(
+                        "0624",
+                        "Testkontor",
+                    )
+                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns
+                    BehandlendeEnhet(
+                        "0314",
+                        "Testkontor",
+                    )
+
+                val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
+
+                merOppfolgingVarselToBeSent.size shouldBe 2
+            }
+
             it("Should not store utsendt varsel if pdfgen fails") {
-                every { pdfgenService.getMerVeiledningPdf(any()) } throws Exception("Help me")
+                every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } throws Exception("Help me")
 
                 varselService.sendMerOppfolgingVarsel(
                     MerOppfolgingVarselDTO(
@@ -128,8 +191,11 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should not store utsendt varsel journalforing fails") {
-                every { pdfgenService.getMerVeiledningPdf(any()) } returns ByteArray(1)
-                every { dokarkivClient.postDocumentToDokarkiv(any(), any(), any()) } throws Exception("Help me")
+                every { dkifClient.person(any()).kanVarsles } returns true
+                every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } returns ByteArray(1)
+                every {
+                    dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any())
+                } throws Exception("Help me")
 
                 varselService.sendMerOppfolgingVarsel(
                     MerOppfolgingVarselDTO(
@@ -145,9 +211,9 @@ class VarselServiceTest : DescribeSpec() {
             }
 
             it("Should store utsendt varsel post to dokarkiv OK") {
-                every { pdfgenService.getMerVeiledningPdf(any()) } returns ByteArray(1)
+                every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } returns ByteArray(1)
                 every {
-                    dokarkivClient.postDocumentToDokarkiv(any(), any(), any())
+                    dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any())
                 } returns DokarkivResponse(null, 1, null, "status", null)
 
                 varselService.sendMerOppfolgingVarsel(
@@ -162,8 +228,118 @@ class VarselServiceTest : DescribeSpec() {
 
                 utsendtVarsel shouldNotBe null
                 utsendtVarsel!!.personIdent shouldBe "12345678910"
-                utsendtVarsel.utbetalingId shouldBe "utbetalingId"
-                utsendtVarsel.sykmeldingId shouldBe "sykmeldingId"
+            }
+
+            it("should return utsendt varsel from COPY_UTSENDT_VARSEL_ESYFOVARSEL") {
+                val uuid = UUID.randomUUID().toString()
+                jdbcTemplate.execute(
+                    """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL(
+                        uuid_esyfovarsel, fnr, type, utsendt_tidspunkt
+                    )
+                    VALUES ('$uuid', 'test-fnr-01', 'type', current_date - INTERVAL '60 days');
+                    """.trimMargin(),
+                )
+
+                val utsendtVarsel = varselService.getUtsendtVarsel("test-fnr-01")
+
+                utsendtVarsel shouldNotBe null
+                utsendtVarsel?.personIdent shouldBe "test-fnr-01"
+            }
+
+            describe(
+                "getUtsendtVarsel",
+            ) {
+                it("should return latest utsendt varsel from COPY_UTSENDT_VARSEL_ESYFOVARSEL") {
+                    val fnr = "test-fnr-01"
+                    val uuidCopy = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL(
+                        uuid_esyfovarsel, fnr, type, utsendt_tidspunkt
+                    )
+                    VALUES ('$uuidCopy', '$fnr', 'type', current_date - INTERVAL '60 days');
+                        """.trimMargin(),
+                    )
+                    val uuid = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                        INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
+                        VALUES ('$uuid','$fnr' , current_date - INTERVAL '65 days', '123', '123')
+                        """.trimIndent().trimMargin(),
+                    )
+
+                    val utsendtVarsel = varselService.getUtsendtVarsel(fnr)
+
+                    utsendtVarsel shouldNotBe null
+                    utsendtVarsel?.uuid.toString() shouldBe uuidCopy
+                }
+                it("should return latest utsendt varsel from UTSENDT_VARSEL") {
+                    val fnr = "test-fnr-01"
+                    val uuidCopy = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL(
+                        uuid_esyfovarsel, fnr, type, utsendt_tidspunkt
+                    )
+                    VALUES ('$uuidCopy', '$fnr', 'type', current_date - INTERVAL '60 days');
+                        """.trimMargin(),
+                    )
+                    val uuid = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                        INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
+                        VALUES ('$uuid','$fnr' , current_date - INTERVAL '55 days', '123', '123')
+                        """.trimIndent().trimMargin(),
+                    )
+
+                    val utsendtVarsel = varselService.getUtsendtVarsel(fnr)
+
+                    utsendtVarsel shouldNotBe null
+                    utsendtVarsel?.uuid.toString() shouldBe uuid
+                }
+                it("should return null when no valid utsendt varsel is found") {
+                    val fnr = "test-fnr-02"
+                    val uuidCopy = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                    INSERT INTO COPY_UTSENDT_VARSEL_ESYFOVARSEL(
+                        uuid_esyfovarsel, fnr, type, utsendt_tidspunkt
+                    )
+                    VALUES ('$uuidCopy', '$fnr', 'type', current_date - INTERVAL '160 days');
+                        """.trimMargin(),
+                    )
+                    val uuid = UUID.randomUUID().toString()
+                    jdbcTemplate.execute(
+                        """
+                        INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
+                        VALUES ('$uuid','$fnr' , current_date - INTERVAL '150 days', '123', '123')
+                        """.trimIndent().trimMargin(),
+                    )
+                    val utsendtVarsel = varselService.getUtsendtVarsel(fnr)
+
+                    utsendtVarsel shouldBe null
+                }
+            }
+
+            it("Should not send varsel for those older than max age, and only call PDL once") {
+                pdlServer.stubHentPerson(yearsOld = 67)
+                val personIdent = "12345678910"
+                createMockdataForFnr(
+                    fnr = personIdent,
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                val varselSomSkalSendes = varselService.findMerOppfolgingVarselToBeSent()
+                verify(exactly = 1) { pdlClient.isBrukerYngreEnnGittMaxAlder(any(), any()) }
+                varselSomSkalSendes.size shouldBe 0
+
+                varselService.findMerOppfolgingVarselToBeSent()
+                verify(exactly = 1) { pdlClient.isBrukerYngreEnnGittMaxAlder(any(), any()) }
+
+                varselService.findMerOppfolgingVarselToBeSent()
             }
         }
     }

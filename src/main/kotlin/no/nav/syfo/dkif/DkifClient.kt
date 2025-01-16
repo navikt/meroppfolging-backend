@@ -27,7 +27,7 @@ class DkifClient(
 
     private val logger = logger()
 
-    fun person(fnr: String): Kontaktinfo? {
+    fun person(fnr: String): Kontaktinfo {
         val token = azureAdClient.getSystemToken(dkifScope)
         val httpEntity = createHttpEntity(token, fnr)
 

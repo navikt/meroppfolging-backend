@@ -20,9 +20,6 @@ token.x.token.endpoint: "https://tokenx-endpoint"
 isoppfolgingstilfelle.url: "http://isoppfolgingstilfelle"
 isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
 
-esyfovarsel.url: "http://esyfovarsel"
-esyfovarsel.id: "local:team-esyfo:esyfovarsel"
-
 dokarkiv.url: "http://dokarkiv"
 dokarkiv.scope: "local:teamdokumenthandtering:dokarkiv"
 
@@ -38,10 +35,6 @@ syfobehandlendeenhet.id: "local:teamsykefravr:syfobehandlendeenhet"
 istilgangskontroll.url: "http://istilgangskontroll"
 istilgangskontroll.id: "local:teamsykefravr:istilgangskontroll"
 
-veilarbregistrering.url: "http://veilarbregistrering"
-veilarbregistrering.id: "local:paw:veilarbregistrering"
-send.to.veilarbregistrering.toggle: "true"
-
 kafka.brokers: ${spring.embedded.kafka.brokers}
 kafka.truststore.path: /truststore
 kafka.keystore.path: /keystore
@@ -50,8 +43,8 @@ kafka.schema.registry.user: "kafka.schema.registry.user"
 kafka.schema.registry.password: "kafka.schema.registry.password"
 kafka.schema.registry: "kafka.schema.registry"
 
-toggle.pilot: "true"
 toggle.ssps.varselutsending: "false"
+send.varsel.job.cron: "0 */5 * * * *"
 
 azure:
   app:

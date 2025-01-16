@@ -30,6 +30,7 @@ class SenOppfolgingSvarKafkaProducerTest : DescribeSpec(
                         ansattFnr,
                         LocalDateTime.now(),
                         listOf(SenOppfolgingQuestionV2(SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING, "", "", "")),
+                        UUID.randomUUID(),
                     ),
                 )
 

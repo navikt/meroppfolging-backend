@@ -21,6 +21,7 @@ import java.time.LocalDateTime
 class SykepengedagerInformasjonDAOTest : DescribeSpec() {
     val personIdent = "12345678910"
     val utbetalingId = "123"
+    val utbetalingId2 = "2123"
 
     @Autowired
     private lateinit var sykepengedagerInformasjonDAO: SykepengedagerInformasjonDAO
@@ -60,6 +61,79 @@ class SykepengedagerInformasjonDAOTest : DescribeSpec() {
             utbetaling?.personIdent shouldBe personIdent
             utbetaling?.utbetalingCreatedAt?.toLocalDate() shouldBe createdAt.toLocalDate()
             utbetaling?.receivedAt?.toLocalDate() shouldBe expectedReceivedDate
+        }
+
+        it("Should return utbetaling with newest utbetaltTOM") {
+            val expextedUtbetaltTOM = LocalDate.now().plusDays(33)
+
+            sykepengedagerInformasjonDAO.persistSykepengedagerInformasjon(
+                SykepengedagerInformasjonDTO(
+                    id = utbetalingId,
+                    personIdent = personIdent,
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(24),
+                    utbetaltTom = LocalDate.now().plusDays(32),
+                    gjenstaendeSykedager = "24",
+                    createdAt = LocalDateTime.now().minusDays(1),
+                )
+            )
+            sykepengedagerInformasjonDAO.persistSykepengedagerInformasjon(
+                SykepengedagerInformasjonDTO(
+                    id = utbetalingId2,
+                    personIdent = personIdent,
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(24),
+                    utbetaltTom = LocalDate.now().plusDays(33),
+                    gjenstaendeSykedager = "24",
+                    createdAt = LocalDateTime.now().minusDays(2),
+                )
+            )
+
+            val utbetaling = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByIdent(
+                personIdent = personIdent
+            )
+
+            utbetaling shouldNotBe null
+
+            utbetaling?.utbetalingId shouldBe utbetalingId2
+            utbetaling?.personIdent shouldBe personIdent
+            utbetaling?.utbetalingCreatedAt?.toLocalDate() shouldBe LocalDate.now().minusDays(2)
+            utbetaling?.utbetaltTom shouldBe expextedUtbetaltTOM
+        }
+
+        it("Should return utbetaling with newest createdAt when same utebetaltTOM") {
+            val createdAtOldDate = LocalDateTime.now().minusDays(2)
+            val expectedCreatedAtNewDate = LocalDateTime.now().minusDays(1)
+
+            sykepengedagerInformasjonDAO.persistSykepengedagerInformasjon(
+                SykepengedagerInformasjonDTO(
+                    id = utbetalingId,
+                    personIdent = personIdent,
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(24),
+                    utbetaltTom = LocalDate.now().plusDays(33),
+                    gjenstaendeSykedager = "24",
+                    createdAt = expectedCreatedAtNewDate,
+                )
+            )
+            sykepengedagerInformasjonDAO.persistSykepengedagerInformasjon(
+                SykepengedagerInformasjonDTO(
+                    id = utbetalingId2,
+                    personIdent = personIdent,
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(24),
+                    utbetaltTom = LocalDate.now().plusDays(33),
+                    gjenstaendeSykedager = "24",
+                    createdAt = createdAtOldDate,
+                )
+            )
+
+            val utbetaling = sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByIdent(
+                personIdent = personIdent
+            )
+
+            utbetaling shouldNotBe null
+
+            utbetaling?.utbetalingId shouldBe utbetalingId
+            utbetaling?.personIdent shouldBe personIdent
+            utbetaling?.utbetalingCreatedAt?.toLocalDate() shouldBe expectedCreatedAtNewDate.toLocalDate()
+            utbetaling?.utbetaltTom shouldBe LocalDate.now().plusDays(33)
         }
     }
 }

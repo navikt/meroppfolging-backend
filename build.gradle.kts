@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.3.4"
-    id("io.spring.dependency-management") version "1.1.6"
+    id("org.springframework.boot") version "3.4.1"
+    id("io.spring.dependency-management") version "1.1.7"
     id("io.gitlab.arturbosch.detekt") version "1.23.7"
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.spring") version "1.9.23"
@@ -20,15 +20,15 @@ repositories {
 }
 
 val tokenSupportVersion = "4.1.8"
-val logstashLogbackEncoderVersion = "7.4"
+val logstashLogbackEncoderVersion = "8.0"
 val kotestVersion = "5.9.1"
 val springKotestExtensionVersion = "1.3.0"
 val kotestTestContainersExtensionVersion = "2.0.2"
-val mockkVersion = "1.13.12"
-val wiremockVersion = "3.9.1"
+val mockkVersion = "1.13.16"
+val wiremockVersion = "3.10.0"
 val wiremockKotestExtensionVersion = "3.1.0"
 val detektVersion = "1.23.7"
-val testcontainersVersion = "1.20.2"
+val testcontainersVersion = "1.20.4"
 val springMockkVersion = "4.0.2"
 
 dependencies {

@@ -1,7 +1,9 @@
 package no.nav.syfo.varsel
 
+import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.logger
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.pdl.PdlClient
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingVarselDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingVarselKafkaProducer
@@ -18,14 +20,24 @@ class VarselService(
     private val senOppfolgingVarselKafkaProducer: SenOppfolgingVarselKafkaProducer,
     private val pdfgenService: PdfgenService,
     private val dokarkivClient: DokarkivClient,
+    private val metric: Metric,
+    private val dkifClient: DkifClient,
 ) {
     private val log = logger()
-
     fun findMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
-        return varselRepository.fetchMerOppfolgingVarselToBeSent()
-            .filter {
-                pdlClient.isBrukerYngreEnnGittMaxAlder(it.personIdent, 67)
+        val allVarsler = varselRepository.fetchMerOppfolgingVarselToBeSent()
+
+        val filteredVarsler = allVarsler.mapNotNull {
+            val ageCheckResult = pdlClient.isBrukerYngreEnnGittMaxAlder(it.personIdent, 67)
+            if (ageCheckResult.youngerThanMaxAlder) {
+                it
+            } else {
+                varselRepository.storeSkipVarselDueToAge(it.personIdent, ageCheckResult.fodselsdato)
+                null
             }
+        }
+
+        return filteredVarsler
     }
 
     fun ferdigstillMerOppfolgingVarsel(
@@ -38,38 +50,50 @@ class VarselService(
             arbeidstakerFnr = fnr,
             orgnummer = null,
         )
+        metric.countSenOppfolgingFerdigstilt()
         producer.sendVarselTilEsyfovarsel(hendelse)
     }
 
     @Suppress("MaxLineLength")
-    fun sendMerOppfolgingVarsel(
-        merOppfolgingVarselDTO: MerOppfolgingVarselDTO,
-    ) {
-        // Hent PDF og journalfør. Avbryte utsending dersom journalføring feiler. Så sikrer vi at jobben prøver på nytt.
+    fun sendMerOppfolgingVarsel(merOppfolgingVarselDTO: MerOppfolgingVarselDTO) {
         val personIdent = merOppfolgingVarselDTO.personIdent
-        try {
-            val pdf = pdfgenService.getMerVeiledningPdf(personIdent)
+        val isUserReservert = dkifClient.person(personIdent).kanVarsles == false
 
-            val journalpostId = dokarkivClient.postDocumentToDokarkiv(
-                fnr = personIdent,
-                pdf = pdf,
-                uuid = UUID.randomUUID().toString(),
-            )
-            if (journalpostId != null) {
-                val hendelse = ArbeidstakerHendelse(
-                    type = HendelseType.SM_MER_VEILEDNING,
-                    ferdigstill = false,
-                    data = journalpostId, // Må tilpasse Esyfovarsel slik at det blir distribuert til ikke-digitale brukere
-                    arbeidstakerFnr = personIdent,
-                    orgnummer = null,
+        try {
+            val pdf = pdfgenService.getSenOppfolgingLandingPdf(personIdent, isUserReservert)
+            val uuid = UUID.randomUUID().toString()
+
+            val dokarkivResponse =
+                dokarkivClient.postSingleDocumentToDokarkiv(
+                    fnr = personIdent,
+                    pdf = pdf,
+                    eksternReferanseId = uuid,
+                    title = "Snart slutt på sykepenger – Informasjon om maksdato og spørreskjema",
+                    filnavn = "SSPS-informasjon",
                 )
+            if (dokarkivResponse != null) {
+                val hendelse =
+                    ArbeidstakerHendelse(
+                        type = HendelseType.SM_MER_VEILEDNING,
+                        ferdigstill = false,
+                        data =
+                        VarselData(
+                            VarselDataJournalpost(uuid = uuid, id = dokarkivResponse.journalpostId.toString()),
+                            null,
+                            null,
+                            null,
+                        ),
+                        arbeidstakerFnr = personIdent,
+                        orgnummer = null,
+                    )
                 producer.sendVarselTilEsyfovarsel(hendelse)
 
-                val utsendtVarselUUID = varselRepository.storeUtsendtVarsel(
-                    personIdent = merOppfolgingVarselDTO.personIdent,
-                    utbetalingId = merOppfolgingVarselDTO.utbetalingId,
-                    sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
-                )
+                val utsendtVarselUUID =
+                    varselRepository.storeUtsendtVarsel(
+                        personIdent = merOppfolgingVarselDTO.personIdent,
+                        utbetalingId = merOppfolgingVarselDTO.utbetalingId,
+                        sykmeldingId = merOppfolgingVarselDTO.sykmeldingId,
+                    )
                 senOppfolgingVarselKafkaProducer.publishVarsel(
                     KSenOppfolgingVarselDTO(
                         uuid = utsendtVarselUUID,
@@ -78,7 +102,7 @@ class VarselService(
                     ),
                 )
             } else {
-                log.warn("Fetched journalpost id is null, skipped sending varsel")
+                log.error("Skipped sending varsel due to no DokarkivResponse")
             }
         } catch (e: Exception) {
             log.error(
@@ -87,7 +111,16 @@ class VarselService(
         }
     }
 
-    fun getUtsendtVarsel(fnr: String): UtsendtVarsel? {
-        return varselRepository.getUtsendtVarsel(fnr)
+    fun getUtsendtVarsel(fnr: String): Varsel? {
+        val utsendtVarsel = varselRepository.getUtsendtVarsel(fnr)
+        val utsendtVarselEsyfovarselCopy = varselRepository.getUtsendtVarselFromEsyfovarselCopy(fnr)
+
+        val validLatestUtsendtVarsel =
+            listOfNotNull(
+                utsendtVarsel,
+                utsendtVarselEsyfovarselCopy,
+            ).maxByOrNull { it.utsendtTidspunkt }
+
+        return validLatestUtsendtVarsel
     }
 }

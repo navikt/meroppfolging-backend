@@ -10,7 +10,6 @@ data class DokarkivRequest(
     val journalfoerendeEnhet: Int?,
     val journalpostType: String,
     val tema: String,
-    val kanal: String,
     val sak: Sak,
     val overstyrInnsynsregler: String,
     val eksternReferanseId: String,
@@ -19,20 +18,20 @@ data class DokarkivRequest(
         fun create(
             avsenderMottaker: AvsenderMottaker,
             dokumenter: List<Dokument>,
-            uuid: String,
+            eksternReferanseId: String,
+            tittel: String,
         ) = DokarkivRequest(
             avsenderMottaker = avsenderMottaker,
-            tittel = "Kvittering for snart slutt på sykepenger",
+            tittel = tittel,
             bruker = Bruker.create(id = avsenderMottaker.id, idType = avsenderMottaker.idType),
             dokumenter = dokumenter,
             journalfoerendeEnhet = JOURNALFORENDE_ENHET,
             journalpostType = "UTGAAENDE",
             tema = "OPP", // Oppfolging
-            kanal = "S",
             sak = Sak("GENERELL_SAK"),
             // By default, user can not see documents created by others. Following enables viewing on Mine Saker:
             overstyrInnsynsregler = "VISES_MASKINELT_GODKJENT",
-            eksternReferanseId = uuid,
+            eksternReferanseId = eksternReferanseId,
         )
     }
 }
@@ -74,8 +73,9 @@ data class Dokument(
     companion object {
         fun create(
             dokumentvarianter: List<Dokumentvariant>,
+            tittel: String
         ) = Dokument(
-            tittel = "Kvittering for snart slutt på sykepenger",
+            tittel = tittel,
             brevkode = "KVITTERING_SNART_SLUTT_PA_SYKEPENGER",
             dokumentvarianter = dokumentvarianter,
         )

@@ -70,7 +70,6 @@ spec:
           namespace: teamsykefravr
     outbound:
       rules:
-        - application: esyfovarsel
         - application: syfooppdfgen
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
@@ -78,9 +77,9 @@ spec:
           namespace: teamsykefravr
         - application: syfobehandlendeenhet
           namespace: teamsykefravr
-        - application: veilarbregistrering
-          namespace: paw
         - application: sykepengedager-informasjon
+        - application: digdir-krr-proxy
+          namespace: team-rocket
       external:
         - host: dokarkiv.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
@@ -97,22 +96,10 @@ spec:
       value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_ID
       value: dev-gcp.teamsykefravr.istilgangskontroll
-    - name: ESYFOVARSEL_URL
-      value: http://esyfovarsel
-    - name: ESYFOVARSEL_ID
-      value: dev-gcp:team-esyfo:esyfovarsel
     - name: SYFOBEHANDLENDEENHET_ID
       value: "dev-gcp.teamsykefravr.syfobehandlendeenhet"
     - name: SYFOBEHANDLENDEENHET_URL
       value: "http://syfobehandlendeenhet.teamsykefravr"
-    - name: VEILARBREGISTRERING_URL
-      value: http://veilarbregistrering.paw
-    - name: VEILARBREGISTRERING_ID
-      value: dev-gcp:paw:veilarbregistrering
-    - name: SEND_TO_VEILARBREGISTRERING_TOGGLE
-      value: "false"
-    - name: TOGGLE_PILOT
-      value: "true"
     - name: SYFOOPPDFGEN_URL
       value: http://syfooppdfgen
     - name: DOKARKIV_URL
@@ -129,3 +116,5 @@ spec:
       value: http://digdir-krr-proxy.team-rocket/rest/v1/person
     - name: DKIF_SCOPE
       value: dev-gcp.team-rocket.digdir-krr-proxy
+    - name: SEND_VARSEL_JOB_CRON
+      value: 0 */5 * * * *

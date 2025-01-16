@@ -9,13 +9,13 @@ data class Dokumentvariant(
     companion object {
         fun create(
             fysiskDokument: ByteArray,
-            uuid: String,
+            filnavn: String,
         ): Dokumentvariant {
             return Dokumentvariant(
                 filtype = "PDFA",
                 variantformat = "ARKIV",
                 fysiskDokument = fysiskDokument,
-                filnavn = "Kvittering for snart slutt på sykepenger-$uuid",
+                filnavn = filnavn,
             )
         }
     }

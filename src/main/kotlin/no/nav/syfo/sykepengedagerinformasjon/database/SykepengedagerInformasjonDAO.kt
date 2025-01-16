@@ -59,6 +59,26 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
             .firstOrNull()
     }
 
+    fun fetchSykepengedagerInformasjonByIdent(
+        personIdent: String,
+    ): PSykepengedagerInformasjon? {
+        val selectStatement = """
+            SELECT *
+            FROM SYKEPENGEDAGER_INFORMASJON
+            WHERE person_ident = :person_ident
+            ORDER BY utbetalt_tom DESC, utbetaling_created_at DESC
+        """.trimIndent()
+
+        val parameters = MapSqlParameterSource()
+            .addValue("person_ident", personIdent)
+
+        return namedParameterJdbcTemplate.query(
+            selectStatement,
+            parameters
+        ) { rs, _ -> rs.toPSykepengedagerInformasjon() }
+            .firstOrNull()
+    }
+
     fun ResultSet.toPSykepengedagerInformasjon() = PSykepengedagerInformasjon(
         utbetalingId = getString("utbetaling_id"),
         personIdent = getString("person_ident"),

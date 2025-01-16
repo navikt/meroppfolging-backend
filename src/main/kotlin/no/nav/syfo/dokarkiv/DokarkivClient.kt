@@ -1,5 +1,6 @@
 package no.nav.syfo.dokarkiv
 
+import SingleDocumentData
 import no.nav.syfo.MEROPPFOLGING_BACKEND_CONSUMER_ID
 import no.nav.syfo.NAV_CALL_ID_HEADER
 import no.nav.syfo.NAV_CONSUMER_ID_HEADER
@@ -41,19 +42,27 @@ class DokarkivClient(
 
     private val log = LoggerFactory.getLogger(DokarkivClient::class.qualifiedName)
 
-    fun postDocumentToDokarkiv(fnr: String, pdf: ByteArray, uuid: String,): DokarkivResponse? {
+    fun postDocumentsForsendelseToDokarkiv(
+        fnr: String,
+        forsendelseTittel: String,
+        eksternReferanseId: String,
+        documentsData: List<SingleDocumentData>,
+    ): DokarkivResponse? {
         return try {
             val token = azureAdClient.getSystemToken(dokarkivScope)
+
+            val dokarkivRequest = createDokarkivRequestForDocuments(
+                fnr,
+                forsendelseTittel,
+                eksternReferanseId,
+                documentsData,
+            )
 
             val response = RestTemplate().postForEntity(
                 url,
                 createHttpEntity(
                     token,
-                    DokarkivRequest.create(
-                        avsenderMottaker = AvsenderMottaker.create(fnr),
-                        dokumenter = listOf(Dokument.create(listOf(Dokumentvariant.create(pdf, uuid)))),
-                        uuid = uuid,
-                    ),
+                    dokarkivRequest,
                 ),
                 DokarkivResponse::class.java,
             )
@@ -98,6 +107,52 @@ class DokarkivClient(
             )
             null
         }
+    }
+
+    fun postSingleDocumentToDokarkiv(
+        fnr: String,
+        pdf: ByteArray,
+        eksternReferanseId: String,
+        title: String,
+        filnavn: String,
+    ): DokarkivResponse? {
+        val documentsData = listOf(
+            SingleDocumentData(
+                pdf = pdf,
+                filnavn = filnavn,
+                title = title,
+            )
+        )
+
+        return postDocumentsForsendelseToDokarkiv(
+            fnr,
+            forsendelseTittel = title,
+            eksternReferanseId,
+            documentsData,
+        )
+    }
+
+    private fun createDokarkivRequestForDocuments(
+        fnr: String,
+        forsendelseTittel: String,
+        eksternReferanseId: String,
+        documentsData: List<SingleDocumentData>,
+    ): DokarkivRequest {
+        val dokumenter: List<Dokument> = documentsData.map {
+            val dokumentvarianter = listOf(Dokumentvariant.create(fysiskDokument = it.pdf, filnavn = it.filnavn))
+
+            Dokument.create(
+                dokumentvarianter = dokumentvarianter,
+                tittel = it.title,
+            )
+        }
+
+        return DokarkivRequest.create(
+            avsenderMottaker = AvsenderMottaker.create(fnr),
+            dokumenter = dokumenter,
+            eksternReferanseId = eksternReferanseId,
+            tittel = forsendelseTittel,
+        )
     }
 
     private fun createHttpEntity(

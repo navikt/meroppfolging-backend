@@ -25,3 +25,9 @@ spec:
     - team: teamsykefravr
       application: ismeroppfolging
       access: read
+    - team: teamsykefravr
+      application: iskafkamanager
+      access: read
+    - team: disykefravar
+      application: dvh-sykefravar-airflow-kafka
+      access: read
