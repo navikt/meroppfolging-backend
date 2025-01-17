@@ -39,7 +39,14 @@ class SenOppfolgingSvarKafkaProducerTest : DescribeSpec(
 
                 val sendResult = SendResult(
                     ProducerRecord("topic", "key", response),
-                    RecordMetadata(TopicPartition("topic", 0), 0, 0, 0, 0, 0)
+                    RecordMetadata(
+                        TopicPartition("topic", 0),
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                    )
                 )
                 every {
                     kafkaTemplate.send(any<ProducerRecord<String, KSenOppfolgingSvarDTO>>())
