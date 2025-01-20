@@ -77,7 +77,7 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
-        freeCompilerArgs.add("-Xjsr305=strict")
+        freeCompilerArgs.add("-Xmx2048m")
         jvmTarget.set(JvmTarget.JVM_21)
     }
 }
