@@ -54,7 +54,7 @@ class SenOppfolgingService(
         return SenOppfolgingStatusDTOV2(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
             response = response?.questionResponses,
-            svarSubmissionDateTime = response?.createdAt,
+            responseDateTime = response?.createdAt,
             maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt,
             utbetaltTomDate = sykepengerInformasjon?.utbetaltTom,
             gjenstaendeSykedager = sykepengerInformasjon?.gjenstaendeSykedager,

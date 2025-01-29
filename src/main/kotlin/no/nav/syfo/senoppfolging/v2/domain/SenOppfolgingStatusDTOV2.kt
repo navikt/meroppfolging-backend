@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 data class SenOppfolgingStatusDTOV2(
     val responseStatus: ResponseStatus,
     val response: List<QuestionResponse>?,
-    val svarSubmissionDateTime: LocalDateTime?,
+    val responseDateTime: LocalDateTime?,
     val maxDate: LocalDate?,
     val utbetaltTomDate: LocalDate?,
     val gjenstaendeSykedager: Int?,
