@@ -12,3 +12,8 @@ data class FormResponse(
     val utsendtVarselUUID: UUID? = null,
     val questionResponses: MutableList<QuestionResponse> = mutableListOf(),
 )
+
+fun FormResponse.arrangeQuestionResponsesInFixedOrder(): FormResponse {
+    val sortedQuestionResponses = this.questionResponses.toFixedOrder()
+    return this.copy(questionResponses = sortedQuestionResponses.toMutableList())
+}

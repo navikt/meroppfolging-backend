@@ -3,6 +3,7 @@ package no.nav.syfo.besvarelse.database
 import no.nav.syfo.besvarelse.database.domain.FormResponse
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
+import no.nav.syfo.besvarelse.database.domain.arrangeQuestionResponsesInFixedOrder
 import no.nav.syfo.domain.PersonIdentNumber
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -162,7 +163,7 @@ class ResponseDao(
                 .addValue("form_type", formType.name)
                 .addValue("from_date", Date.valueOf(from))
 
-        return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
+        return executeFormResponseQueryAndOrderQuestionResponses(query, namedParameters)?.firstOrNull()
     }
 
     fun findLatestFormResponse(
@@ -193,7 +194,7 @@ class ResponseDao(
                 .addValue("person_ident", personIdent.value)
                 .addValue("form_type", formType.name)
 
-        return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
+        return executeFormResponseQueryAndOrderQuestionResponses(query, namedParameters)?.firstOrNull()
     }
 
     fun findResponseByVarselId(varselId: UUID): FormResponse? {
@@ -219,11 +220,11 @@ class ResponseDao(
             MapSqlParameterSource()
                 .addValue("varsel_id", varselId)
 
-        return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
+        return executeFormResponseQueryAndOrderQuestionResponses(query, namedParameters)?.firstOrNull()
     }
 
     @Suppress("SwallowedException")
-    private fun executeFormResponseQuery(
+    private fun executeFormResponseQueryAndOrderQuestionResponses(
         query: String,
         namedParameters: SqlParameterSource,
     ): List<FormResponse>? =
@@ -232,7 +233,7 @@ class ResponseDao(
                 query,
                 namedParameters,
                 FormResponseResultSetExtractor(),
-            )
+            )?.map { it.arrangeQuestionResponsesInFixedOrder() }
         } catch (e: EmptyResultDataAccessException) {
             null
         }
