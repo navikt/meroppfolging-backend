@@ -153,7 +153,7 @@ class ResponseDao(
             WHERE form.person_ident = :person_ident
             AND form.form_type = :form_type
             AND form.created_at >= :from_date
-            ORDER BY form.created_at DESC
+            ORDER BY form.created_at DESC, question.created_at
             """.trimIndent()
 
         val namedParameters =
@@ -185,7 +185,7 @@ class ResponseDao(
             JOIN FORM_RESPONSE form ON question.response_id = form.uuid
             WHERE form.person_ident = :person_ident
             AND form.form_type = :form_type
-            ORDER BY form.created_at DESC
+            ORDER BY form.created_at DESC, question.created_at
             """.trimIndent()
 
         val namedParameters =
@@ -212,7 +212,7 @@ class ResponseDao(
             FROM QUESTION_RESPONSE question
             JOIN FORM_RESPONSE form ON question.response_id = form.uuid
             WHERE form.utsendt_varsel_uuid = :varsel_id
-            ORDER BY form.created_at DESC
+            ORDER BY form.created_at DESC, question.created_at
             """.trimIndent()
 
         val namedParameters =

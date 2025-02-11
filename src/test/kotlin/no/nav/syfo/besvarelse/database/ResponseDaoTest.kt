@@ -2,7 +2,7 @@ package no.nav.syfo.besvarelse.database
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
-import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.shouldBe
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.besvarelse.database.domain.QuestionResponse
@@ -146,19 +146,19 @@ class ResponseDaoTest : DescribeSpec() {
             assertEquals(latestQuestionResponse.answerText, question.answerText)
         }
 
-        it("Find latest response with multiple questions") {
+        it("should find a form response with questions in the same order as they were saved") {
             val personIdent = PersonIdentNumber("12345678911")
             val firstQuestionResponse =
                 QuestionResponse(
                     "FREMTIDIG_SITUASJON",
-                    "Hvordan ser du for deg din situasjon når sykepengene er slutt?",
+                    "Hvilken situasjon tror du at du er i når sykepengene har tatt slutt?",
                     "TILBAKE_HOS_ARBEIDSGIVER",
-                    "Jeg skal tilbake til min arbeidsgiver",
+                    "Jeg er frisk og tilbake hos arbeidsgiver",
                 )
             val secondQuestionResponse =
                 QuestionResponse(
                     "BEHOV_FOR_OPPFOLGING",
-                    "Trenger du hjelp fra NAV?",
+                    "Ønsker du å be om oppfølging?",
                     "JA",
                     "Ja",
                 )
@@ -181,8 +181,8 @@ class ResponseDaoTest : DescribeSpec() {
             checkNotNull(formResponse)
             checkNotNull(formResponse.questionResponses)
 
-            formResponse.questionResponses.shouldContain(firstQuestionResponse)
-            formResponse.questionResponses.shouldContain(secondQuestionResponse)
+            formResponse.questionResponses[0].questionType shouldBe firstQuestionResponse.questionType
+            formResponse.questionResponses[1].questionType shouldBe secondQuestionResponse.questionType
         }
 
         it("find response with varsel id") {
