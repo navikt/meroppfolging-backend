@@ -29,7 +29,7 @@ val mockkVersion = "1.13.17"
 val wiremockVersion = "3.12.1"
 val wiremockKotestExtensionVersion = "3.1.0"
 val detektVersion = "1.23.8"
-val testcontainersVersion = "1.20.5"
+val testcontainersVersion = "1.20.6"
 val springMockkVersion = "4.0.2"
 
 dependencies {
