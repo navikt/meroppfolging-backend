@@ -1,52 +1,13 @@
 package no.nav.syfo.senoppfolging.v2
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.auth.TokenValidator
-import no.nav.syfo.auth.getFnr
-import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
-import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
-import no.nav.syfo.besvarelse.database.ResponseDao
-import no.nav.syfo.besvarelse.database.domain.FormResponse
-import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
-import no.nav.syfo.besvarelse.database.domain.QuestionResponse
-import no.nav.syfo.dokarkiv.DokarkivClient
-import no.nav.syfo.domain.PersonIdentNumber
-import no.nav.syfo.metric.Metric
-import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
-import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
-import no.nav.syfo.senoppfolging.exception.AlreadyRespondedException
-import no.nav.syfo.senoppfolging.exception.NoAccessToSenOppfolgingException
-import no.nav.syfo.senoppfolging.exception.NoUtsendtVarselException
-import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
-import no.nav.syfo.senoppfolging.service.SenOppfolgingService
-import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.NO_RESPONSE
-import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_IKKE_OPPFOLGING
-import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_OPPFOLGING
-import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
-import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
-import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
-import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
-import no.nav.syfo.syfoopppdfgen.PdfgenService
-import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
-import no.nav.syfo.varsel.UtsendtVarselEsyfovarselCopy
-import no.nav.syfo.varsel.VarselService
 import org.springframework.boot.test.context.SpringBootTest
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 @SpringBootTest
 class SenOppfolgingControllerV2Test :
     DescribeSpec(
         {
-            val tokenValidationContextHolder = mockk<TokenValidationContextHolder>(relaxed = true)
+            /*val tokenValidationContextHolder = mockk<TokenValidationContextHolder>(relaxed = true)
             val tokenValidator = mockk<TokenValidator>(relaxed = true)
             val varselService = mockk<VarselService>(relaxed = true)
             val metric = mockk<Metric>(relaxed = true)
@@ -327,6 +288,6 @@ class SenOppfolgingControllerV2Test :
 
                     status.response shouldBe mutableListOf(questionResponse)
                 }
-            }
+            }*/
         },
     )

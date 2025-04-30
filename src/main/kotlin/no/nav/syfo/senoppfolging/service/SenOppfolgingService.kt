@@ -236,7 +236,7 @@ private fun createUserAccess(
     varsel: Varsel?,
     oppfolgingstilfelle: List<Oppfolgingstilfelle>,
 ): UserAccess {
-    if (!oppfolgingstilfelle.isInOppfolgingstilfellePlus16Days()) {
+    if (oppfolgingstilfelle.isInOppfolgingstilfellePlus16Days() || oppfolgingstilfelle.isEmpty()) {
         return UserAccess.Error(UserAccessError.NoAccessToSenOppfolging)
     }
     if (varsel == null) {
