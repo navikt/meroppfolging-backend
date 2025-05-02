@@ -4,9 +4,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.4.5"
     id("io.spring.dependency-management") version "1.1.7"
-    id("io.gitlab.arturbosch.detekt") version "1.23.7"
-    kotlin("jvm") version "2.0.10"
-    kotlin("plugin.spring") version "2.0.10"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    kotlin("jvm") version "2.0.21"
+    kotlin("plugin.spring") version "2.0.21"
 }
 
 group = "no.nav.syfo"
@@ -68,7 +68,7 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
 
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
