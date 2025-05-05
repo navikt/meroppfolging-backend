@@ -25,7 +25,7 @@ spec:
     timeout: 5
   gcp:
     sqlInstances:
-      - type: POSTGRES_15
+      - type: POSTGRES_17
         tier: db-f1-micro
         databases:
           - name: meroppfolging-backend-db
