@@ -20,7 +20,7 @@ class LocalApplication {
     @Bean
     @ServiceConnection
     fun dbContainer(): PostgreSQLContainer<Nothing> {
-        return PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:15-alpine")).apply {
+        return PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:17-alpine")).apply {
             withDatabaseName("testdb")
             withUsername("test")
             withPassword("test")
