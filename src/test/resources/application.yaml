@@ -29,9 +29,6 @@ pdl.scope: "local:pdl:pdl"
 dkif.url: "http://dkif"
 dkif.scope: "local:dkif:dkif"
 
-syfobehandlendeenhet.url: "http://syfobehandlendeenhet"
-syfobehandlendeenhet.id: "local:teamsykefravr:syfobehandlendeenhet"
-
 istilgangskontroll.url: "http://istilgangskontroll"
 istilgangskontroll.id: "local:teamsykefravr:istilgangskontroll"
 
