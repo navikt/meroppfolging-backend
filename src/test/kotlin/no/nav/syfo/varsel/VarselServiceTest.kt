@@ -12,8 +12,6 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.verify
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
-import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
 import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
@@ -44,9 +42,6 @@ class VarselServiceTest : DescribeSpec() {
 
     @SpykBean
     lateinit var pdlClient: PdlClient
-
-    @MockkBean(relaxed = true)
-    lateinit var behandlendeEnhetClient: BehandlendeEnhetClient
 
     @MockkBean(relaxed = true)
     lateinit var dkifClient: DkifClient
@@ -121,22 +116,6 @@ class VarselServiceTest : DescribeSpec() {
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
                 )
 
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns
-                    BehandlendeEnhet(
-                        "0624",
-                        "Testkontor",
-                    )
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns
-                    BehandlendeEnhet(
-                        "0624",
-                        "Testkontor",
-                    )
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678912") } returns
-                    BehandlendeEnhet(
-                        "0624",
-                        "Testkontor",
-                    )
-
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 
                 merOppfolgingVarselToBeSent.size shouldBe 1
@@ -157,17 +136,6 @@ class VarselServiceTest : DescribeSpec() {
                     gjenstaendeSykedager = "70",
                     forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
                 )
-
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678910") } returns
-                    BehandlendeEnhet(
-                        "0624",
-                        "Testkontor",
-                    )
-                every { behandlendeEnhetClient.getBehandlendeEnhet("12345678911") } returns
-                    BehandlendeEnhet(
-                        "0314",
-                        "Testkontor",
-                    )
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()
 

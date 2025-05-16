@@ -79,8 +79,6 @@ spec:
           namespace: teamsykefravr
         - application: istilgangskontroll
           namespace: teamsykefravr
-        - application: syfobehandlendeenhet
-          namespace: teamsykefravr
         - application: sykepengedager-informasjon
         - application: digdir-krr-proxy
           namespace: team-rocket
@@ -100,10 +98,6 @@ spec:
       value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_ID
       value: prod-gcp.teamsykefravr.istilgangskontroll
-    - name: SYFOBEHANDLENDEENHET_ID
-      value: "prod-gcp.teamsykefravr.syfobehandlendeenhet"
-    - name: SYFOBEHANDLENDEENHET_URL
-      value: "http://syfobehandlendeenhet.teamsykefravr"
     - name: SYFOOPPDFGEN_URL
       value: http://syfooppdfgen
     - name: DOKARKIV_URL

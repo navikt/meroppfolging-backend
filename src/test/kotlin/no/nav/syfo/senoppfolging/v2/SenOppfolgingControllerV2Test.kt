@@ -10,8 +10,6 @@ import io.mockk.verify
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
-import no.nav.syfo.behandlendeenhet.BehandlendeEnhetClient
-import no.nav.syfo.behandlendeenhet.domain.BehandlendeEnhet
 import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormResponse
 import no.nav.syfo.besvarelse.database.domain.FormType.SEN_OPPFOLGING_V2
@@ -51,7 +49,6 @@ class SenOppfolgingControllerV2Test :
             val varselService = mockk<VarselService>(relaxed = true)
             val metric = mockk<Metric>(relaxed = true)
             val responseDao = mockk<ResponseDao>(relaxed = true)
-            val behandlendeEnhetClient = mockk<BehandlendeEnhetClient>(relaxed = true)
             val senOppfolgingSvarKafkaProducer = mockk<SenOppfolgingSvarKafkaProducer>(relaxed = true)
             val sykepengedagerInformasjonService = mockk<SykepengedagerInformasjonService>(relaxed = true)
             val syfoopfpdfgenService = mockk<PdfgenService>(relaxed = true)
@@ -224,11 +221,6 @@ class SenOppfolgingControllerV2Test :
                     }
 
                     it("should archive (dokarkiv) submitted answers for all users") {
-                        every { behandlendeEnhetClient.getBehandlendeEnhet(ansattFnr) } returns
-                            BehandlendeEnhet(
-                                "0314",
-                                "Testkontor",
-                            )
                         every {
                             syfoopfpdfgenService.getSenOppfolgingReceiptPdf(ansattFnr, any(), any())
                         } returns ByteArray(1)
