@@ -26,7 +26,7 @@ data class DokarkivRequest(
             bruker = Bruker.create(id = avsenderMottaker.id, idType = avsenderMottaker.idType),
             dokumenter = dokumenter,
             journalfoerendeEnhet = JOURNALFORENDE_ENHET,
-            journalpostType = "UTGAAENDE",
+            journalpostType = "INNGAAENDE",
             tema = "OPP", // Oppfolging
             sak = Sak("GENERELL_SAK"),
             // By default, user can not see documents created by others. Following enables viewing on Mine Saker:
