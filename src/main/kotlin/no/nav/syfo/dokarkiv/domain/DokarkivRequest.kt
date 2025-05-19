@@ -33,7 +33,7 @@ data class DokarkivRequest(
             // By default, user can not see documents created by others. Following enables viewing on Mine Saker:
             overstyrInnsynsregler = "VISES_MASKINELT_GODKJENT",
             eksternReferanseId = eksternReferanseId,
-            kanal = "INGEN_DISTRIBUSJON"
+            kanal = "NAV_NO"
         )
     }
 }
