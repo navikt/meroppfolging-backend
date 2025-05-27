@@ -4,6 +4,9 @@ import jakarta.servlet.http.HttpServletRequest
 import no.nav.security.token.support.core.exceptions.JwtTokenInvalidClaimException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import no.nav.syfo.logger
+import no.nav.syfo.senoppfolging.exception.AlreadyRespondedException
+import no.nav.syfo.senoppfolging.exception.NoAccessToSenOppfolgingException
+import no.nav.syfo.senoppfolging.exception.NoUtsendtVarselException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.HttpMediaTypeNotAcceptableException
@@ -33,6 +36,9 @@ class GlobalExceptionHandler {
             is JwtTokenInvalidClaimException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
             is JwtTokenUnauthorizedException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
             is HttpMediaTypeNotAcceptableException -> createResponseEntity(HttpStatus.NOT_ACCEPTABLE)
+            is AlreadyRespondedException -> createResponseEntity(HttpStatus.CONFLICT, ex)
+            is NoAccessToSenOppfolgingException -> createResponseEntity(HttpStatus.FORBIDDEN, ex)
+            is NoUtsendtVarselException -> createResponseEntity(HttpStatus.CONFLICT, ex)
             else -> {
                 log.error("Internal server error - ${ex.message} - ${request.method}: ${request.requestURI}", ex)
                 createResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -43,6 +49,9 @@ class GlobalExceptionHandler {
 
 private fun createResponseEntity(status: HttpStatus): ResponseEntity<Any> =
     ResponseEntity(ApiError(status.reasonPhrase), status)
+
+private fun createResponseEntity(status: HttpStatus, ex: RuntimeException): ResponseEntity<Any> =
+    ResponseEntity(ApiError(reason = ex.message ?: HttpStatus.CONFLICT.reasonPhrase), status)
 
 private data class ApiError(val reason: String)
 

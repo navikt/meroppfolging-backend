@@ -39,6 +39,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import junit.framework.TestCase
+import org.springframework.http.HttpStatus
 
 @SpringBootTest
 class SenOppfolgingControllerV2Test :
@@ -119,7 +121,7 @@ class SenOppfolgingControllerV2Test :
 
             describe("Form submission") {
                 it("should save form response when oppfolgingstilfelle is active") {
-                    controller.submitForm(
+                    val response = controller.submitForm(
                         questionResponseReq,
                     )
 
@@ -143,6 +145,7 @@ class SenOppfolgingControllerV2Test :
                             ),
                         )
                     }
+                    TestCase.assertTrue(response.statusCode.isSameCodeAs(HttpStatus.CREATED))
                 }
                 it("should save form response when oppfolgingstilfelle ended 16 days ago") {
                     every {
