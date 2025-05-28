@@ -7,6 +7,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import junit.framework.TestCase.assertTrue
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
@@ -35,12 +36,11 @@ import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import no.nav.syfo.varsel.UtsendtVarselEsyfovarselCopy
 import no.nav.syfo.varsel.VarselService
-import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
-@SpringBootTest
 class SenOppfolgingControllerV2Test :
     DescribeSpec(
         {
@@ -119,7 +119,7 @@ class SenOppfolgingControllerV2Test :
 
             describe("Form submission") {
                 it("should save form response when oppfolgingstilfelle is active") {
-                    controller.submitForm(
+                    val response = controller.submitForm(
                         questionResponseReq,
                     )
 
@@ -143,6 +143,7 @@ class SenOppfolgingControllerV2Test :
                             ),
                         )
                     }
+                    assertTrue(response.statusCode.isSameCodeAs(HttpStatus.CREATED))
                 }
                 it("should save form response when oppfolgingstilfelle ended 16 days ago") {
                     every {

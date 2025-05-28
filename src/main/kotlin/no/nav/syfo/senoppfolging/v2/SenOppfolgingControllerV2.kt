@@ -17,7 +17,9 @@ import no.nav.syfo.senoppfolging.service.UserAccessError
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -58,7 +60,7 @@ class SenOppfolgingControllerV2(
     @ResponseBody
     fun submitForm(
         @RequestBody senOppfolgingSvar: SenOppfolgingDTOV2,
-    ) {
+    ): ResponseEntity<Unit> {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
 
@@ -70,16 +72,16 @@ class SenOppfolgingControllerV2(
                 is UserAccess.Error -> {
                     when (userAccess.error) {
                         UserAccessError.NoUtsendtVarsel -> throw NoUtsendtVarselException().also {
-                            log.error("User has no valid varsel.")
+                            log.warn("User has no valid varsel.")
                         }
                         UserAccessError.NoAccessToSenOppfolging -> throw NoAccessToSenOppfolgingException().also {
-                            log.error("User is not in a oppfolgingtilfelle + 16 days.")
+                            log.warn("User is not in a oppfolgingtilfelle + 16 days.")
                         }
                     }
                 }
             }
         senOppfolgingService.getResponseOrNull(varsel, personIdent)?.let {
-            log.error("User has already responded in the last 3 months. UUID: " + it.uuid)
+            log.warn("User has already responded in the last 3 months. UUID: " + it.uuid)
             throw AlreadyRespondedException()
         }
 
@@ -88,5 +90,6 @@ class SenOppfolgingControllerV2(
             senOppfolgingForm = senOppfolgingSvar,
             varsel = varsel,
         )
+        return ResponseEntity.status(HttpStatus.CREATED).build()
     }
 }
