@@ -72,16 +72,16 @@ class SenOppfolgingControllerV2(
                 is UserAccess.Error -> {
                     when (userAccess.error) {
                         UserAccessError.NoUtsendtVarsel -> throw NoUtsendtVarselException().also {
-                            log.error("User has no valid varsel.")
+                            log.warn("User has no valid varsel.")
                         }
                         UserAccessError.NoAccessToSenOppfolging -> throw NoAccessToSenOppfolgingException().also {
-                            log.error("User is not in a oppfolgingtilfelle + 16 days.")
+                            log.warn("User is not in a oppfolgingtilfelle + 16 days.")
                         }
                     }
                 }
             }
         senOppfolgingService.getResponseOrNull(varsel, personIdent)?.let {
-            log.info("User has already responded in the last 3 months. UUID: " + it.uuid)
+            log.warn("User has already responded in the last 3 months. UUID: " + it.uuid)
             throw AlreadyRespondedException()
         }
 
