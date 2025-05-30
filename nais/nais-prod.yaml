@@ -111,7 +111,7 @@ spec:
     - name: TOGGLE_SSPS_VARSELUTSENDING
       value: "true"
     - name: DKIF_URL
-      value: http://digdir-krr-proxy.team-rocket/rest/v1/person
+      value: http://digdir-krr-proxy.team-rocket/rest/v1/personer
     - name: DKIF_SCOPE
       value: prod-gcp.team-rocket.digdir-krr-proxy
     - name: SEND_VARSEL_JOB_CRON
