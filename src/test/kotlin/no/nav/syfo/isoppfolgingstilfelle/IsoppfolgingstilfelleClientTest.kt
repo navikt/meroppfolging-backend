@@ -14,6 +14,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.wiremock.ListenerMode
 import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.auth.tokendings.TokendingsClient
@@ -58,6 +59,7 @@ class IsoppfolgingstilfelleClientTest : FunSpec(
             )
             val result = isoppfolgingstilfelleClient.isSykmeldt(userToken)
             result shouldBe true
+            result shouldNotBe false
         }
 
         test("Tidligere oppfolgingstilfelle gir false") {
