@@ -11,6 +11,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.verify
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider.ZONKY
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase.RefreshMode.BEFORE_CLASS
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.dokarkiv.DokarkivClient
@@ -30,6 +33,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+@AutoConfigureEmbeddedDatabase(provider = ZONKY, refresh = BEFORE_CLASS)
 @EmbeddedKafka
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
