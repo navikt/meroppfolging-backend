@@ -24,13 +24,13 @@ val tokenSupportVersion = "5.0.29"
 val logstashLogbackEncoderVersion = "8.1"
 val kotestVersion = "5.9.1"
 val springKotestExtensionVersion = "1.3.0"
-val kotestTestContainersExtensionVersion = "2.0.2"
 val mockkVersion = "1.14.2"
-val wiremockVersion = "3.13.0"
+val wiremockVersion = "3.13.1"
 val wiremockKotestExtensionVersion = "3.1.0"
 val detektVersion = "1.23.8"
-val testcontainersVersion = "1.21.1"
 val springMockkVersion = "4.0.2"
+val zonkyVersion = "2.6.0"
+val zonkyPostgresVersion = "2.1.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
@@ -50,24 +50,19 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
-    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:$kotestTestContainersExtensionVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:$springKotestExtensionVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:$wiremockKotestExtensionVersion")
     testImplementation("org.wiremock:wiremock-standalone:$wiremockVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
-    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
-    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
-    testImplementation("org.testcontainers:kafka:$testcontainersVersion")
-    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
-
+    testImplementation("io.zonky.test:embedded-database-spring-test:${zonkyVersion}")
+    testImplementation("io.zonky.test:embedded-postgres:${zonkyPostgresVersion}")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }
 

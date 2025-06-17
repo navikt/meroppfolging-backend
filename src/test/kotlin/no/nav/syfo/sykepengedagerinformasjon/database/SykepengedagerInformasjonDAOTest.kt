@@ -4,6 +4,9 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase.DatabaseProvider.ZONKY
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase.RefreshMode.BEFORE_CLASS
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.sykepengedagerinformasjon.domain.PSykepengedagerInformasjon
 import no.nav.syfo.sykepengedagerinformasjon.domain.SykepengedagerInformasjonDTO
@@ -14,7 +17,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
 import java.time.LocalDate
 import java.time.LocalDateTime
-
+@AutoConfigureEmbeddedDatabase(provider = ZONKY, refresh = BEFORE_CLASS)
 @EmbeddedKafka
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
