@@ -162,7 +162,7 @@ class VarselServiceTest : DescribeSpec() {
                 every { dkifClient.person(any()).kanVarsles } returns true
                 every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } returns ByteArray(1)
                 every {
-                    dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any())
+                    dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any(), any())
                 } throws Exception("Help me")
 
                 varselService.sendMerOppfolgingVarsel(
@@ -181,7 +181,7 @@ class VarselServiceTest : DescribeSpec() {
             it("Should store utsendt varsel post to dokarkiv OK") {
                 every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } returns ByteArray(1)
                 every {
-                    dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any())
+                    dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any(), any())
                 } returns DokarkivResponse(null, 1, null, "status", null)
 
                 varselService.sendMerOppfolgingVarsel(

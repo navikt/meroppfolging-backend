@@ -5,6 +5,7 @@ import no.nav.syfo.besvarelse.database.ResponseDao
 import no.nav.syfo.besvarelse.database.domain.FormResponse
 import no.nav.syfo.besvarelse.database.domain.FormType
 import no.nav.syfo.dokarkiv.DokarkivClient
+import no.nav.syfo.dokarkiv.domain.Distribusjonskanal
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
@@ -172,6 +173,7 @@ class SenOppfolgingService(
                 forsendelseTittel = "Spørreskjema ved snart slutt på sykepenger – Din utfylling og kvittering",
                 eksternReferanseId = storedSubmissionId.toString(),
                 documentsData = documentsData,
+                kanal = Distribusjonskanal.NAV_NO_UTEN_VARSLING
             )
         }
     }

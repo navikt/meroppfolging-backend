@@ -8,6 +8,7 @@ import no.nav.syfo.auth.azuread.AzureAdClient
 import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.createCallId
 import no.nav.syfo.dokarkiv.domain.AvsenderMottaker
+import no.nav.syfo.dokarkiv.domain.Distribusjonskanal
 import no.nav.syfo.dokarkiv.domain.DokarkivRequest
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
 import no.nav.syfo.dokarkiv.domain.Dokument
@@ -47,6 +48,7 @@ class DokarkivClient(
         forsendelseTittel: String,
         eksternReferanseId: String,
         documentsData: List<SingleDocumentData>,
+        kanal: Distribusjonskanal?
     ): DokarkivResponse? {
         return try {
             val token = azureAdClient.getSystemToken(dokarkivScope)
@@ -56,6 +58,7 @@ class DokarkivClient(
                 forsendelseTittel,
                 eksternReferanseId,
                 documentsData,
+                kanal
             )
 
             val response = RestTemplate().postForEntity(
@@ -115,6 +118,7 @@ class DokarkivClient(
         eksternReferanseId: String,
         title: String,
         filnavn: String,
+        kanal: Distribusjonskanal?
     ): DokarkivResponse? {
         val documentsData = listOf(
             SingleDocumentData(
@@ -129,6 +133,7 @@ class DokarkivClient(
             forsendelseTittel = title,
             eksternReferanseId,
             documentsData,
+            kanal
         )
     }
 
@@ -137,6 +142,7 @@ class DokarkivClient(
         forsendelseTittel: String,
         eksternReferanseId: String,
         documentsData: List<SingleDocumentData>,
+        kanal: Distribusjonskanal?
     ): DokarkivRequest {
         val dokumenter: List<Dokument> = documentsData.map {
             val dokumentvarianter = listOf(Dokumentvariant.create(fysiskDokument = it.pdf, filnavn = it.filnavn))
@@ -152,6 +158,7 @@ class DokarkivClient(
             dokumenter = dokumenter,
             eksternReferanseId = eksternReferanseId,
             tittel = forsendelseTittel,
+            kanal = kanal,
         )
     }
 

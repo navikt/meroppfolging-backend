@@ -2,6 +2,7 @@ package no.nav.syfo.varsel
 
 import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.dokarkiv.DokarkivClient
+import no.nav.syfo.dokarkiv.domain.Distribusjonskanal
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.pdl.PdlClient
@@ -70,6 +71,7 @@ class VarselService(
                     eksternReferanseId = uuid,
                     title = "Snart slutt på sykepenger – Informasjon om maksdato og spørreskjema",
                     filnavn = "SSPS-informasjon",
+                    kanal = if (!isUserReservert) Distribusjonskanal.NAV_NO else null,
                 )
             if (dokarkivResponse != null) {
                 val hendelse =
