@@ -1,6 +1,12 @@
 package no.nav.syfo.dokarkiv.domain
 
+const val JOURNALPOSTTYPE_UTGAAENDE = "UTGAAENDE"
 const val JOURNALFORENDE_ENHET = 9999 // automatisk journalføring uten mennesker involvert
+
+enum class Distribusjonskanal {
+    NAV_NO,
+    NAV_NO_UTEN_VARSLING,
+}
 
 data class DokarkivRequest(
     val avsenderMottaker: AvsenderMottaker,
@@ -13,7 +19,7 @@ data class DokarkivRequest(
     val sak: Sak,
     val overstyrInnsynsregler: String,
     val eksternReferanseId: String,
-    val kanal: String
+    val kanal: String?,
 ) {
     companion object {
         fun create(
@@ -21,19 +27,20 @@ data class DokarkivRequest(
             dokumenter: List<Dokument>,
             eksternReferanseId: String,
             tittel: String,
+            kanal: Distribusjonskanal?,
         ) = DokarkivRequest(
             avsenderMottaker = avsenderMottaker,
             tittel = tittel,
             bruker = Bruker.create(id = avsenderMottaker.id, idType = avsenderMottaker.idType),
             dokumenter = dokumenter,
             journalfoerendeEnhet = JOURNALFORENDE_ENHET,
-            journalpostType = "UTGAAENDE",
+            journalpostType = JOURNALPOSTTYPE_UTGAAENDE,
             tema = "OPP", // Oppfolging
             sak = Sak("GENERELL_SAK"),
             // By default, user can not see documents created by others. Following enables viewing on Mine Saker:
             overstyrInnsynsregler = "VISES_MASKINELT_GODKJENT",
             eksternReferanseId = eksternReferanseId,
-            kanal = "NAV_NO"
+            kanal = kanal?.name,
         )
     }
 }

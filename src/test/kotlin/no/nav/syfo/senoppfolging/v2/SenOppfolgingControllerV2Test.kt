@@ -235,7 +235,7 @@ class SenOppfolgingControllerV2Test :
                         }
                         verify(
                             exactly = 1,
-                        ) { dokarkivClient.postDocumentsForsendelseToDokarkiv(ansattFnr, any(), any(), any()) }
+                        ) { dokarkivClient.postDocumentsForsendelseToDokarkiv(ansattFnr, any(), any(), any(), any()) }
                     }
                 }
             }
