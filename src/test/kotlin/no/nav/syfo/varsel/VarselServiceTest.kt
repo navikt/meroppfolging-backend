@@ -108,15 +108,15 @@ class VarselServiceTest : DescribeSpec() {
                     fnr = "12345678910",
                     activeSykmelding = true,
                     gjenstaendeSykedager = "70",
-                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(90),
                 )
 
-                // No varsel due to 100 gjenstående sykedager
+                // No varsel due to over 120 days to forelopigBeregnetSlutt
                 createMockdataForFnr(
                     fnr = "12345678911",
                     activeSykmelding = true,
                     gjenstaendeSykedager = "100",
-                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(130),
                 )
 
                 // No varsel due to no active sykmelding
@@ -124,7 +124,7 @@ class VarselServiceTest : DescribeSpec() {
                     fnr = "12345678912",
                     activeSykmelding = false,
                     gjenstaendeSykedager = "70",
-                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(90),
                 )
 
                 val merOppfolgingVarselToBeSent = varselService.findMerOppfolgingVarselToBeSent()

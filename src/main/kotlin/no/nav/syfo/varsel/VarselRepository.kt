@@ -8,10 +8,12 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Repository
-class VarselRepository(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,) {
-    val gjenstaendeSykedagerLimit = 91
-    val nyttVarselLimit = 106
-    val maxDateLimit = 14
+class VarselRepository(
+    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
+) {
+    val maxDagerIgjenTilMaksdatoForVarsling = 120
+    val minDagerIgjenTilMaksdatoForVarsling = 14
+    val minDagerMellomToVarslerTilSammePerson = 110
 
     fun getUtsendtVarsel(personIdent: String): UtsendtVarsel? {
         val sql =
@@ -19,7 +21,7 @@ class VarselRepository(private val namedParameterJdbcTemplate: NamedParameterJdb
             select uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id
             from UTSENDT_VARSEL
             where person_ident = :person_ident
-            AND UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY
+            AND UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$minDagerMellomToVarslerTilSammePerson' DAY
             """.trimIndent()
 
         val parameters =
@@ -36,7 +38,7 @@ class VarselRepository(private val namedParameterJdbcTemplate: NamedParameterJdb
             select uuid_esyfovarsel, fnr, utsendt_tidspunkt
             from COPY_UTSENDT_VARSEL_ESYFOVARSEL
             where fnr = :person_ident
-            AND utsendt_tidspunkt > NOW() - INTERVAL '$nyttVarselLimit' DAY
+            AND utsendt_tidspunkt > NOW() - INTERVAL '$minDagerMellomToVarslerTilSammePerson' DAY
             """.trimIndent()
 
         val parameters =
@@ -107,18 +109,18 @@ class VarselRepository(private val namedParameterJdbcTemplate: NamedParameterJdb
                 FROM sykmelding AS latest_sykmelding
                 WHERE sykmelding.employee_identification_number = latest_sykmelding.employee_identification_number
                 ORDER BY latest_sykmelding.created_at DESC
-                LIMIT 1)       
-            AND spdi.gjenstaende_sykedager < $gjenstaendeSykedagerLimit
+                LIMIT 1)
+            AND spdi.forelopig_beregnet_slutt <= current_date + INTERVAL '$maxDagerIgjenTilMaksdatoForVarsling' DAY
+            AND spdi.forelopig_beregnet_slutt >= current_date + INTERVAL '$minDagerIgjenTilMaksdatoForVarsling' DAY
             AND sykmelding.tom > CURRENT_TIMESTAMP
-            AND spdi.forelopig_beregnet_slutt >= current_date + INTERVAL '$maxDateLimit' DAY
             AND spdi.person_ident NOT IN
                 (SELECT utsendt_varsel.person_ident
                 FROM UTSENDT_VARSEL
-                WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY)
+                WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$minDagerMellomToVarslerTilSammePerson' DAY)
             AND spdi.person_ident NOT IN
                 (SELECT copy_utsendt_varsel_esyfovarsel.fnr
                 FROM copy_utsendt_varsel_esyfovarsel
-                WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$nyttVarselLimit' DAY)
+                WHERE UTSENDT_TIDSPUNKT > NOW() - INTERVAL '$minDagerMellomToVarslerTilSammePerson' DAY)
             AND spdi.person_ident NOT IN
                 (SELECT skip_varselutsending.person_ident
                 FROM skip_varselutsending);
