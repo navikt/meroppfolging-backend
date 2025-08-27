@@ -4,6 +4,7 @@ import no.nav.syfo.utils.formatDateForDisplay
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 data class PSykepengedagerInformasjon(
     val utbetalingId: String,
@@ -20,8 +21,8 @@ fun PSykepengedagerInformasjon.forelopigBeregnetSluttFormatted(): String {
 }
 
 fun PSykepengedagerInformasjon.forelopigBeregnetSluttISO(): String {
-    return this.forelopigBeregnetSlutt.format(DateTimeFormatter.ISO_LOCAL_DATE)
-}
+    return this.forelopigBeregnetSlutt.format(
+        DateTimeFormatter.ofPattern("d. MMMM yyyy").withLocale(Locale.forLanguageTag("nb-NO"))    )}
 
 fun PSykepengedagerInformasjon.utbetaltTomFormatted(): String {
     return formatDateForDisplay(this.utbetaltTom)
