@@ -21,8 +21,8 @@ fun PSykepengedagerInformasjon.forelopigBeregnetSluttFormatted(): String {
 }
 
 fun PSykepengedagerInformasjon.forelopigBeregnetSluttISO(): String {
-    return this.forelopigBeregnetSlutt.format(
-        DateTimeFormatter.ofPattern("d. MMMM yyyy").withLocale(Locale.forLanguageTag("nb-NO"))    )}
+    return this.forelopigBeregnetSlutt.format(DateTimeFormatter.ISO_LOCAL_DATE)
+}
 
 fun PSykepengedagerInformasjon.utbetaltTomFormatted(): String {
     return formatDateForDisplay(this.utbetaltTom)
