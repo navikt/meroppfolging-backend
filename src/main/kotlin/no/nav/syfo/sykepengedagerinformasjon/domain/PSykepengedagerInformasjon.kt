@@ -1,8 +1,9 @@
 package no.nav.syfo.sykepengedagerinformasjon.domain
 
-import no.nav.syfo.utils.formatDateForDisplayAndPdf
+import no.nav.syfo.utils.formatDateForDisplay
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class PSykepengedagerInformasjon(
     val utbetalingId: String,
@@ -15,9 +16,17 @@ data class PSykepengedagerInformasjon(
 )
 
 fun PSykepengedagerInformasjon.forelopigBeregnetSluttFormatted(): String {
-    return formatDateForDisplayAndPdf(this.forelopigBeregnetSlutt)
+    return formatDateForDisplay(this.forelopigBeregnetSlutt)
+}
+
+fun PSykepengedagerInformasjon.forelopigBeregnetSluttISO(): String {
+    return this.forelopigBeregnetSlutt.format(DateTimeFormatter.ISO_LOCAL_DATE)
 }
 
 fun PSykepengedagerInformasjon.utbetaltTomFormatted(): String {
-    return formatDateForDisplayAndPdf(this.utbetaltTom)
+    return formatDateForDisplay(this.utbetaltTom)
+}
+
+fun PSykepengedagerInformasjon.utbetaltTomISO(): String {
+    return this.utbetaltTom.format(DateTimeFormatter.ISO_LOCAL_DATE)
 }
