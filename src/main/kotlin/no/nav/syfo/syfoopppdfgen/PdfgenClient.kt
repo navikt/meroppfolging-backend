@@ -2,7 +2,7 @@ package no.nav.syfo.syfoopppdfgen
 
 import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
-import no.nav.syfo.utils.formatDateForDisplay
+import no.nav.syfo.utils.formatDateForDisplayAndPdf
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
@@ -84,7 +84,7 @@ class PdfgenClient(
     ): HttpEntity<PdfgenRequest> {
         val brevDataSenOppfolgingLanding =
             BrevdataSenOppfolgingLanding(
-                sendtdato = formatDateForDisplay(LocalDate.now()),
+                sendtdato = formatDateForDisplayAndPdf(LocalDate.now()),
                 daysLeft = daysLeft,
                 maxdato = maxDateFormatted,
                 utbetaltTom = utbetaltTom,
@@ -128,8 +128,8 @@ class PdfgenClient(
         questionTextBehovForOppfolging: String?,
         answerTextBehovForOppfolging: String?,
         submissionDateISO: String,
-        maxDateISO: String?,
-        utbetaltTomISO: String?,
+        maxDateFormatted: String?,
+        utbetaltTomFormatted: String?,
         daysUntilMaxDate: String?,
     ): ByteArray {
         val url =
@@ -142,8 +142,8 @@ class PdfgenClient(
                 questionTextBehovForOppfolging = questionTextBehovForOppfolging,
                 answerTextBehovForOppfolging = answerTextBehovForOppfolging,
                 submissionDateISO = submissionDateISO,
-                maxDateISO = maxDateISO,
-                utbetaltTomISO = utbetaltTomISO,
+                maxDateFormatted = maxDateFormatted,
+                utbetaltTomFormatted = utbetaltTomFormatted,
                 daysUntilMaxDate = daysUntilMaxDate,
             )
 
@@ -157,8 +157,8 @@ class PdfgenClient(
         questionTextBehovForOppfolging: String?,
         answerTextBehovForOppfolging: String?,
         submissionDateISO: String,
-        maxDateISO: String?,
-        utbetaltTomISO: String?,
+        maxDateFormatted: String?,
+        utbetaltTomFormatted: String?,
         daysUntilMaxDate: String?,
     ): HttpEntity<PdfgenRequest> {
         val brevdataSenOppfolgingReceipt =
@@ -169,8 +169,8 @@ class PdfgenClient(
                 questionTextBehovForOppfolging = questionTextBehovForOppfolging,
                 answerTextBehovForOppfolging = answerTextBehovForOppfolging,
                 submissionDateISO = submissionDateISO,
-                maxdatoISO = maxDateISO,
-                utbetaltTomISO = utbetaltTomISO,
+                maxdatoISO = maxDateFormatted,
+                utbetaltTomISO = utbetaltTomFormatted,
                 daysUntilMaxDate = daysUntilMaxDate,
             )
 
