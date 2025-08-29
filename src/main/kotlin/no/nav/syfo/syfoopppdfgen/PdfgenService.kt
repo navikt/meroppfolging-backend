@@ -7,7 +7,9 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttFormatted
+import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttISO
 import no.nav.syfo.sykepengedagerinformasjon.domain.utbetaltTomFormatted
+import no.nav.syfo.sykepengedagerinformasjon.domain.utbetaltTomISO
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -87,8 +89,8 @@ class PdfgenService(
                     it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
                 }?.answerText,
                 submissionDateISO = submissionDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                maxDateFormatted = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
-                utbetaltTomFormatted = sykepengerInformasjon?.utbetaltTomFormatted(),
+                maxDateISO = sykepengerInformasjon?.forelopigBeregnetSluttISO(),
+                utbetaltTomISO = sykepengerInformasjon?.utbetaltTomISO(),
                 daysUntilMaxDate = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
             )
         } catch (e: Exception) {
