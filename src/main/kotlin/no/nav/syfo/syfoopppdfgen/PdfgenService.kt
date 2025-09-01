@@ -86,7 +86,7 @@ class PdfgenService(
                 answerTextBehovForOppfolging = answersToQuestions.firstOrNull {
                     it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
                 }?.answerText,
-                submissionDateISO = submissionDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                submissionDateFormatted = submissionDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 maxDateFormatted = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
                 utbetaltTomFormatted = sykepengerInformasjon?.utbetaltTomFormatted(),
                 daysUntilMaxDate = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
