@@ -15,9 +15,9 @@ class BrevdataSenOppfolgingReceipt(
     val answerTextFremtidigSituasjon: String?,
     val questionTextBehovForOppfolging: String?,
     val answerTextBehovForOppfolging: String?,
-    val submissionDateISO: String,
-    val maxdatoISO: String?,
-    val utbetaltTomISO: String?,
+    val submissionDateFormatted: String,
+    val maxdatoFormatted: String?,
+    val utbetaltTomFormatted: String?,
     val daysUntilMaxDate: String?,
 ) : Brevdata
 
