@@ -33,7 +33,7 @@ class KartleggingssporsmalDAO(
         namedParameterJdbcTemplate.update(insertStatement, parameters)
     }
 
-    fun getLatestKartleggingssporsmalerByFnr(fnr: String): PersistedKartleggingssporsmal? {
+    fun getLatestKartleggingssporsmalByFnr(fnr: String): PersistedKartleggingssporsmal? {
         val selectStatement = """
             SELECT
                 uuid,

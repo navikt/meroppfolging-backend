@@ -80,7 +80,7 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
                     )
                 )
 
-                val persisted = kartleggingssporsmalDAO.getLatestKartleggingssporsmalerByFnr(fnr)
+                val persisted = kartleggingssporsmalDAO.getLatestKartleggingssporsmalByFnr(fnr)
                 persisted!!.fnr shouldBe fnr
                 persisted.formSnapshot shouldBe snapshot
                 persisted.uuid shouldNotBe null

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import java.io.Serializable
 
 // The kdoc comments are written in regard to FormSnapshot being used in a general context,
-// not specifically for the motebehov use case.
+// not specifically for the meroppfolging use case.
 
 /**
  * FormSnapshot is a data class describing details of some simple form and how it was filled out in a form submission.
