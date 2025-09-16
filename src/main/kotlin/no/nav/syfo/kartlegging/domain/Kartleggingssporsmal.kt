@@ -4,6 +4,10 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import java.time.Instant
 import java.util.UUID
 
+data class KartleggingssporsmalRequest(
+    val formSnapshot: FormSnapshot,
+)
+
 
 data class Kartleggingssporsmal (
     val fnr: String,
