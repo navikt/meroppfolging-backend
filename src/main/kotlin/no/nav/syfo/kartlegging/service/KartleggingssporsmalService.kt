@@ -6,7 +6,6 @@ import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
 import no.nav.syfo.kartlegging.domain.formsnapshot.FieldSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldType
-import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.validateFields
 import org.springframework.stereotype.Service
 
@@ -16,7 +15,6 @@ class KartleggingssporsmalService(
 ) {
 
     fun persistKartleggingssporsmal(personIdent: String, kartleggingssporsmalRequest: KartleggingssporsmalRequest) {
-        validateFormSnapshot(kartleggingssporsmalRequest.formSnapshot)
         kartleggingssporsmalDAO.persistKartleggingssporsmal(
             Kartleggingssporsmal(
                 fnr = personIdent,
@@ -24,12 +22,12 @@ class KartleggingssporsmalService(
             )
         )
     }
-    private fun validateFormSnapshot(formSnapshot: FormSnapshot) {
+    fun validateFormSnapshot(formSnapshot: FormSnapshot) {
         val requiredFieldIds = listOf(
             // TODO: Add correct fieldIds and types
-            Pair("fieldId1", FormSnapshotFieldType.RADIO_GROUP),
-            Pair("fieldId2", FormSnapshotFieldType.RADIO_GROUP),
-            Pair("fieldId3", FormSnapshotFieldType.RADIO_GROUP),
+            "fieldId1" to FormSnapshotFieldType.RADIO_GROUP,
+            "fieldId2" to FormSnapshotFieldType.RADIO_GROUP,
+            "fieldId3" to FormSnapshotFieldType.RADIO_GROUP,
         )
         for ((requiredFieldId, requiredFieldType) in requiredFieldIds) {
             val fieldSnapshot: FieldSnapshot? = formSnapshot.fieldSnapshots.find { it.fieldId == requiredFieldId }

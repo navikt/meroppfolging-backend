@@ -6,7 +6,6 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
-import no.nav.syfo.kartlegging.domain.formsnapshot.validateFields
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
@@ -41,6 +40,7 @@ class KartleggingssporsmalControllerV1(
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         // TODO: Sjekk om person er kandidat, eller kanskje kun om det er oppfolgingstilfelle på personen
 
+        kartleggingssporsmalService.validateFormSnapshot(kartleggingssporsmal.formSnapshot)
         kartleggingssporsmalService.persistKartleggingssporsmal(personIdent, kartleggingssporsmal)
 
         return ResponseEntity
