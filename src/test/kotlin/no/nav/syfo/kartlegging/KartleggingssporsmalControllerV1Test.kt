@@ -52,7 +52,7 @@ class KartleggingssporsmalControllerV1Test :
                     formSnapshotVersion = "1",
                     fieldSnapshots = listOf(
                         RadioGroupFieldSnapshot(
-                            fieldId = "fieldId1",
+                            fieldId = "hvorSannsynligTilbakeTilJobben",
                             label = "Label 1",
                             options = listOf(
                                 FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
@@ -60,7 +60,7 @@ class KartleggingssporsmalControllerV1Test :
                             ),
                         ),
                         RadioGroupFieldSnapshot(
-                            fieldId = "fieldId2",
+                            fieldId = "samarbeidOgRelasjonTilArbeidsgiver",
                             label = "Label 2",
                             options = listOf(
                                 FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
@@ -68,7 +68,7 @@ class KartleggingssporsmalControllerV1Test :
                             ),
                         ),
                         RadioGroupFieldSnapshot(
-                            fieldId = "fieldId3",
+                            fieldId = "naarTilbakeTilJobben",
                             label = "Label 3",
                             options = listOf(
                                 FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
