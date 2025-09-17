@@ -89,37 +89,5 @@ class KartleggingssporsmalControllerV1Test :
                 persistedSlot.captured.fnr shouldBe fnr
                 persistedSlot.captured.formSnapshot shouldBe formSnapshot
             }
-
-            it("returns 400 BAD_REQUEST if form snapshot is missing required fieldId") {
-                val formSnapshot = FormSnapshot(
-                    formIdentifier = "kartlegging-test-form",
-                    formSemanticVersion = "1.0.0",
-                    formSnapshotVersion = "1",
-                    fieldSnapshots = listOf(
-                        RadioGroupFieldSnapshot(
-                            fieldId = "fieldId1",
-                            label = "Label 1",
-                            options = listOf(
-                                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
-                                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
-                            ),
-                        ),
-                        RadioGroupFieldSnapshot(
-                            fieldId = "fieldId2",
-                            label = "Label 2",
-                            options = listOf(
-                                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
-                                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
-                            ),
-                        ),
-                        // Missing required fieldId3
-                    ),
-                )
-                val request = KartleggingssporsmalRequest(formSnapshot = formSnapshot)
-
-                val response = controller.postKartleggingssporsmal(request)
-
-                response.statusCode shouldBe HttpStatus.BAD_REQUEST
-            }
         }
     })

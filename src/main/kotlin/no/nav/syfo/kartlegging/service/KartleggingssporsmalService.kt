@@ -3,6 +3,7 @@ package no.nav.syfo.kartlegging.service
 import no.nav.syfo.kartlegging.database.KartleggingssporsmalDAO
 import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
+import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.formsnapshot.FieldSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldType
@@ -13,6 +14,10 @@ import org.springframework.stereotype.Service
 class KartleggingssporsmalService(
     private val kartleggingssporsmalDAO: KartleggingssporsmalDAO,
 ) {
+
+    fun getLatestKartleggingssporsmal(personIdent: String): PersistedKartleggingssporsmal? {
+        return kartleggingssporsmalDAO.getLatestKartleggingssporsmalByFnr(personIdent)
+    }
 
     fun persistKartleggingssporsmal(personIdent: String, kartleggingssporsmalRequest: KartleggingssporsmalRequest) {
         kartleggingssporsmalDAO.persistKartleggingssporsmal(

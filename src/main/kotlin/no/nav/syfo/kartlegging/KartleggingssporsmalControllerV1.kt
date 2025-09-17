@@ -6,10 +6,12 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
+import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -46,5 +48,14 @@ class KartleggingssporsmalControllerV1(
         return ResponseEntity
             .ok()
             .build()
+    }
+
+    @GetMapping
+    fun getLatest(): ResponseEntity<PersistedKartleggingssporsmal> {
+        val personIdent = tokenValidator.validateTokenXClaims().getFnr()
+        val latest = kartleggingssporsmalService.getLatestKartleggingssporsmal(personIdent)
+            ?: return ResponseEntity.status(404).build()
+
+        return ResponseEntity.ok().body(latest)
     }
 }
