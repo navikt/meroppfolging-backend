@@ -24,10 +24,9 @@ class KartleggingssporsmalService(
     }
     fun validateFormSnapshot(formSnapshot: FormSnapshot) {
         val requiredFieldIds = listOf(
-            // TODO: Add correct fieldIds and types
-            "fieldId1" to FormSnapshotFieldType.RADIO_GROUP,
-            "fieldId2" to FormSnapshotFieldType.RADIO_GROUP,
-            "fieldId3" to FormSnapshotFieldType.RADIO_GROUP,
+            "hvorSannsynligTilbakeTilJobben" to FormSnapshotFieldType.RADIO_GROUP,
+            "samarbeidOgRelasjonTilArbeidsgiver" to FormSnapshotFieldType.RADIO_GROUP,
+            "naarTilbakeTilJobben" to FormSnapshotFieldType.RADIO_GROUP,
         )
         for ((requiredFieldId, requiredFieldType) in requiredFieldIds) {
             val fieldSnapshot: FieldSnapshot? = formSnapshot.fieldSnapshots.find { it.fieldId == requiredFieldId }
