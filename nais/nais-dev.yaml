@@ -73,6 +73,8 @@ spec:
         - application: esyfo-proxy
         - application: syfomodiaperson
           namespace: teamsykefravr
+        - application: tokenx-token-generator
+          namespace: nais
     outbound:
       rules:
         - application: syfooppdfgen
