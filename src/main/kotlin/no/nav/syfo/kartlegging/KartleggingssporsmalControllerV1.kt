@@ -24,14 +24,20 @@ class KartleggingssporsmalControllerV1(
     @Value("\${BRO_FRONTEND_CLIENT_ID}")
     val broFrontendClientId: String,
     val tokenValidationContextHolder: TokenValidationContextHolder,
-    val kartleggingssporsmalService: KartleggingssporsmalService
+    val kartleggingssporsmalService: KartleggingssporsmalService,
+    // Should always be null in prod
+    @Value("\${TOKEN_X_GENERATOR_CLIENT_ID:#{null}}")
+    val tokenXGeneratorClientId: String? = null,
 ) {
 
     lateinit var tokenValidator: TokenValidator
 
     @PostConstruct
     fun init() {
-        tokenValidator = TokenValidator(tokenValidationContextHolder, listOf(broFrontendClientId))
+        tokenValidator = TokenValidator(
+            tokenValidationContextHolder,
+            listOfNotNull(broFrontendClientId, tokenXGeneratorClientId)
+        )
     }
 
     @PostMapping
