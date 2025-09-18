@@ -9,6 +9,7 @@ import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -50,12 +51,13 @@ class KartleggingssporsmalControllerV1(
             .build()
     }
 
-    @GetMapping
+    @GetMapping("/latest", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getLatest(): ResponseEntity<PersistedKartleggingssporsmal> {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val latest = kartleggingssporsmalService.getLatestKartleggingssporsmal(personIdent)
             ?: return ResponseEntity.status(404).build()
 
+        // TODO: Sjekk om latest er innenfor nåværende oppfolgingstilfelle?
         return ResponseEntity.ok().body(latest)
     }
 }
