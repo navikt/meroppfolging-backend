@@ -3,6 +3,8 @@ package no.nav.syfo.exception
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.security.token.support.core.exceptions.JwtTokenInvalidClaimException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
+import no.nav.syfo.kartlegging.exception.InvalidFormException
+import no.nav.syfo.kartlegging.exception.UserResponseNotFoundException
 import no.nav.syfo.logger
 import no.nav.syfo.senoppfolging.exception.AlreadyRespondedException
 import no.nav.syfo.senoppfolging.exception.NoAccessToSenOppfolgingException
@@ -39,6 +41,8 @@ class GlobalExceptionHandler {
             is AlreadyRespondedException -> createResponseEntity(HttpStatus.CONFLICT, ex)
             is NoAccessToSenOppfolgingException -> createResponseEntity(HttpStatus.FORBIDDEN, ex)
             is NoUtsendtVarselException -> createResponseEntity(HttpStatus.CONFLICT, ex)
+            is InvalidFormException -> createResponseEntity(HttpStatus.BAD_REQUEST, ex)
+            is UserResponseNotFoundException -> createResponseEntity(HttpStatus.NOT_FOUND, ex)
             else -> {
                 log.error("Internal server error - ${ex.message} - ${request.method}: ${request.requestURI}", ex)
                 createResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
