@@ -7,9 +7,9 @@ import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
+import no.nav.syfo.kartlegging.exception.UserResponseNotFoundException
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.server.ResponseStatusException
 
 @Controller
 @RequestMapping("/api/v1/kartleggingssporsmal")
@@ -61,7 +60,7 @@ class KartleggingssporsmalControllerV1(
     fun getLatest(): ResponseEntity<PersistedKartleggingssporsmal> {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val latest = kartleggingssporsmalService.getLatestKartleggingssporsmal(personIdent)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Fant ikke ingen kartleggingssporsmal for bruker")
+            ?: throw UserResponseNotFoundException("Fant ikke ingen kartleggingssporsmal for bruker")
 
         // TODO: Sjekk om latest er innenfor nåværende oppfolgingstilfelle?
         return ResponseEntity.ok().body(latest)
