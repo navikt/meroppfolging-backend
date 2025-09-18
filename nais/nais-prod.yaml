@@ -69,6 +69,7 @@ spec:
     inbound:
       rules:
         - application: meroppfolging-frontend
+        - application: bro-frontend
         - application: esyfo-proxy
         - application: syfomodiaperson
           namespace: teamsykefravr
@@ -88,6 +89,8 @@ spec:
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
       value: "prod-gcp:team-esyfo:meroppfolging-frontend"
+    - name: BRO_FRONTEND_CLIENT_ID
+      value: "prod-gcp:team-esyfo:bro-frontend"
     - name: ESYFO_PROXY_CLIENT_ID
       value: "prod-gcp:team-esyfo:esyfo-proxy"
     - name: ISOPPFOLGINGSTILFELLE_URL

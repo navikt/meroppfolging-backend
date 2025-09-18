@@ -8,6 +8,7 @@ no.nav.security.jwt:
       accepted_audience: meroppfolging-backend-client-id
 
 MEROPPFOLGING_FRONTEND_CLIENT_ID: 'meroppfolging-frontend-client-id'
+BRO_FRONTEND_CLIENT_ID: 'bro-frontend-client-id'
 ESYFO_PROXY_CLIENT_ID: 'esyfo-proxy-client-id'
 SYFOOPPDFGEN_URL: 'http://syfooppdfgenurl'
 NAIS_CLUSTER_NAME: 'local'

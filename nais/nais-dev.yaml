@@ -69,9 +69,12 @@ spec:
     inbound:
       rules:
         - application: meroppfolging-frontend
+        - application: bro-frontend
         - application: esyfo-proxy
         - application: syfomodiaperson
           namespace: teamsykefravr
+        - application: tokenx-token-generator
+          namespace: nais
     outbound:
       rules:
         - application: syfooppdfgen
@@ -88,6 +91,10 @@ spec:
   env:
     - name: MEROPPFOLGING_FRONTEND_CLIENT_ID
       value: "dev-gcp:team-esyfo:meroppfolging-frontend"
+    - name: BRO_FRONTEND_CLIENT_ID
+      value: "dev-gcp:team-esyfo:bro-frontend"
+    - name: TOKEN_X_GENERATOR_CLIENT_ID
+      value: "dev-gcp:nais:tokenx-token-generator"
     - name: ESYFO_PROXY_CLIENT_ID
       value: "dev-gcp:team-esyfo:esyfo-proxy"
     - name: ISOPPFOLGINGSTILFELLE_URL

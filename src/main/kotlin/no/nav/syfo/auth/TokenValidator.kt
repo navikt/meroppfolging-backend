@@ -20,6 +20,7 @@ class TokenValidator(
         val context = tokenValidationContextHolder.getTokenValidationContext()
         val claims = context.getClaims("tokenx")
         val clientId = claims.getStringClaim("client_id")
+
         if (!expectedClientIds.contains(clientId)) {
             throw NoAccess("Uventet client id $clientId")
         }
