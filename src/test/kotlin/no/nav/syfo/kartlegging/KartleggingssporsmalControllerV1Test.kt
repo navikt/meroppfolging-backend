@@ -32,7 +32,6 @@ class KartleggingssporsmalControllerV1Test :
         val controller =
             KartleggingssporsmalControllerV1(
                 broFrontendClientId = "broFrontendClientId",
-                esyfoProxyClientId = "esyfoProxyClientId",
                 tokenValidationContextHolder = tokenValidationContextHolder,
                 kartleggingssporsmalService = service,
             ).apply {
