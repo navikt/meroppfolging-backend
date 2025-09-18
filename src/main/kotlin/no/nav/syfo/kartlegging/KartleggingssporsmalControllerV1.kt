@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 class KartleggingssporsmalControllerV1(
     @Value("\${BRO_FRONTEND_CLIENT_ID}")
     val broFrontendClientId: String,
-    @Value("\${ESYFO_PROXY_CLIENT_ID}")
-    val esyfoProxyClientId: String,
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val kartleggingssporsmalService: KartleggingssporsmalService
 ) {
@@ -33,7 +31,7 @@ class KartleggingssporsmalControllerV1(
 
     @PostConstruct
     fun init() {
-        tokenValidator = TokenValidator(tokenValidationContextHolder, listOf(broFrontendClientId, esyfoProxyClientId))
+        tokenValidator = TokenValidator(tokenValidationContextHolder, listOf(broFrontendClientId))
     }
 
     @PostMapping
