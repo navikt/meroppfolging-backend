@@ -1,5 +1,6 @@
 package no.nav.syfo.kartlegging
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.CapturingSlot
@@ -18,6 +19,7 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
+import no.nav.syfo.kartlegging.exception.InvalidFormException
 import org.springframework.http.HttpStatus
 
 class KartleggingssporsmalControllerV1Test :
@@ -88,6 +90,78 @@ class KartleggingssporsmalControllerV1Test :
 
                 persistedSlot.captured.fnr shouldBe fnr
                 persistedSlot.captured.formSnapshot shouldBe formSnapshot
+            }
+
+            it("returns 400 InvalidFormException if form snapshot is missing required fieldId") {
+                val formSnapshot = FormSnapshot(
+                    formIdentifier = "kartlegging-test-form",
+                    formSemanticVersion = "1.0.0",
+                    formSnapshotVersion = "1",
+                    fieldSnapshots = listOf(
+                        RadioGroupFieldSnapshot(
+                            fieldId = "hvorSannsynligTilbakeTilJobben",
+                            label = "Label 1",
+                            options = listOf(
+                                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
+                                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
+                            ),
+                        ),
+                        RadioGroupFieldSnapshot(
+                            fieldId = "samarbeidOgRelasjonTilArbeidsgiver",
+                            label = "Label 2",
+                            options = listOf(
+                                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
+                                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
+                            ),
+                        ),
+                        // Missing required naarTilbakeTilJobben
+                    ),
+                )
+                val request = KartleggingssporsmalRequest(formSnapshot = formSnapshot)
+
+                shouldThrow<InvalidFormException> {
+                    controller.postKartleggingssporsmal(request)
+                }
+            }
+
+            it("returns 400 InvalidFormException if form contains required RadioGroupFieldSnapshot with no option selected") {
+                val formSnapshot = FormSnapshot(
+                    formIdentifier = "kartlegging-test-form",
+                    formSemanticVersion = "1.0.0",
+                    formSnapshotVersion = "1",
+                    fieldSnapshots = listOf(
+                        RadioGroupFieldSnapshot(
+                            fieldId = "hvorSannsynligTilbakeTilJobben",
+                            label = "Label 1",
+                            options = listOf(
+                                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
+                                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
+                            ),
+                        ),
+                        RadioGroupFieldSnapshot(
+                            fieldId = "samarbeidOgRelasjonTilArbeidsgiver",
+                            label = "Label 2",
+                            options = listOf(
+                                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
+                                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
+                            ),
+                        ),
+                        RadioGroupFieldSnapshot(
+                            fieldId = "naarTilbakeTilJobben",
+                            label = "Label 3",
+                            options = listOf(
+                                // No option selected
+                                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = false),
+                                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
+                            ),
+                        ),
+                    ),
+                )
+                val request = KartleggingssporsmalRequest(formSnapshot = formSnapshot)
+
+                shouldThrow<InvalidFormException> {
+                    controller.postKartleggingssporsmal(request)
+                }
             }
         }
     })
