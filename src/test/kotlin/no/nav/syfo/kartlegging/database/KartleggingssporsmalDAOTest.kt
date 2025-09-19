@@ -87,5 +87,62 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
                 persisted.createdAt shouldNotBe null
             }
         }
+        describe("KartleggingssporsmalDAO.getKartleggingssporsmalByUuid") {
+            it("gets persisted kartleggingssporsmal by uuid") {
+                val fnr = "12345678910"
+                val snapshot = FormSnapshot(
+                    formIdentifier = "kartlegging_skjematype",
+                    formSemanticVersion = "1.0.0",
+                    formSnapshotVersion = "1",
+                    fieldSnapshots = listOf(
+                        TextFieldSnapshot(
+                            fieldId = "tekst1",
+                            label = "Hva er svaret?",
+                            value = "Dette er et svar"
+                        ),
+                        SingleCheckboxFieldSnapshot(
+                            fieldId = "enkel_checkbox",
+                            label = "Har du lest og forstått?",
+                            value = true
+                        ),
+                        CheckboxFieldSnapshot(
+                            fieldId = "flervalg",
+                            label = "Velg det som gjelder",
+                            options = listOf(
+                                FormSnapshotFieldOption("opt1", "Alternativ 1", wasSelected = true),
+                                FormSnapshotFieldOption("opt2", "Alternativ 2", wasSelected = false)
+                            )
+                        ),
+                        RadioGroupFieldSnapshot(
+                            fieldId = "radio",
+                            label = "Velg ett",
+                            options = listOf(
+                                FormSnapshotFieldOption("r1", "R1", wasSelected = false),
+                                FormSnapshotFieldOption("r2", "R2", wasSelected = true)
+                            )
+                        )
+                    ),
+                    sections = listOf(
+                        FormSection(
+                            sectionId = "seksjon1",
+                            sectionTitle = "Seksjon 1"
+                        )
+                    )
+                )
+
+                val uuid = kartleggingssporsmalDAO.persistKartleggingssporsmal(
+                    Kartleggingssporsmal(
+                        fnr = fnr,
+                        formSnapshot = snapshot
+                    )
+                )
+
+                val persisted = kartleggingssporsmalDAO.getKartleggingssporsmalByUuid(uuid)
+                persisted!!.fnr shouldBe fnr
+                persisted.formSnapshot shouldBe snapshot
+                persisted.uuid shouldNotBe null
+                persisted.createdAt shouldNotBe null
+            }
+        }
     }
 }
