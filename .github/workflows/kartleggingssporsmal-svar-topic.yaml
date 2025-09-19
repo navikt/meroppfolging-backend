@@ -1,0 +1,35 @@
+name: "Deploy topic kartleggingssporsmalsvar"
+on:
+  push:
+    paths:
+      - nais/topics/**
+      - .github/workflows/kartleggingssporsmal-svar-topic.yaml
+jobs:
+  deploy-topic-to-dev:
+    name: Deploy topic to dev
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      - name: Deploy topic kartleggingssporsmalsvar to dev
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: nais/topics/kartleggingssporsmalsvar-dev.yaml
+
+#  deploy-topic-to-prod:
+#    if: github.ref == 'refs/heads/main'
+#    name: Deploy topic to prod
+#    permissions:
+#      id-token: write
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v5
+#      - name: Deploy topic kartleggingssporsmalsvar to prod
+#        uses: nais/deploy/actions/deploy@v2
+#        env:
+#          CLUSTER: prod-gcp
+#          RESOURCE: nais/topics/kartleggingssporsmalsvar-prod.yaml
