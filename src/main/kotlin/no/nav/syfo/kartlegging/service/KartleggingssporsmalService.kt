@@ -11,6 +11,7 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.logger
 import no.nav.syfo.kartlegging.domain.formsnapshot.validateFields
 import no.nav.syfo.kartlegging.exception.InvalidFormException
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class KartleggingssporsmalService(
@@ -29,6 +30,11 @@ class KartleggingssporsmalService(
             )
         )
     }
+
+    fun getKartleggingssporsmalByUuid(uuid: UUID): PersistedKartleggingssporsmal? {
+        return kartleggingssporsmalDAO.getKartleggingssporsmalByUuid(uuid)
+    }
+
     fun validateFormSnapshot(formSnapshot: FormSnapshot) {
         val requiredFieldIds = listOf(
             "hvorSannsynligTilbakeTilJobben" to FormSnapshotFieldType.RADIO_GROUP,
