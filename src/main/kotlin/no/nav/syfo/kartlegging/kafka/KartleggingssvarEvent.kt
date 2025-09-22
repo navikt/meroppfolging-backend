@@ -1,10 +1,10 @@
 package no.nav.syfo.kartlegging.kafka
 
-import java.time.OffsetDateTime
+import java.time.Instant
 import java.util.UUID
 
 data class KartleggingssvarEvent(
     val personident: String,
     val svarId: UUID,
-    val svarAt: OffsetDateTime
+    val svarAt: Instant,
 )

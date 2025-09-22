@@ -10,23 +10,36 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldType
 import no.nav.syfo.kartlegging.domain.formsnapshot.logger
 import no.nav.syfo.kartlegging.domain.formsnapshot.validateFields
 import no.nav.syfo.kartlegging.exception.InvalidFormException
+import no.nav.syfo.kartlegging.kafka.KartleggingssvarEvent
+import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import org.springframework.stereotype.Service
+import java.time.Instant
 import java.util.UUID
 
 @Service
 class KartleggingssporsmalService(
     private val kartleggingssporsmalDAO: KartleggingssporsmalDAO,
+    private val kafkaProducer: KartleggingssvarKafkaProducer
 ) {
 
     fun getLatestKartleggingssporsmal(personIdent: String): PersistedKartleggingssporsmal? {
         return kartleggingssporsmalDAO.getLatestKartleggingssporsmalByFnr(personIdent)
     }
 
-    fun persistKartleggingssporsmal(personIdent: String, kartleggingssporsmalRequest: KartleggingssporsmalRequest) {
-        kartleggingssporsmalDAO.persistKartleggingssporsmal(
+    fun persistAndPublishKartleggingssporsmal(personIdent: String, kartleggingssporsmalRequest: KartleggingssporsmalRequest) {
+        val createdAt = Instant.now()
+        val uuid = kartleggingssporsmalDAO.persistKartleggingssporsmal(
             Kartleggingssporsmal(
                 fnr = personIdent,
                 formSnapshot = kartleggingssporsmalRequest.formSnapshot
+            ),
+            createdAt
+        )
+        kafkaProducer.publishResponse(
+            KartleggingssvarEvent(
+                personident = personIdent,
+                svarId = uuid,
+                svarAt = createdAt,
             )
         )
     }
