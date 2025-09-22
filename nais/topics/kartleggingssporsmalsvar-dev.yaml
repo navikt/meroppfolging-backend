@@ -17,7 +17,7 @@ spec:
     partitions: 1
     replication: 3
     retentionBytes: -1  # Messages will never be deleted because of disk space
-    retentionHours: -1  # Messages will never be timed out
+    retentionHours: 8760  # Messages will be retained for 1 year
   acl:
     - team: team-esyfo
       application: meroppfolging-backend
