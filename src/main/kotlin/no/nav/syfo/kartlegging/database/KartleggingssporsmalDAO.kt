@@ -8,6 +8,8 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.toJsonString
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
+import java.sql.Timestamp
+import java.time.Instant
 import java.util.UUID
 
 @Repository
@@ -17,19 +19,21 @@ class KartleggingssporsmalDAO(
 
     fun persistKartleggingssporsmal(
         kartleggingssporsmal: Kartleggingssporsmal,
+        createdAt: Instant = Instant.now(),
     ): UUID {
         val insertStatement = """
         INSERT INTO KARTLEGGINGSPORSMAL (
             fnr,
             form_snapshot,
             created_at
-        ) VALUES (:fnr, :form_snapshot::jsonb, NOW())
+        ) VALUES (:fnr, :form_snapshot::jsonb, :created_at)
         RETURNING uuid;
     """.trimIndent()
 
         val parameters = mapOf(
             "fnr" to kartleggingssporsmal.fnr,
             "form_snapshot" to kartleggingssporsmal.formSnapshot.toJsonString(),
+            "created_at" to Timestamp.from(createdAt),
         )
         return namedParameterJdbcTemplate.queryForObject(insertStatement, parameters, UUID::class.java)
             ?: throw IllegalStateException("Failed to persist kartleggingssporsmal (no uuid returned)")

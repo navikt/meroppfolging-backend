@@ -20,6 +20,7 @@ import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.kartlegging.exception.InvalidFormException
+import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import org.springframework.http.HttpStatus
 
 class KartleggingssporsmalControllerV1Test :
@@ -27,7 +28,8 @@ class KartleggingssporsmalControllerV1Test :
         val tokenValidationContextHolder = mockk<TokenValidationContextHolder>(relaxed = true)
         val tokenValidator = mockk<TokenValidator>(relaxed = true)
         val kartleggingssporsmalDAO = mockk<KartleggingssporsmalDAO>(relaxed = true)
-        val service = KartleggingssporsmalService(kartleggingssporsmalDAO)
+        val kafkaProducer = mockk<KartleggingssvarKafkaProducer>(relaxed = true)
+        val service = KartleggingssporsmalService(kartleggingssporsmalDAO, kafkaProducer)
 
         val controller =
             KartleggingssporsmalControllerV1(
@@ -85,7 +87,8 @@ class KartleggingssporsmalControllerV1Test :
                 response.statusCode shouldBe HttpStatus.OK
 
                 val persistedSlot: CapturingSlot<Kartleggingssporsmal> = slot()
-                verify(exactly = 1) { kartleggingssporsmalDAO.persistKartleggingssporsmal(capture(persistedSlot)) }
+                verify(exactly = 1) { kartleggingssporsmalDAO.persistKartleggingssporsmal(capture(persistedSlot), any()) }
+                verify(exactly = 1) { kafkaProducer.publishResponse(any()) }
 
                 persistedSlot.captured.fnr shouldBe fnr
                 persistedSlot.captured.formSnapshot shouldBe formSnapshot

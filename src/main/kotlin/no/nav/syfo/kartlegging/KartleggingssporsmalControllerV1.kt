@@ -49,7 +49,7 @@ class KartleggingssporsmalControllerV1(
         // TODO: Sjekk om person er kandidat, eller kanskje kun om det er oppfolgingstilfelle på personen
 
         kartleggingssporsmalService.validateFormSnapshot(kartleggingssporsmal.formSnapshot)
-        kartleggingssporsmalService.persistKartleggingssporsmal(personIdent, kartleggingssporsmal)
+        kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(personIdent, kartleggingssporsmal)
 
         return ResponseEntity
             .ok()

@@ -1,0 +1,27 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  annotations:
+    dcat.data.nav.no/title: "Svar på kartleggingsspørsmål"
+    dcat.data.nav.no/description: >-
+      Topic inneholder svar fra sykmeldte knyttet til kartleggingsspørsmål.
+  name: kartleggingssporsmal-svar
+  namespace: team-esyfo
+  labels:
+    team: team-esyfo
+spec:
+  pool: nav-dev
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 1
+    partitions: 1
+    replication: 3
+    retentionBytes: -1  # Messages will never be deleted because of disk space
+    retentionHours: 8760  # Messages will be retained for 1 year
+  acl:
+    - team: team-esyfo
+      application: meroppfolging-backend
+      access: write
+    - team: teamsykefravr
+      application: ismeroppfolging
+      access: read
