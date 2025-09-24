@@ -1,11 +1,16 @@
 package no.nav.syfo.kartlegging.domain
 
-import no.nav.syfo.kartlegging.kafka.KandidatStatus
 import java.time.Instant
+import java.util.UUID
+
+enum class KandidatStatus {
+    KANDIDAT,
+    IKKE_KANDIDAT,
+}
 
 data class Kandidat(
     val personIdent: String,
-    val kandidatId: String,
+    val kandidatId: UUID,
     val status: KandidatStatus,
     val createdAt: Instant
 )

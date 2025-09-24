@@ -2,6 +2,7 @@ package no.nav.syfo.kartlegging.kafka
 
 import no.nav.syfo.kartlegging.database.KandidatDAO
 import no.nav.syfo.kartlegging.domain.Kandidat
+import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
