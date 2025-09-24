@@ -35,13 +35,13 @@ class KartleggingssporsmalService(
             ),
             createdAt
         )
-        kafkaProducer.publishResponse(
-            KartleggingssvarEvent(
-                personident = personIdent,
-                svarId = uuid,
-                createdAt = createdAt,
-            )
-        )
+//        kafkaProducer.publishResponse(
+//            KartleggingssvarEvent(
+//                personident = personIdent,
+//                svarId = uuid,
+//                createdAt = createdAt,
+//            )
+//        )
     }
 
     fun getKartleggingssporsmalByUuid(uuid: UUID): PersistedKartleggingssporsmal? {
