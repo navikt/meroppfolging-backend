@@ -29,7 +29,7 @@ class KartleggingKafkaConfig(
         KafkaTemplate(producerFactory)
 
     @Bean
-    fun kandidatConsumerFactory(): ConsumerFactory<String, KandidatEvent?> {
+    fun kandidatConsumerFactory(): ConsumerFactory<String, KandidatKafkaEvent?> {
         val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-kandidat")
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
@@ -38,8 +38,8 @@ class KartleggingKafkaConfig(
     }
 
     @Bean
-    fun kandidatKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KandidatEvent?> {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, KandidatEvent?>()
+    fun kandidatKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, KandidatKafkaEvent?> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, KandidatKafkaEvent?>()
         factory.consumerFactory = kandidatConsumerFactory()
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
         factory.isBatchListener = true

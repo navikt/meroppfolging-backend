@@ -49,12 +49,12 @@ class KartleggingssporsmalControllerV1(
         @RequestBody kartleggingssporsmal: KartleggingssporsmalRequest,
     ): ResponseEntity<Void> {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
-        val isKandidat = kandidatService.isSykmeldtKandidat(personIdent)
-        if (!isKandidat) {
+        val muligKandidat = kandidatService.getKandidatByFnr(personIdent)
+        if (muligKandidat == null || !muligKandidat.isKandidat()) {
             throw NotKandidatException("Personen er ikke kandidat for kartlegging")
         }
         kartleggingssporsmalService.validateFormSnapshot(kartleggingssporsmal.formSnapshot)
-        kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(personIdent, kartleggingssporsmal)
+        kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(muligKandidat, kartleggingssporsmal)
 
         return ResponseEntity
             .ok()
@@ -70,7 +70,7 @@ class KartleggingssporsmalControllerV1(
             throw NotKandidatException("Personen er ikke kandidat for kartlegging")
         }
         val latest = kartleggingssporsmalService.getLatestKartleggingssporsmal(personIdent)
-            ?: throw UserResponseNotFoundException("Fant ikke ingen kartleggingssporsmal for bruker")
+            ?: throw UserResponseNotFoundException("Fant ingen kartleggingssporsmal for bruker")
 
         return ResponseEntity.ok().body(latest)
     }

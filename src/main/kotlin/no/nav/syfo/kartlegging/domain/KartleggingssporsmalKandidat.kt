@@ -8,9 +8,11 @@ enum class KandidatStatus {
     IKKE_KANDIDAT,
 }
 
-data class Kandidat(
+data class KartleggingssporsmalKandidat(
     val personIdent: String,
     val kandidatId: UUID,
     val status: KandidatStatus,
     val createdAt: Instant
-)
+) {
+    fun isKandidat(): Boolean = status == KandidatStatus.KANDIDAT
+}

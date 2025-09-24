@@ -1,43 +1,44 @@
 package no.nav.syfo.kartlegging.database
 
-import no.nav.syfo.kartlegging.domain.Kandidat
+import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 import java.sql.Timestamp
+import java.util.UUID
 
 @Repository
 class KandidatDAO(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
 ) {
 
-    fun persistKandidat(kandidat: Kandidat) {
+    fun persistKandidat(kandidat: KartleggingssporsmalKandidat) {
         val insertStatement = """
-        INSERT INTO KANDIDAT (
-            uuid,
+        INSERT INTO KARTLEGGINGSPORSMAL_KANDIDAT (
+            kandidat_id,
             fnr,
             status,
             created_at
-        ) VALUES (:uuid, :fnr, :status, :created_at);
+        ) VALUES (:kandidat_id, :fnr, :status, :created_at);
     """.trimIndent()
 
         val parameters = mapOf(
-            "uuid" to kandidat.personIdent,
-            "fnr" to kandidat.kandidatId,
+            "fnr" to kandidat.personIdent,
+            "kandidat_id" to kandidat.kandidatId,
             "status" to kandidat.status.name,
             "created_at" to Timestamp.from(kandidat.createdAt),
         )
         namedParameterJdbcTemplate.update(insertStatement, parameters)
     }
 
-    fun findKandidatByFnr(fnr: String): Kandidat? {
+    fun findKandidatByFnr(fnr: String): KartleggingssporsmalKandidat? {
         val selectStatement = """
             SELECT
-                uuid,
+                kandidat_id,
                 fnr,
                 status,
                 created_at
-            FROM KANDIDAT
+            FROM KARTLEGGINGSPORSMAL_KANDIDAT
             WHERE fnr = :fnr
             ORDER BY created_at DESC
             LIMIT 1;
@@ -49,10 +50,10 @@ class KandidatDAO(
             .firstOrNull()
     }
 
-    fun ResultSet.toKandidat(): Kandidat {
-        return Kandidat(
-            personIdent = this.getString("uuid"),
-            kandidatId = this.getString("fnr"),
+    fun ResultSet.toKandidat(): KartleggingssporsmalKandidat {
+        return KartleggingssporsmalKandidat(
+            personIdent = this.getString("fnr"),
+            kandidatId = UUID.fromString(this.getString("kandidat_id")),
             status = enumValueOf(this.getString("status")),
             createdAt = this.getTimestamp("created_at").toInstant(),
         )

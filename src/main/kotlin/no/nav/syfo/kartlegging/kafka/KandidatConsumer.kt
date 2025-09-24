@@ -1,7 +1,7 @@
 package no.nav.syfo.kartlegging.kafka
 
 import no.nav.syfo.kartlegging.database.KandidatDAO
-import no.nav.syfo.kartlegging.domain.Kandidat
+import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -17,7 +17,7 @@ class KandidatConsumer(
 
     @KafkaListener(topics = [KANDIDAT_TOPIC], containerFactory = "kandidatKafkaListenerContainerFactory")
     fun listen(
-        records: List<ConsumerRecord<String, KandidatEvent?>>,
+        records: List<ConsumerRecord<String, KandidatKafkaEvent?>>,
         ack: Acknowledgment,
     ) {
         try {
@@ -47,7 +47,7 @@ class KandidatConsumer(
         const val KANDIDAT_TOPIC = "teamsykefravr.kandidat"
     }
 
-    fun KandidatEvent.toKandidat() = Kandidat(
+    fun KandidatKafkaEvent.toKandidat() = KartleggingssporsmalKandidat(
         personIdent = this.personIdent,
         kandidatId = this.kandidatId,
         status = this.status,

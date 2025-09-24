@@ -24,14 +24,16 @@ class KartleggingssporsmalDAO(
         val insertStatement = """
         INSERT INTO KARTLEGGINGSPORSMAL (
             fnr,
+            kandidat_id,
             form_snapshot,
             created_at
-        ) VALUES (:fnr, :form_snapshot::jsonb, :created_at)
+        ) VALUES (:fnr, :kandidat_id, :form_snapshot::jsonb, :created_at)
         RETURNING uuid;
     """.trimIndent()
 
         val parameters = mapOf(
             "fnr" to kartleggingssporsmal.fnr,
+            "kandidat_id" to kartleggingssporsmal.kandidatId,
             "form_snapshot" to kartleggingssporsmal.formSnapshot.toJsonString(),
             "created_at" to Timestamp.from(createdAt),
         )
@@ -44,6 +46,7 @@ class KartleggingssporsmalDAO(
             SELECT
                 uuid,
                 fnr,
+                kandidat_id,
                 form_snapshot,
                 created_at
             FROM KARTLEGGINGSPORSMAL
@@ -62,6 +65,7 @@ class KartleggingssporsmalDAO(
             SELECT
                 uuid,
                 fnr,
+                kandidat_id,
                 form_snapshot,
                 created_at
             FROM KARTLEGGINGSPORSMAL
@@ -77,7 +81,8 @@ class KartleggingssporsmalDAO(
     fun ResultSet.toKartleggingssporsmal(): PersistedKartleggingssporsmal = PersistedKartleggingssporsmal(
         uuid = getObject("uuid", UUID::class.java),
         fnr = getString("fnr"),
+        kandidatId = getObject("kandidat_id", UUID::class.java),
         formSnapshot = getString("form_snapshot").let { FormSnapshot.jsonToFormSnapshot(it) },
-        createdAt = getTimestamp("created_at").toInstant()
+        createdAt = getTimestamp("created_at").toInstant(),
     )
 }
