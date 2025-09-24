@@ -39,7 +39,7 @@ class KartleggingssporsmalService(
             KartleggingssvarEvent(
                 personident = personIdent,
                 svarId = uuid,
-                svarAt = createdAt,
+                createdAt = createdAt,
             )
         )
     }
