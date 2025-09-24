@@ -1,14 +1,17 @@
 package no.nav.syfo.kartlegging.kafka
 
+import no.nav.syfo.kartlegging.database.KandidatDAO
+import no.nav.syfo.kartlegging.domain.Kandidat
 import no.nav.syfo.logger
-import no.nav.syfo.sykmelding.kafka.SYKMELDING_TOPIC
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 
 @Component
-class KandidatConsumer {
+class KandidatConsumer(
+    private val kandidatDAO: KandidatDAO
+) {
     private val log = logger()
 
     @KafkaListener(topics = [KANDIDAT_TOPIC], containerFactory = "kandidatKafkaListenerContainerFactory")
@@ -17,11 +20,21 @@ class KandidatConsumer {
         ack: Acknowledgment,
     ) {
         try {
-            log.info("Received ${records.size} sykmeldinger from $SYKMELDING_TOPIC")
+            log.info("Received ${records.size} kandidater from $KANDIDAT_TOPIC")
             records.forEach { record ->
-                // TODO: Implement processing logic for kandidat records
+                record.value()?.let {
+                    when (it.status) {
+                        KandidatStatus.IKKE_KANDIDAT -> {
+                            log.info("Received record for kandidatId: ${it.kandidatId} where status is IKKE_KANDIDAT. Skipping...")
+                        }
+                        KandidatStatus.KANDIDAT -> {
+                            log.info("Storing kandidat for kandidatId: ${it.kandidatId}")
+                            kandidatDAO.persistKandidat(it.toKandidat())
+                        }
+                    }
+                }
             }
-            log.info("Committing offset for sykmeldinger")
+            log.info("Committing offset for topic $KANDIDAT_TOPIC")
             ack.acknowledge()
         } catch (e: Exception) {
             log.error("Unexpected error: ${e.message}", e)
@@ -32,4 +45,11 @@ class KandidatConsumer {
         // TODO: Update topic name when available
         const val KANDIDAT_TOPIC = "teamsykefravr.kandidat"
     }
+
+    fun KandidatEvent.toKandidat() = Kandidat(
+        personIdent = this.personIdent,
+        kandidatId = this.kandidatId,
+        status = this.status,
+        createdAt = this.createdAt,
+    )
 }
