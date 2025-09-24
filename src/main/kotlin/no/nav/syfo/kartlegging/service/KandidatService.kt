@@ -8,11 +8,6 @@ import org.springframework.stereotype.Service
 class KandidatService(
     private val kandidatDAO: KandidatDAO,
 ) {
-    fun isSykmeldtKandidat(fnr: String): Boolean {
-        val muligKandidat = kandidatDAO.findKandidatByFnr(fnr)
-        return muligKandidat?.isKandidat() == true
-    }
-
     fun getKandidatByFnr(fnr: String): KartleggingssporsmalKandidat? {
         return kandidatDAO.findKandidatByFnr(fnr)
     }

@@ -65,13 +65,15 @@ class KartleggingssporsmalControllerV1(
     fun getLatest(): ResponseEntity<PersistedKartleggingssporsmal> {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
 
-        val isKandidat = kandidatService.isSykmeldtKandidat(personIdent)
-        if (!isKandidat) {
+        val muligKandidat = kandidatService.getKandidatByFnr(personIdent)
+        if (muligKandidat?.isKandidat() != true) {
             throw NotKandidatException("Personen er ikke kandidat for kartlegging")
         }
         val latest = kartleggingssporsmalService.getLatestKartleggingssporsmal(personIdent)
             ?: throw UserResponseNotFoundException("Fant ingen kartleggingssporsmal for bruker")
 
-        return ResponseEntity.ok().body(latest)
+        return ResponseEntity
+            .ok()
+            .body(latest)
     }
 }
