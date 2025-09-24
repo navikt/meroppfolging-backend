@@ -42,7 +42,7 @@ class KartleggingssporsmalService(
                 personident = kandidat.personIdent,
                 kandidatId = kandidat.kandidatId,
                 svarId = uuid,
-                svarAt = createdAt,
+                createdAt = createdAt,
             )
         )
     }

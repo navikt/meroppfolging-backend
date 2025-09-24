@@ -7,5 +7,5 @@ data class KartleggingssvarEvent(
     val personident: String,
     val kandidatId: UUID,
     val svarId: UUID,
-    val svarAt: Instant,
+    val createdAt: Instant,
 )
