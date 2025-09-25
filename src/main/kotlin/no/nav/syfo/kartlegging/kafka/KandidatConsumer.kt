@@ -15,22 +15,23 @@ class KandidatConsumer(
 ) {
     private val log = logger()
 
-    @KafkaListener(topics = [KANDIDAT_TOPIC], containerFactory = "kandidatKafkaListenerContainerFactory")
-    fun listen(
-        records: List<ConsumerRecord<String, KandidatKafkaEvent?>>,
-        ack: Acknowledgment,
-    ) {
-        try {
-            log.info("Received ${records.size} kandidater from $KANDIDAT_TOPIC")
-            processRecords(records)
-            log.info("Committing offset for topic $KANDIDAT_TOPIC")
-            ack.acknowledge()
-        } catch (e: Exception) {
-            log.error("Unexpected error when processing records in $KANDIDAT_TOPIC: ${e.message}", e)
-        }
-    }
+    // TODO: Enable when topic is ready
+//    @KafkaListener(topics = [KANDIDAT_TOPIC], containerFactory = "kandidatKafkaListenerContainerFactory")
+//    fun listen(
+//        records: List<ConsumerRecord<String, KandidatKafkaEvent?>>,
+//        ack: Acknowledgment,
+//    ) {
+//        try {
+//            log.info("Received ${records.size} kandidater from $KANDIDAT_TOPIC")
+//            processRecords(records)
+//            log.info("Committing offset for topic $KANDIDAT_TOPIC")
+//            ack.acknowledge()
+//        } catch (e: Exception) {
+//            log.error("Unexpected error when processing records in $KANDIDAT_TOPIC: ${e.message}", e)
+//        }
+//    }
 
-    fun processRecords(records: List<ConsumerRecord<String, KandidatKafkaEvent?>>) {
+    private fun processRecords(records: List<ConsumerRecord<String, KandidatKafkaEvent?>>) {
         val kandidater = records
             .mapNotNull { it.value()?.toKandidat() }
             .filter {
