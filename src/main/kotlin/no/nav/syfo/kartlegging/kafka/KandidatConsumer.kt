@@ -1,8 +1,8 @@
 package no.nav.syfo.kartlegging.kafka
 
-import no.nav.syfo.kartlegging.database.KandidatDAO
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.KandidatStatus
+import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class KandidatConsumer(
-    private val kandidatDAO: KandidatDAO
+    private val kandidatService: KandidatService
 ) {
     private val log = logger()
 
@@ -22,24 +22,31 @@ class KandidatConsumer(
     ) {
         try {
             log.info("Received ${records.size} kandidater from $KANDIDAT_TOPIC")
-            records.forEach { record ->
-                record.value()?.let {
-                    when (it.status) {
-                        KandidatStatus.IKKE_KANDIDAT -> {
-                            log.info("Received record for kandidatId: ${it.kandidatId} where status is IKKE_KANDIDAT. Skipping...")
-                        }
-                        KandidatStatus.KANDIDAT -> {
-                            log.info("Storing kandidat for kandidatId: ${it.kandidatId}")
-                            kandidatDAO.persistKandidat(it.toKandidat())
-                        }
-                    }
-                }
-            }
+            processRecords(records)
             log.info("Committing offset for topic $KANDIDAT_TOPIC")
             ack.acknowledge()
         } catch (e: Exception) {
-            log.error("Unexpected error: ${e.message}", e)
+            log.error("Unexpected error when processing records in $KANDIDAT_TOPIC: ${e.message}", e)
         }
+    }
+
+    fun processRecords(records: List<ConsumerRecord<String, KandidatKafkaEvent?>>) {
+        val kandidater = records
+            .mapNotNull { it.value()?.toKandidat() }
+            .filter {
+                when (it.status) {
+                    KandidatStatus.IKKE_KANDIDAT -> {
+                        log.info("Received kandidat with kandidatId: ${it.kandidatId} where status is IKKE_KANDIDAT. Skipping...")
+                        return@filter false
+                    }
+                    KandidatStatus.KANDIDAT -> {
+                        log.info("Storing kandidat for kandidatId: ${it.kandidatId}...")
+                        return@filter true
+                    }
+                }
+            }
+        kandidatService.persistKandidater(kandidater)
+        log.info("Persisted ${kandidater.size} kandidater")
     }
 
     companion object {
