@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
+import java.util.UUID
 
 @EmbeddedKafka
 @TestConfiguration
@@ -33,6 +34,8 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
         describe("KartleggingssporsmalDAO.persistKartleggingssporsmal") {
             it("persists a kartleggingssporsmal with correct JSON and created_at") {
                 val fnr = "12345678910"
+                val kandidatId = UUID.randomUUID()
+
                 val snapshot = FormSnapshot(
                     formIdentifier = "kartlegging_skjematype",
                     formSemanticVersion = "1.0.0",
@@ -76,12 +79,14 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
                 kartleggingssporsmalDAO.persistKartleggingssporsmal(
                     Kartleggingssporsmal(
                         fnr = fnr,
+                        kandidatId = kandidatId,
                         formSnapshot = snapshot
                     )
                 )
 
                 val persisted = kartleggingssporsmalDAO.getLatestKartleggingssporsmalByFnr(fnr)
                 persisted!!.fnr shouldBe fnr
+                persisted.kandidatId shouldBe kandidatId
                 persisted.formSnapshot shouldBe snapshot
                 persisted.uuid shouldNotBe null
                 persisted.createdAt shouldNotBe null
@@ -90,6 +95,8 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
         describe("KartleggingssporsmalDAO.getKartleggingssporsmalByUuid") {
             it("gets persisted kartleggingssporsmal by uuid") {
                 val fnr = "12345678910"
+                val kandidatId = UUID.randomUUID()
+
                 val snapshot = FormSnapshot(
                     formIdentifier = "kartlegging_skjematype",
                     formSemanticVersion = "1.0.0",
@@ -133,12 +140,14 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
                 val uuid = kartleggingssporsmalDAO.persistKartleggingssporsmal(
                     Kartleggingssporsmal(
                         fnr = fnr,
+                        kandidatId = kandidatId,
                         formSnapshot = snapshot
                     )
                 )
 
                 val persisted = kartleggingssporsmalDAO.getKartleggingssporsmalByUuid(uuid)
                 persisted!!.fnr shouldBe fnr
+                persisted.kandidatId shouldBe kandidatId
                 persisted.formSnapshot shouldBe snapshot
                 persisted.uuid shouldNotBe null
                 persisted.createdAt shouldNotBe null

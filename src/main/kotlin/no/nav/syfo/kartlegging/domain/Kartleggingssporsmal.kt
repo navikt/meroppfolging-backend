@@ -11,12 +11,14 @@ data class KartleggingssporsmalRequest(
 
 data class Kartleggingssporsmal (
     val fnr: String,
+    val kandidatId: UUID,
     val formSnapshot: FormSnapshot,
 )
 
 data class PersistedKartleggingssporsmal (
     val uuid: UUID,
     val fnr: String,
+    val kandidatId: UUID,
     val formSnapshot: FormSnapshot,
     val createdAt: Instant,
 )

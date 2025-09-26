@@ -5,6 +5,7 @@ import java.util.UUID
 
 data class KartleggingssvarEvent(
     val personident: String,
+    val kandidatId: UUID,
     val svarId: UUID,
     val createdAt: Instant,
 )

@@ -20,9 +20,9 @@ class KartleggingssvarKafkaProducer(
             ),
         ).whenComplete { _, throwable ->
             if (throwable != null) {
-                logger.error("Noe gikk galt ved sending av melding til topic $KARTLEGGINGSVAR_TOPIC", throwable)
+                logger.error("Noe gikk galt ved sending av melding til topic $KARTLEGGINGSVAR_TOPIC: svarId=${event.svarId}", throwable)
             } else {
-                logger.info("Melding sendt til topic $KARTLEGGINGSVAR_TOPIC")
+                logger.info("Melding sendt til topic $KARTLEGGINGSVAR_TOPIC: svarId=${event.svarId}")
             }
         }
     }

@@ -19,32 +19,48 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
+import no.nav.syfo.kartlegging.database.KandidatDAO
+import no.nav.syfo.kartlegging.domain.KandidatStatus
+import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.exception.InvalidFormException
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
+import no.nav.syfo.kartlegging.service.KandidatService
 import org.springframework.http.HttpStatus
+import java.time.Instant
+import java.util.UUID
 
 class KartleggingssporsmalControllerV1Test :
     DescribeSpec({
         val tokenValidationContextHolder = mockk<TokenValidationContextHolder>(relaxed = true)
         val tokenValidator = mockk<TokenValidator>(relaxed = true)
         val kartleggingssporsmalDAO = mockk<KartleggingssporsmalDAO>(relaxed = true)
+        val kandidatDAO = mockk<KandidatDAO>(relaxed = true)
         val kafkaProducer = mockk<KartleggingssvarKafkaProducer>(relaxed = true)
-        val service = KartleggingssporsmalService(kartleggingssporsmalDAO, kafkaProducer)
+        val kartleggingssporsmalService = KartleggingssporsmalService(kartleggingssporsmalDAO, kafkaProducer)
+        val kandidatService = KandidatService(kandidatDAO)
 
         val controller =
             KartleggingssporsmalControllerV1(
                 broFrontendClientId = "broFrontendClientId",
                 tokenValidationContextHolder = tokenValidationContextHolder,
-                kartleggingssporsmalService = service,
+                kartleggingssporsmalService = kartleggingssporsmalService,
+                kandidatService = kandidatService,
             ).apply {
                 this.tokenValidator = tokenValidator
             }
 
         val fnr = "12345678910"
+        val kandidatId = UUID.randomUUID()
 
         beforeTest {
             clearAllMocks()
             every { tokenValidator.validateTokenXClaims().getFnr() } returns fnr
+            every { kandidatDAO.findKandidatByFnr(fnr) } returns KartleggingssporsmalKandidat(
+                kandidatId = kandidatId,
+                personIdent = fnr,
+                status = KandidatStatus.KANDIDAT,
+                createdAt = Instant.parse("2025-04-04T00:00:00.00Z"),
+            )
         }
 
         describe("POST /api/v1/kartleggingssporsmal") {

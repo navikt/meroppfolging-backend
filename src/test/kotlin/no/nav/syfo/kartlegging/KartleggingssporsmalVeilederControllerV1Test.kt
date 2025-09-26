@@ -36,6 +36,8 @@ class KartleggingssporsmalVeilederControllerV1Test : DescribeSpec({
         it("returns 200 OK with persisted kartleggingssporsmal when veileder has access") {
             val uuid = UUID.randomUUID()
             val fnr = "12345678910"
+            val kandidatId = UUID.randomUUID()
+
             val formSnapshot = FormSnapshot(
                 formIdentifier = "kartlegging-test-form",
                 formSemanticVersion = "1.0.0",
@@ -70,6 +72,7 @@ class KartleggingssporsmalVeilederControllerV1Test : DescribeSpec({
             val persisted = PersistedKartleggingssporsmal(
                 uuid = uuid,
                 fnr = fnr,
+                kandidatId = kandidatId,
                 formSnapshot = formSnapshot,
                 createdAt = Instant.now(),
             )
@@ -96,9 +99,12 @@ class KartleggingssporsmalVeilederControllerV1Test : DescribeSpec({
         it("throws NoAccess when veileder does not have access") {
             val uuid = UUID.randomUUID()
             val fnr = "12345678910"
+            val kandidatId = UUID.randomUUID()
+
             val persisted = PersistedKartleggingssporsmal(
                 uuid = uuid,
                 fnr = fnr,
+                kandidatId = kandidatId,
                 formSnapshot = FormSnapshot(
                     formIdentifier = "kartlegging-test-form",
                     formSemanticVersion = "1.0.0",

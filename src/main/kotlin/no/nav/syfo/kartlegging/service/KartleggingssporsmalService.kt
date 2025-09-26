@@ -2,6 +2,7 @@ package no.nav.syfo.kartlegging.service
 
 import no.nav.syfo.kartlegging.database.KartleggingssporsmalDAO
 import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
+import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.formsnapshot.FieldSnapshot
@@ -26,18 +27,20 @@ class KartleggingssporsmalService(
         return kartleggingssporsmalDAO.getLatestKartleggingssporsmalByFnr(personIdent)
     }
 
-    fun persistAndPublishKartleggingssporsmal(personIdent: String, kartleggingssporsmalRequest: KartleggingssporsmalRequest) {
+    fun persistAndPublishKartleggingssporsmal(kandidat: KartleggingssporsmalKandidat, kartleggingssporsmalRequest: KartleggingssporsmalRequest) {
         val createdAt = Instant.now()
         val uuid = kartleggingssporsmalDAO.persistKartleggingssporsmal(
             Kartleggingssporsmal(
-                fnr = personIdent,
+                fnr = kandidat.personIdent,
+                kandidatId = kandidat.kandidatId,
                 formSnapshot = kartleggingssporsmalRequest.formSnapshot
             ),
             createdAt
         )
         kafkaProducer.publishResponse(
             KartleggingssvarEvent(
-                personident = personIdent,
+                personident = kandidat.personIdent,
+                kandidatId = kandidat.kandidatId,
                 svarId = uuid,
                 createdAt = createdAt,
             )

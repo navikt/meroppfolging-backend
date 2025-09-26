@@ -7,7 +7,9 @@ import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
+import no.nav.syfo.kartlegging.exception.NotKandidatException
 import no.nav.syfo.kartlegging.exception.UserResponseNotFoundException
+import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -26,6 +28,7 @@ class KartleggingssporsmalControllerV1(
     val broFrontendClientId: String,
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val kartleggingssporsmalService: KartleggingssporsmalService,
+    val kandidatService: KandidatService,
     // Should always be null in prod
     @Value("\${TOKEN_X_GENERATOR_CLIENT_ID:#{null}}")
     val tokenXGeneratorClientId: String? = null,
@@ -46,10 +49,12 @@ class KartleggingssporsmalControllerV1(
         @RequestBody kartleggingssporsmal: KartleggingssporsmalRequest,
     ): ResponseEntity<Void> {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
-        // TODO: Sjekk om person er kandidat, eller kanskje kun om det er oppfolgingstilfelle på personen
-
+        val muligKandidat = kandidatService.getKandidatByFnr(personIdent)
+        if (muligKandidat == null || !muligKandidat.isKandidat()) {
+            throw NotKandidatException("Personen er ikke kandidat for kartlegging")
+        }
         kartleggingssporsmalService.validateFormSnapshot(kartleggingssporsmal.formSnapshot)
-        kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(personIdent, kartleggingssporsmal)
+        kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(muligKandidat, kartleggingssporsmal)
 
         return ResponseEntity
             .ok()
@@ -59,10 +64,16 @@ class KartleggingssporsmalControllerV1(
     @GetMapping("/latest", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getLatest(): ResponseEntity<PersistedKartleggingssporsmal> {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
-        val latest = kartleggingssporsmalService.getLatestKartleggingssporsmal(personIdent)
-            ?: throw UserResponseNotFoundException("Fant ikke ingen kartleggingssporsmal for bruker")
 
-        // TODO: Sjekk om latest er innenfor nåværende oppfolgingstilfelle?
-        return ResponseEntity.ok().body(latest)
+        val muligKandidat = kandidatService.getKandidatByFnr(personIdent)
+        if (muligKandidat?.isKandidat() != true) {
+            throw NotKandidatException("Personen er ikke kandidat for kartlegging")
+        }
+        val latest = kartleggingssporsmalService.getLatestKartleggingssporsmal(personIdent)
+            ?: throw UserResponseNotFoundException("Fant ingen kartleggingssporsmal for bruker")
+
+        return ResponseEntity
+            .ok()
+            .body(latest)
     }
 }
