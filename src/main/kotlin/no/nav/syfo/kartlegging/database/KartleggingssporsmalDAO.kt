@@ -41,7 +41,7 @@ class KartleggingssporsmalDAO(
             ?: throw IllegalStateException("Failed to persist kartleggingssporsmal (no uuid returned)")
     }
 
-    fun getLatestKartleggingssporsmalByFnr(fnr: String): PersistedKartleggingssporsmal? {
+    fun getLatestKartleggingssporsmalByKandidatId(kandidatId: UUID): PersistedKartleggingssporsmal? {
         val selectStatement = """
             SELECT
                 uuid,
@@ -50,11 +50,11 @@ class KartleggingssporsmalDAO(
                 form_snapshot,
                 created_at
             FROM KARTLEGGINGSPORSMAL
-            WHERE fnr = :fnr
+            WHERE kandidat_id = :kandidat_id
             ORDER BY created_at DESC;
         """.trimIndent()
 
-        val parameters = mapOf("fnr" to fnr)
+        val parameters = mapOf("kandidat_id" to kandidatId)
 
         return namedParameterJdbcTemplate.query(selectStatement, parameters) { rs, _ -> rs.toKartleggingssporsmal() }
             .firstOrNull()
