@@ -23,8 +23,8 @@ class KartleggingssporsmalService(
     private val kafkaProducer: KartleggingssvarKafkaProducer
 ) {
 
-    fun getLatestKartleggingssporsmal(personIdent: String): PersistedKartleggingssporsmal? {
-        return kartleggingssporsmalDAO.getLatestKartleggingssporsmalByFnr(personIdent)
+    fun getLatestKartleggingssporsmal(kandidatId: UUID): PersistedKartleggingssporsmal? {
+        return kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(kandidatId)
     }
 
     fun persistAndPublishKartleggingssporsmal(kandidat: KartleggingssporsmalKandidat, kartleggingssporsmalRequest: KartleggingssporsmalRequest) {

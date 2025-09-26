@@ -22,3 +22,8 @@ data class PersistedKartleggingssporsmal (
     val formSnapshot: FormSnapshot,
     val createdAt: Instant,
 )
+
+data class KandidatStatusResponse(
+    val isKandidat: Boolean,
+    val formResponse: PersistedKartleggingssporsmal?
+)
