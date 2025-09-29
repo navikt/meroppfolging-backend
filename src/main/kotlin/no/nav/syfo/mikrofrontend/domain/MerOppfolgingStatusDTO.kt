@@ -37,7 +37,7 @@ enum class KartleggingResponseStatusType {
 
 data class KartleggingStatusDTO(
     val responseStatus: KartleggingResponseStatusType,
-    val responseDateTime: String?,              // ISO timestamp or null
+    val responseDateTime: String?,
     val hasAccessToKartlegging: Boolean,
 )
 
