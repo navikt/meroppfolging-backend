@@ -37,7 +37,7 @@ class MikrofrontendServiceTest : DescribeSpec({
             service.status("fnr", "token").oppfolgingsType shouldBe OppfolgingsType.SEN_OPPFOLGING
         }
 
-        it("returns INGEN_OPPFOLGING when no sen access and not kandidat for kartlegging") {
+        it("returns INGEN_OPPFOLGING when no sen oppfølging and not kandidat for kartlegging") {
             val senStatus = mockk<SenOppfolgingStatusDTOV2>()
             every { senStatus.hasAccessToSenOppfolging } returns false
             every { senOppfolgingService.prepareAndBuildSenOppfolgingStatusDTOV2(any(), any()) } returns senStatus
