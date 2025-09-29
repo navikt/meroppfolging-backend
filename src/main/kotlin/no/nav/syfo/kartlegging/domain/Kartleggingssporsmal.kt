@@ -9,19 +9,22 @@ data class KartleggingssporsmalRequest(
 )
 
 
-data class Kartleggingssporsmal (
-    val fnr: String,
-    val kandidatId: UUID,
-    val formSnapshot: FormSnapshot,
+open class Kartleggingssporsmal (
+    open val fnr: String,
+    open val kandidatId: UUID,
+    open val formSnapshot: FormSnapshot,
 )
 
 data class PersistedKartleggingssporsmal (
     val uuid: UUID,
-    val fnr: String,
-    val kandidatId: UUID,
-    val formSnapshot: FormSnapshot,
+    override val fnr: String,
+    override val kandidatId: UUID,
+    override val formSnapshot: FormSnapshot,
     val createdAt: Instant,
-)
+): Kartleggingssporsmal(
+    fnr = fnr,
+    kandidatId = kandidatId,
+    formSnapshot = formSnapshot,)
 
 data class KandidatStatusResponse(
     val isKandidat: Boolean,

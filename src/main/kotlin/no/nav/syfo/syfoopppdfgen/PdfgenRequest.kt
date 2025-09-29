@@ -38,3 +38,13 @@ class BrevdataSenOppfolgingFormSteps(
     val fremtidigSituasjonAnswer: FremtidigSituasjonSvar?,
     val behovForOppfolgingAnswer: BehovForOppfolgingSvar?,
 ) : Brevdata
+
+data class KartleggingPdfgenRequest(
+    val createdAt: String,
+    val inputFields: List<PdfInputField>,
+): Brevdata
+
+data class PdfInputField(
+    val title: String,
+    val value: String,
+)

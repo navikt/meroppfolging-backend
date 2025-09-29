@@ -78,6 +78,36 @@ class KartleggingssporsmalDAO(
             .firstOrNull()
     }
 
+    fun setJournalpostIdForKartleggingssporsmal(uuid: UUID, journalpostId: String) {
+        val updateStatement = """
+            UPDATE KARTLEGGINGSPORSMAL
+            SET journalpost_id = :journalpost_id
+            WHERE uuid = :uuid;
+        """.trimIndent()
+
+        val parameters = mapOf(
+            "uuid" to uuid,
+            "journalpost_id" to journalpostId,
+        )
+
+        namedParameterJdbcTemplate.update(updateStatement, parameters)
+    }
+
+    fun getKartleggingssporsmalNotJournaled(): List<PersistedKartleggingssporsmal> {
+        val selectStatement = """
+            SELECT
+                uuid,
+                fnr,
+                kandidat_id,
+                form_snapshot,
+                created_at
+            FROM KARTLEGGINGSPORSMAL
+            WHERE journalpost_id IS NULL;
+        """.trimIndent()
+
+        return namedParameterJdbcTemplate.query(selectStatement) { rs, _ -> rs.toKartleggingssporsmal() }
+    }
+
     fun ResultSet.toKartleggingssporsmal(): PersistedKartleggingssporsmal = PersistedKartleggingssporsmal(
         uuid = getObject("uuid", UUID::class.java),
         fnr = getString("fnr"),

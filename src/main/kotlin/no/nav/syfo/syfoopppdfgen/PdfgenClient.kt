@@ -26,7 +26,7 @@ class PdfgenClient(
         "$pdfgenUrl/api/v1/genpdf/oppfolging/mer_veiledning_for_reserverte"
     private val pdfGenUrlSenOppfolgingLanding = "$pdfgenUrl/api/v1/genpdf/senoppfolging/landing"
 
-    fun createPdf(
+    private fun createPdf(
         url: String,
         requestEntity: HttpEntity<PdfgenRequest>,
     ): ByteArray {
@@ -146,6 +146,15 @@ class PdfgenClient(
                 utbetaltTomFormatted = utbetaltTomFormatted,
                 daysUntilMaxDate = daysUntilMaxDate,
             )
+
+        return createPdf(url, requestEntity)
+    }
+
+    fun getKartleggingPdf(
+        kartleggingPdfgenRequest: KartleggingPdfgenRequest,
+    ): ByteArray {
+        val url = "$pdfgenUrl/api/v1/genpdf/kartlegging"
+        val requestEntity = createRequestEntity(kartleggingPdfgenRequest)
 
         return createPdf(url, requestEntity)
     }

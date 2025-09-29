@@ -80,7 +80,7 @@ class VarselService(
                         ferdigstill = false,
                         data =
                         VarselData(
-                            VarselDataJournalpost(uuid = uuid, id = dokarkivResponse.journalpostId.toString()),
+                            VarselDataJournalpost(uuid = uuid, id = dokarkivResponse.journalpostId),
                             null,
                             null,
                             null,
