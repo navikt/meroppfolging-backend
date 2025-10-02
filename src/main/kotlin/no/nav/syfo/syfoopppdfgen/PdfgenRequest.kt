@@ -1,5 +1,6 @@
 package no.nav.syfo.syfoopppdfgen
 
+import no.nav.syfo.kartlegging.domain.formsnapshot.FieldSnapshot
 import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 
@@ -41,10 +42,5 @@ class BrevdataSenOppfolgingFormSteps(
 
 data class KartleggingPdfgenRequest(
     val createdAt: String,
-    val inputFields: List<PdfInputField>,
+    val fieldSnapshots: List<FieldSnapshot>,
 ): Brevdata
-
-data class PdfInputField(
-    val title: String,
-    val value: String,
-)

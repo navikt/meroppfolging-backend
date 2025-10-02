@@ -1,11 +1,6 @@
 package no.nav.syfo.syfoopppdfgen
 
 import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
-import no.nav.syfo.kartlegging.domain.formsnapshot.CheckboxFieldSnapshot
-import no.nav.syfo.kartlegging.domain.formsnapshot.FieldSnapshot
-import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
-import no.nav.syfo.kartlegging.domain.formsnapshot.SingleCheckboxFieldSnapshot
-import no.nav.syfo.kartlegging.domain.formsnapshot.TextFieldSnapshot
 import no.nav.syfo.logger
 import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
@@ -114,30 +109,14 @@ class PdfgenService(
     }
 
     fun Kartleggingssporsmal.toKartleggingPdfgenRequest(createdAt: Instant): KartleggingPdfgenRequest {
-        val inputFields = this.formSnapshot.fieldSnapshots.map { it.toInputField() }
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
         return KartleggingPdfgenRequest(
-            inputFields = inputFields,
+            fieldSnapshots = this.formSnapshot.fieldSnapshots,
             createdAt = createdAt
                 .atZone(ZoneId.of("Europe/Oslo"))
                 .toLocalDate()
                 .format(formatter),
-        )
-    }
-
-    fun FieldSnapshot.toInputField(): PdfInputField {
-        return PdfInputField(
-            title = this.label,
-            value = when (this) {
-                is TextFieldSnapshot -> this.value
-                is RadioGroupFieldSnapshot -> this.options.first { it.wasSelected }.optionLabel
-                is SingleCheckboxFieldSnapshot -> if (this.value) "Ja" else "Nei"
-                is CheckboxFieldSnapshot -> this.options
-                    .filter { it.wasSelected }
-                    .joinToString("\n") { it.optionLabel }
-                else -> throw IllegalArgumentException("Unknown field type: ${this.fieldType}")
-            },
         )
     }
 }
