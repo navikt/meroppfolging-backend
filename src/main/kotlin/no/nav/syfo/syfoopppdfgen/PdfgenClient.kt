@@ -153,7 +153,7 @@ class PdfgenClient(
     fun getKartleggingPdf(
         kartleggingPdfgenRequest: KartleggingPdfgenRequest,
     ): ByteArray {
-        val url = "$pdfgenUrl/api/v1/genpdf/kartlegging"
+        val url = "$pdfgenUrl/api/v1/genpdf/kartlegging/receipt"
         val requestEntity = createRequestEntity(kartleggingPdfgenRequest)
 
         return createPdf(url, requestEntity)
