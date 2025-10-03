@@ -10,11 +10,11 @@ import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.formsnapshot.FieldSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldType
-import no.nav.syfo.kartlegging.domain.formsnapshot.logger
 import no.nav.syfo.kartlegging.domain.formsnapshot.validateFields
 import no.nav.syfo.kartlegging.exception.InvalidFormException
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarEvent
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
+import no.nav.syfo.logger
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -27,6 +27,8 @@ class KartleggingssporsmalService(
     private val pdfgenService: PdfgenService,
     private val dokarkivClient: DokarkivClient,
 ) {
+
+    private val logger = logger()
 
     fun getLatestKartleggingssporsmal(kandidatId: UUID): PersistedKartleggingssporsmal? {
         return kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(kandidatId)
