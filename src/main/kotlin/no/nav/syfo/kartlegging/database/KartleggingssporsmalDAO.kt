@@ -102,7 +102,9 @@ class KartleggingssporsmalDAO(
                 form_snapshot,
                 created_at
             FROM KARTLEGGINGSPORSMAL
-            WHERE journalpost_id IS NULL;
+            WHERE journalpost_id IS NULL
+            ORDER BY created_at
+            LIMIT 100;
         """.trimIndent()
 
         return namedParameterJdbcTemplate.query(selectStatement) { rs, _ -> rs.toKartleggingssporsmal() }
