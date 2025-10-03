@@ -16,7 +16,7 @@ class JournalforingJob(
 
 
     @Scheduled(cron = "\${retry.kartlegging.journalfor.job.cron}")
-    fun retryJournalforing() {
+    fun journalforSvarForKartleggingssporsmal() {
         if (!leaderElectionClient.isPodLeader()) {
             return
         }
@@ -25,7 +25,7 @@ class JournalforingJob(
         val kartleggingssporsmalNotJournaled = kartleggingssporsmalService.getKartleggingssporsmalNotJournaled()
         logger.info("$logName Fant ${kartleggingssporsmalNotJournaled.size} kartleggingsspørsmål som ikke er journalført")
         kartleggingssporsmalNotJournaled.forEach {
-            kartleggingssporsmalService.jornalforKartleggingssporsmal(it.uuid, it, it.createdAt)
+            kartleggingssporsmalService.jornalforKartleggingssporsmal( it)
         }
         logger.info("$logName Avslutter jobb for å journalføre svar kartleggingsspørsmål")
     }

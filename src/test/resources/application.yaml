@@ -43,7 +43,7 @@ kafka.schema.registry: "kafka.schema.registry"
 
 toggle.ssps.varselutsending: "false"
 send.varsel.job.cron: "0 */5 * * * *"
-retry.kartlegging.journalfor.job.cron: "0 */18 * * * *"
+retry.kartlegging.journalfor.job.cron: "0 3/5 * * * *"
 
 azure:
   app:

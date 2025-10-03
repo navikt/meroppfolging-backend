@@ -120,4 +120,4 @@ spec:
     - name: SEND_VARSEL_JOB_CRON
       value: 0 0 9-17 * * *
     - name: RETRY_KARTLEGGING_JOURNALFOR_JOB_CRON
-      value: 0 */18 * * * *
+      value: 0 3/5 * * * *

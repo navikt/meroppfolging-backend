@@ -54,7 +54,6 @@ class KartleggingssporsmalService(
                 createdAt = createdAt,
             )
         )
-        jornalforKartleggingssporsmal(uuid, kartleggingssporsmal, createdAt)
     }
 
     fun getKartleggingssporsmalByUuid(uuid: UUID): PersistedKartleggingssporsmal? {
@@ -90,10 +89,10 @@ class KartleggingssporsmalService(
     }
 
     fun jornalforKartleggingssporsmal(
-        uuid: UUID,
-        kartleggingssporsmal: Kartleggingssporsmal,
-        createdAt: Instant,
+        kartleggingssporsmal: PersistedKartleggingssporsmal,
     ) {
+        val uuid = kartleggingssporsmal.uuid
+        val createdAt = kartleggingssporsmal.createdAt
         try {
             val pdf = pdfgenService.getKartleggingsPdf(kartleggingssporsmal, createdAt)
                 ?: throw IllegalStateException("Failed to generate PDF for kartleggingssporsmal")
