@@ -19,12 +19,14 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
+import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.kartlegging.database.KandidatDAO
 import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.exception.InvalidFormException
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import no.nav.syfo.kartlegging.service.KandidatService
+import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.http.HttpStatus
 import java.time.Instant
 import java.util.UUID
@@ -36,7 +38,14 @@ class KartleggingssporsmalControllerV1Test :
         val kartleggingssporsmalDAO = mockk<KartleggingssporsmalDAO>(relaxed = true)
         val kandidatDAO = mockk<KandidatDAO>(relaxed = true)
         val kafkaProducer = mockk<KartleggingssvarKafkaProducer>(relaxed = true)
-        val kartleggingssporsmalService = KartleggingssporsmalService(kartleggingssporsmalDAO, kafkaProducer)
+        val pdfgenService = mockk<PdfgenService>(relaxed = true)
+        val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
+        val kartleggingssporsmalService = KartleggingssporsmalService(
+            kartleggingssporsmalDAO,
+            kafkaProducer,
+            pdfgenService,
+            dokarkivClient,
+        )
         val kandidatService = KandidatService(kandidatDAO)
 
         val controller =

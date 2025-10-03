@@ -1,5 +1,6 @@
 package no.nav.syfo.syfoopppdfgen
 
+import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
 import no.nav.syfo.logger
 import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
@@ -10,7 +11,9 @@ import no.nav.syfo.sykepengedagerinformasjon.domain.forelopigBeregnetSluttFormat
 import no.nav.syfo.sykepengedagerinformasjon.domain.utbetaltTomFormatted
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import org.springframework.stereotype.Component
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Component
@@ -98,5 +101,22 @@ class PdfgenService(
 
             return null
         }
+    }
+
+    fun getKartleggingsPdf(kartleggingssporsmal: Kartleggingssporsmal, createdAt: Instant): ByteArray? {
+        val request = kartleggingssporsmal.toKartleggingPdfgenRequest(createdAt)
+        return syfooppfpdfgenClient.getKartleggingPdf(request)
+    }
+
+    fun Kartleggingssporsmal.toKartleggingPdfgenRequest(createdAt: Instant): KartleggingPdfgenRequest {
+        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+        return KartleggingPdfgenRequest(
+            fieldSnapshots = this.formSnapshot.fieldSnapshots,
+            createdAt = createdAt
+                .atZone(ZoneId.of("Europe/Oslo"))
+                .toLocalDate()
+                .format(formatter),
+        )
     }
 }
