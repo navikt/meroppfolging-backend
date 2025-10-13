@@ -27,7 +27,7 @@ class KartleggingssporsmalService(
         return kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(kandidatId)
     }
 
-    fun persistAndPublishKartleggingssporsmal(kandidat: KartleggingssporsmalKandidat, kartleggingssporsmalRequest: KartleggingssporsmalRequest) {
+    fun persistAndPublishKartleggingssporsmal(kandidat: KartleggingssporsmalKandidat, kartleggingssporsmalRequest: KartleggingssporsmalRequest): PersistedKartleggingssporsmal? {
         val createdAt = Instant.now()
         val uuid = kartleggingssporsmalDAO.persistKartleggingssporsmal(
             Kartleggingssporsmal(
@@ -45,6 +45,7 @@ class KartleggingssporsmalService(
                 createdAt = createdAt,
             )
         )
+        return getKartleggingssporsmalByUuid(uuid)
     }
 
     fun getKartleggingssporsmalByUuid(uuid: UUID): PersistedKartleggingssporsmal? {
