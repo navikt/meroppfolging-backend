@@ -137,7 +137,7 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
                     )
                 )
 
-                val uuid = kartleggingssporsmalDAO.persistKartleggingssporsmal(
+                val persisted = kartleggingssporsmalDAO.persistKartleggingssporsmal(
                     Kartleggingssporsmal(
                         fnr = fnr,
                         kandidatId = kandidatId,
@@ -145,12 +145,12 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
                     )
                 )
 
-                val persisted = kartleggingssporsmalDAO.getKartleggingssporsmalByUuid(uuid)
-                persisted!!.fnr shouldBe fnr
-                persisted.kandidatId shouldBe kandidatId
-                persisted.formSnapshot shouldBe snapshot
-                persisted.uuid shouldNotBe null
-                persisted.createdAt shouldNotBe null
+                val fetchedByUUID = kartleggingssporsmalDAO.getKartleggingssporsmalByUuid(persisted.uuid)
+                fetchedByUUID!!.fnr shouldBe fnr
+                fetchedByUUID.kandidatId shouldBe kandidatId
+                fetchedByUUID.formSnapshot shouldBe snapshot
+                fetchedByUUID.uuid shouldNotBe null
+                fetchedByUUID.createdAt shouldNotBe null
             }
         }
     }

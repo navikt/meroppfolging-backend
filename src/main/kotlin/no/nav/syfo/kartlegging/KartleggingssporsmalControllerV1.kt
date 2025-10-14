@@ -47,7 +47,7 @@ class KartleggingssporsmalControllerV1(
     @PostMapping
     fun postKartleggingssporsmal(
         @RequestBody kartleggingssporsmal: KartleggingssporsmalRequest,
-    ): ResponseEntity<PersistedKartleggingssporsmal?> {
+    ): ResponseEntity<PersistedKartleggingssporsmal> {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val muligKandidat = kandidatService.getKandidatByFnr(personIdent)
         if (muligKandidat == null || !muligKandidat.isKandidat()) {

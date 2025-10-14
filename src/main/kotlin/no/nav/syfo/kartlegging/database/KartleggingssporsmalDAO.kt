@@ -20,7 +20,7 @@ class KartleggingssporsmalDAO(
     fun persistKartleggingssporsmal(
         kartleggingssporsmal: Kartleggingssporsmal,
         createdAt: Instant = Instant.now(),
-    ): UUID {
+    ): PersistedKartleggingssporsmal {
         val insertStatement = """
         INSERT INTO KARTLEGGINGSPORSMAL (
             fnr,
@@ -28,7 +28,7 @@ class KartleggingssporsmalDAO(
             form_snapshot,
             created_at
         ) VALUES (:fnr, :kandidat_id, :form_snapshot::jsonb, :created_at)
-        RETURNING uuid;
+        RETURNING uuid, fnr, kandidat_id, form_snapshot, created_at;
     """.trimIndent()
 
         val parameters = mapOf(
@@ -37,8 +37,9 @@ class KartleggingssporsmalDAO(
             "form_snapshot" to kartleggingssporsmal.formSnapshot.toJsonString(),
             "created_at" to Timestamp.from(createdAt),
         )
-        return namedParameterJdbcTemplate.queryForObject(insertStatement, parameters, UUID::class.java)
-            ?: throw IllegalStateException("Failed to persist kartleggingssporsmal (no uuid returned)")
+        return namedParameterJdbcTemplate.queryForObject(insertStatement, parameters) { rs, _ ->
+            rs.toKartleggingssporsmal()
+        } ?: throw IllegalStateException("Failed to persist kartleggingssporsmal (no result returned)")
     }
 
     fun getLatestKartleggingssporsmalByKandidatId(kandidatId: UUID): PersistedKartleggingssporsmal? {
