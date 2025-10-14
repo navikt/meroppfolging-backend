@@ -17,7 +17,6 @@ import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import no.nav.syfo.logger
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.stereotype.Service
-import java.time.Instant
 import java.util.UUID
 
 @Service
@@ -35,29 +34,19 @@ class KartleggingssporsmalService(
     }
 
     fun persistAndPublishKartleggingssporsmal(kandidat: KartleggingssporsmalKandidat, kartleggingssporsmalRequest: KartleggingssporsmalRequest): PersistedKartleggingssporsmal {
-        val createdAt = Instant.now()
-        val kartleggingssporsmal = Kartleggingssporsmal(
-            fnr = kandidat.personIdent,
-            kandidatId = kandidat.kandidatId,
-            formSnapshot = kartleggingssporsmalRequest.formSnapshot
-        )
-
-        val uuid = kartleggingssporsmalDAO.persistKartleggingssporsmal(
-            kartleggingssporsmal,
         val persistedKartleggingssporsmal = kartleggingssporsmalDAO.persistKartleggingssporsmal(
             Kartleggingssporsmal(
                 fnr = kandidat.personIdent,
                 kandidatId = kandidat.kandidatId,
                 formSnapshot = kartleggingssporsmalRequest.formSnapshot
             ),
-            createdAt
         )
         kafkaProducer.publishResponse(
             KartleggingssvarEvent(
-                personident = kandidat.personIdent,
-                kandidatId = kandidat.kandidatId,
+                personident = persistedKartleggingssporsmal.fnr,
+                kandidatId = persistedKartleggingssporsmal.kandidatId,
                 svarId = persistedKartleggingssporsmal.uuid,
-                createdAt = createdAt,
+                createdAt = persistedKartleggingssporsmal.createdAt,
             )
         )
         return persistedKartleggingssporsmal
