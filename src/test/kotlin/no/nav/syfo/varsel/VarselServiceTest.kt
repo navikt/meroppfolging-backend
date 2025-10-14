@@ -182,7 +182,7 @@ class VarselServiceTest : DescribeSpec() {
                 every { pdfgenService.getSenOppfolgingLandingPdf(any(), any()) } returns ByteArray(1)
                 every {
                     dokarkivClient.postSingleDocumentToDokarkiv(any(), any(), any(), any(), any(), any())
-                } returns DokarkivResponse(null, 1, null, "status", null)
+                } returns DokarkivResponse(null, "1", null, "status", null)
 
                 varselService.sendMerOppfolgingVarsel(
                     MerOppfolgingVarselDTO(

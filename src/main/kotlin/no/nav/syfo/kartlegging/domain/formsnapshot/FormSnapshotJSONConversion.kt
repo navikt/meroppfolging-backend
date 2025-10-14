@@ -8,7 +8,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
 
-val logger = LoggerFactory.getLogger("FormSnapshotJSONConversion")
+private val logger = LoggerFactory.getLogger("FormSnapshotJSONConversion")
 
 class FieldSnapshotDeserializer : JsonDeserializer<FieldSnapshot>() {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): FieldSnapshot {
