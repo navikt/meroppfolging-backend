@@ -17,7 +17,6 @@ import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import no.nav.syfo.logger
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.stereotype.Service
-import java.time.Instant
 import java.util.UUID
 
 @Service
@@ -34,26 +33,23 @@ class KartleggingssporsmalService(
         return kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(kandidatId)
     }
 
-    fun persistAndPublishKartleggingssporsmal(kandidat: KartleggingssporsmalKandidat, kartleggingssporsmalRequest: KartleggingssporsmalRequest) {
-        val createdAt = Instant.now()
-        val kartleggingssporsmal = Kartleggingssporsmal(
-            fnr = kandidat.personIdent,
-            kandidatId = kandidat.kandidatId,
-            formSnapshot = kartleggingssporsmalRequest.formSnapshot
-        )
-
-        val uuid = kartleggingssporsmalDAO.persistKartleggingssporsmal(
-            kartleggingssporsmal,
-            createdAt
+    fun persistAndPublishKartleggingssporsmal(kandidat: KartleggingssporsmalKandidat, kartleggingssporsmalRequest: KartleggingssporsmalRequest): PersistedKartleggingssporsmal {
+        val persistedKartleggingssporsmal = kartleggingssporsmalDAO.persistKartleggingssporsmal(
+            Kartleggingssporsmal(
+                fnr = kandidat.personIdent,
+                kandidatId = kandidat.kandidatId,
+                formSnapshot = kartleggingssporsmalRequest.formSnapshot
+            ),
         )
         kafkaProducer.publishResponse(
             KartleggingssvarEvent(
-                personident = kandidat.personIdent,
-                kandidatId = kandidat.kandidatId,
-                svarId = uuid,
-                createdAt = createdAt,
+                personident = persistedKartleggingssporsmal.fnr,
+                kandidatId = persistedKartleggingssporsmal.kandidatId,
+                svarId = persistedKartleggingssporsmal.uuid,
+                createdAt = persistedKartleggingssporsmal.createdAt,
             )
         )
+        return persistedKartleggingssporsmal
     }
 
     fun getKartleggingssporsmalByUuid(uuid: UUID): PersistedKartleggingssporsmal? {
