@@ -31,7 +31,7 @@ class KartleggingKafkaConfig(
     @Bean
     fun kandidatConsumerFactory(): ConsumerFactory<String, String?> {
         val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {
-            put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-kartlegging-kandidat")
+            put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-kartlegging-kandidat-1")
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
         }
         return DefaultKafkaConsumerFactory(config)
