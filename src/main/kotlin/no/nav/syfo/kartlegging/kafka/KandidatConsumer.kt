@@ -50,8 +50,7 @@ class KandidatConsumer(
     }
 
     companion object {
-        // TODO: Update topic name when available
-        const val KANDIDAT_TOPIC = "teamsykefravr.kandidat"
+        const val KANDIDAT_TOPIC = "teamsykefravr.ismeroppfolging-kartleggingssporsmal-kandidat"
     }
 
     fun KandidatKafkaEvent.toKandidat() = KartleggingssporsmalKandidat(
