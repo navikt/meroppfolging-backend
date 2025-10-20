@@ -37,6 +37,7 @@ class KandidatConsumer(
             ack.acknowledge()
         } catch (e: Exception) {
             log.error("Unexpected error when processing records in $KANDIDAT_TOPIC: ${e.message}", e)
+            throw e
         }
     }
 
