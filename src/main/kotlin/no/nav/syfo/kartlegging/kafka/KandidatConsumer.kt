@@ -57,6 +57,6 @@ class KandidatConsumer(
         personIdent = this.personIdent,
         kandidatId = this.kandidatId,
         status = this.status,
-        createdAt = this.createdAt,
+        createdAt = this.createdAt.toInstant(),
     )
 }
