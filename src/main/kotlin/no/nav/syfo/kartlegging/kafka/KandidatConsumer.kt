@@ -44,7 +44,7 @@ class KandidatConsumer(
     private fun processRecords(records: List<ConsumerRecord<String, String?>>) {
         val kandidater = records
             .mapNotNull { it.value() }
-            .map {
+            .mapNotNull {
                 objectMapper.readValue<KandidatKafkaEvent>(it)
                     .toKandidat()
             }
@@ -69,10 +69,20 @@ class KandidatConsumer(
         const val KANDIDAT_TOPIC = "teamsykefravr.ismeroppfolging-kartleggingssporsmal-kandidat"
     }
 
-    fun KandidatKafkaEvent.toKandidat() = KartleggingssporsmalKandidat(
-        personIdent = this.personident,
-        kandidatId = this.kandidatUuid,
-        status = KandidatStatus.valueOf(this.status),
-        createdAt = this.createdAt.toInstant(),
-    )
+    fun KandidatKafkaEvent.toKandidat(): KartleggingssporsmalKandidat? {
+        val status = try {
+            KandidatStatus.valueOf(this.status)
+        } catch (e: IllegalArgumentException) {
+            log.warn("Ukjent kandidat status. Forkaster kandidat", e)
+            return null
+        }
+
+        return KartleggingssporsmalKandidat(
+            personIdent = this.personident,
+            kandidatId = this.kandidatUuid,
+            status = status,
+            createdAt = this.createdAt.toInstant(),
+        )
+    }
+
 }
