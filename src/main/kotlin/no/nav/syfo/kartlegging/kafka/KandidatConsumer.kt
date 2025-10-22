@@ -73,7 +73,7 @@ class KandidatConsumer(
         val status = try {
             KandidatStatus.valueOf(this.status)
         } catch (e: IllegalArgumentException) {
-            log.warn("Ukjent kandidat status. Forkaster kandidat", e)
+            log.warn("Ukjent kandidat status. Forkaster kandidat ${this.kandidatUuid}", e)
             return null
         }
 
