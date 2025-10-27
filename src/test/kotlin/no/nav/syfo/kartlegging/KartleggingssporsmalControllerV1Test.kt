@@ -68,7 +68,7 @@ class KartleggingssporsmalControllerV1Test :
                 kandidatId = kandidatId,
                 personIdent = fnr,
                 status = KandidatStatus.KANDIDAT,
-                createdAt = Instant.parse("2025-04-04T00:00:00.00Z"),
+                createdAt = Instant.now(),
             )
         }
 

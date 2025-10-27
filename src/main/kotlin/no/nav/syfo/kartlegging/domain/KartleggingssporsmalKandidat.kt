@@ -1,7 +1,10 @@
 package no.nav.syfo.kartlegging.domain
 
+import java.time.Duration
 import java.time.Instant
 import java.util.UUID
+
+private const val KANDIDAT_VALID_DAYS: Long = 31
 
 enum class KandidatStatus {
     KANDIDAT,
@@ -14,5 +17,9 @@ data class KartleggingssporsmalKandidat(
     val status: KandidatStatus,
     val createdAt: Instant
 ) {
-    fun isKandidat(): Boolean = status == KandidatStatus.KANDIDAT
+    fun isKandidat(): Boolean {
+        if (status != KandidatStatus.KANDIDAT) return false
+        val latestBoundary = Instant.now().minus(Duration.ofDays(KANDIDAT_VALID_DAYS))
+        return createdAt.isAfter(latestBoundary)
+    }
 }
