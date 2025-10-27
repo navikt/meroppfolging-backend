@@ -12,7 +12,9 @@ import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldOption
 import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
+import no.nav.syfo.kartlegging.exception.KandidatNotFoundException
 import no.nav.syfo.kartlegging.exception.UserResponseNotFoundException
+import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.veiledertilgang.VeilederTilgangClient
 import org.springframework.http.HttpStatusCode
@@ -23,11 +25,13 @@ class KartleggingssporsmalVeilederControllerV1Test : DescribeSpec({
     val tokenValidationContextHolder = mockk<TokenValidationContextHolder>(relaxed = true)
     val veilederTilgangClient = mockk<VeilederTilgangClient>(relaxed = true)
     val kartleggingssporsmalService = mockk<KartleggingssporsmalService>(relaxed = true)
+    val kandidatService = mockk<KandidatService>(relaxed = true)
 
     val controller = KartleggingssporsmalVeilederControllerV1(
         tokenValidationContextHolder = tokenValidationContextHolder,
         veilederTilgangClient = veilederTilgangClient,
-        kartleggingssporsmalService = kartleggingssporsmalService
+        kartleggingssporsmalService = kartleggingssporsmalService,
+        kandidatService = kandidatService
     )
 
     beforeTest { clearAllMocks() }
@@ -142,6 +146,97 @@ class KartleggingssporsmalVeilederControllerV1Test : DescribeSpec({
             every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns false
 
             shouldThrow<NoAccess> { controller.getKartleggingssporsmal(uuid) }
+        }
+    }
+
+    describe("GET /api/v1/internad/kartleggingssporsmal/{kandidatId}/svar") {
+        it("should throw KandidatNotFoundException when kandidat not found") {
+            val kandidatId = UUID.randomUUID()
+
+            every { kandidatService.getKandidatByKandidatId(kandidatId) } returns null
+
+            shouldThrow<KandidatNotFoundException> {
+                controller.getKartleggingssporsmalSvar(kandidatId)
+            }
+        }
+
+        it("should throw NoAccess when veileder does not have access") {
+            val kandidatId = UUID.randomUUID()
+            val fnr = "12345678910"
+
+            every { kandidatService.getKandidatByKandidatId(kandidatId) } returns
+                no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat(
+                    personIdent = fnr,
+                    kandidatId = kandidatId,
+                    status = no.nav.syfo.kartlegging.domain.KandidatStatus.KANDIDAT,
+                    createdAt = Instant.now(),
+                )
+            every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns false
+
+            shouldThrow<NoAccess> {
+                controller.getKartleggingssporsmalSvar(kandidatId)
+            }
+        }
+
+        it("should return 200 OK with persisted kartleggingssporsmal for kandidatId") {
+            val kandidatId = UUID.randomUUID()
+            val fnr = "12345678910"
+
+            val formSnapshot = FormSnapshot(
+                formIdentifier = "kartlegging-test-form",
+                formSemanticVersion = "1.0.0",
+                formSnapshotVersion = "1",
+                fieldSnapshots = listOf(
+                    RadioGroupFieldSnapshot(
+                        fieldId = "hvorSannsynligTilbakeTilJobben",
+                        label = "Label 1",
+                        options = listOf(
+                            FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
+                            FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
+                        ),
+                    ),
+                    RadioGroupFieldSnapshot(
+                        fieldId = "samarbeidOgRelasjonTilArbeidsgiver",
+                        label = "Label 2",
+                        options = listOf(
+                            FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
+                            FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
+                        ),
+                    ),
+                    RadioGroupFieldSnapshot(
+                        fieldId = "naarTilbakeTilJobben",
+                        label = "Label 3",
+                        options = listOf(
+                            FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
+                            FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
+                        ),
+                    ),
+                ),
+            )
+            val persisted = PersistedKartleggingssporsmal(
+                uuid = UUID.randomUUID(),
+                fnr = fnr,
+                kandidatId = kandidatId,
+                formSnapshot = formSnapshot,
+                createdAt = Instant.now(),
+            )
+
+            every { kandidatService.getKandidatByKandidatId(kandidatId) } returns
+                no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat(
+                    personIdent = fnr,
+                    kandidatId = kandidatId,
+                    status = no.nav.syfo.kartlegging.domain.KandidatStatus.KANDIDAT,
+                    createdAt = Instant.now(),
+                )
+            every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true
+            every { kartleggingssporsmalService.getLatestKartleggingssporsmal(kandidatId) } returns persisted
+
+            val response = controller.getKartleggingssporsmalSvar(kandidatId)
+
+            response.statusCode.isSameCodeAs(HttpStatusCode.valueOf(200)) shouldBe true
+            val body = response.body!!
+            body.uuid shouldBe persisted.uuid
+            body.formSnapshot shouldBe formSnapshot
         }
     }
 })

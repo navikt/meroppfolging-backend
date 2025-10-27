@@ -6,6 +6,7 @@ import no.nav.syfo.logger
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 import kotlin.collections.forEach
 
 @Service
@@ -16,6 +17,10 @@ class KandidatService(
 
     fun getKandidatByFnr(fnr: String): KartleggingssporsmalKandidat? {
         return kandidatDAO.findKandidatByFnr(fnr)
+    }
+
+    fun getKandidatByKandidatId(kandidatId: UUID): KartleggingssporsmalKandidat? {
+        return kandidatDAO.findKandidatByKandidatId(kandidatId)
     }
 
     @Transactional
