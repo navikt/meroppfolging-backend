@@ -7,7 +7,9 @@ import no.nav.syfo.auth.TokenUtil
 import no.nav.syfo.auth.TokenUtil.TokenIssuer.AZUREAD
 import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
+import no.nav.syfo.kartlegging.exception.KandidatNotFoundException
 import no.nav.syfo.kartlegging.exception.UserResponseNotFoundException
+import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.veiledertilgang.VeilederTilgangClient
 import org.springframework.http.MediaType
@@ -24,7 +26,8 @@ import java.util.UUID
 class KartleggingssporsmalVeilederControllerV1(
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val veilederTilgangClient: VeilederTilgangClient,
-    val kartleggingssporsmalService: KartleggingssporsmalService
+    val kartleggingssporsmalService: KartleggingssporsmalService,
+    private val kandidatService: KandidatService
 ) {
 
     @GetMapping("/{uuid}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -41,6 +44,27 @@ class KartleggingssporsmalVeilederControllerV1(
         if (!hasVeilederTilgangToPerson) {
             throw NoAccess("Veileder har ikke tilgang til person")
         }
+        return ResponseEntity
+            .ok(response)
+    }
+
+    @GetMapping("/kandidat/{kandidatId}/svar", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getKartleggingssporsmalSvar(@PathVariable kandidatId: UUID): ResponseEntity<PersistedKartleggingssporsmal?> {
+        val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, AZUREAD)
+
+        val kandidat = kandidatService.getKandidatByKandidatId(kandidatId)
+            ?: throw KandidatNotFoundException("Fant ikke kandidat med kandidatId: $kandidatId")
+
+        val hasVeilederTilgangToPerson = veilederTilgangClient.hasVeilederTilgangToPerson(
+            token = token,
+            personident = PersonIdentNumber(kandidat.personIdent),
+        )
+        if (!hasVeilederTilgangToPerson) {
+            throw NoAccess("Veileder har ikke tilgang til person")
+        }
+
+        val response = kartleggingssporsmalService.getLatestKartleggingssporsmal(kandidat.kandidatId)
+
         return ResponseEntity
             .ok(response)
     }

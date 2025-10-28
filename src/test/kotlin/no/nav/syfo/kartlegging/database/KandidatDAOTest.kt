@@ -2,6 +2,7 @@ package no.nav.syfo.kartlegging.database
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -80,7 +81,7 @@ class KandidatDAOTest : DescribeSpec() {
                 kandidatDAO.findKandidatByFnr("00000000000").shouldBeNull()
             }
 
-            it("returns the latest kandidat by created_at when multiple exist for same fnr") {
+            it("returns the kandidat with kandidatId") {
                 val fnr = "10987654321"
                 val old = KartleggingssporsmalKandidat(
                     personIdent = fnr,
@@ -103,5 +104,30 @@ class KandidatDAOTest : DescribeSpec() {
                 latest.createdAt.epochSecond shouldBe new.createdAt.epochSecond
             }
         }
+
+        describe("KandidatDAO.findKandidatByKandidatId") {
+            it("should return null when no kandidat exists") {
+                kandidatDAO.findKandidatByKandidatId(UUID.randomUUID()).shouldBeNull()
+            }
+
+            it("should return kandidat by kandidatId") {
+                val kandidatId = UUID.randomUUID()
+                val kandidat = KartleggingssporsmalKandidat(
+                    personIdent = "10987654321",
+                    kandidatId = kandidatId,
+                    status = KandidatStatus.KANDIDAT,
+                    createdAt = Instant.now().minusSeconds(3600),
+                )
+
+                kandidatDAO.persistKandidat(kandidat)
+
+                val result = kandidatDAO.findKandidatByKandidatId(kandidatId)
+                result shouldNotBe null
+                result?.personIdent shouldBe kandidat.personIdent
+                result?.kandidatId shouldBe kandidat.kandidatId
+                result?.status shouldBe kandidat.status
+            }
+        }
+
     }
 }

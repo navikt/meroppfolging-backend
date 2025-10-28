@@ -50,6 +50,25 @@ class KandidatDAO(
             .firstOrNull()
     }
 
+    fun findKandidatByKandidatId(kandidatId: UUID): KartleggingssporsmalKandidat? {
+        val selectStatement = """
+            SELECT
+                kandidat_id,
+                fnr,
+                status,
+                created_at
+            FROM KARTLEGGINGSPORSMAL_KANDIDAT
+            WHERE kandidat_id = :kandidat_id
+            ORDER BY created_at DESC
+            LIMIT 1;
+        """.trimIndent()
+
+        val parameters = mapOf("kandidat_id" to kandidatId)
+
+        return namedParameterJdbcTemplate.query(selectStatement, parameters) { rs, _ -> rs.toKandidat() }
+            .firstOrNull()
+    }
+
     fun ResultSet.toKandidat(): KartleggingssporsmalKandidat {
         return KartleggingssporsmalKandidat(
             personIdent = this.getString("fnr"),
