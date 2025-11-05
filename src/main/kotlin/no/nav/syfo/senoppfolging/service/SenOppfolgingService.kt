@@ -17,6 +17,7 @@ import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
+import no.nav.syfo.senoppfolging.v2.domain.sortForMeroppfolgingFrontend
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
 import no.nav.syfo.syfoopppdfgen.PdfgenService
@@ -55,7 +56,7 @@ class SenOppfolgingService(
 
         return SenOppfolgingStatusDTOV2(
             responseStatus = response?.questionResponses?.toResponseStatus() ?: ResponseStatus.NO_RESPONSE,
-            response = response?.questionResponses,
+            response = response?.questionResponses?.sortForMeroppfolgingFrontend(),
             responseDateTime = response?.createdAt,
             maxDate = sykepengerInformasjon?.forelopigBeregnetSlutt,
             utbetaltTomDate = sykepengerInformasjon?.utbetaltTom,

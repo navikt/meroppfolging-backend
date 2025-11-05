@@ -25,10 +25,13 @@ import no.nav.syfo.senoppfolging.exception.NoAccessToSenOppfolgingException
 import no.nav.syfo.senoppfolging.exception.NoUtsendtVarselException
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
 import no.nav.syfo.senoppfolging.service.SenOppfolgingService
+import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
+import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.NO_RESPONSE
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_IKKE_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
+import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
@@ -297,12 +300,16 @@ class SenOppfolgingControllerV2Test :
                     status.hasAccessToSenOppfolging shouldBe false
                 }
                 it("return response if response with varsel uuid exist") {
+                    val behovForOppfolgingQuestion =
+                        QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "Test question", BehovForOppfolgingSvar.JA.name, "Test answer")
+                    val fremtidigSituasjonQuestion =
+                        QuestionResponse(FREMTIDIG_SITUASJON.name, "Another question", FremtidigSituasjonSvar.FORTSATT_SYK.name, "Another answer")
                     every { responseDao.findResponseByVarselId(varselUuid) } returns
-                        formResponse.copy(questionResponses = mutableListOf(questionResponse))
+                        formResponse.copy(questionResponses = mutableListOf(behovForOppfolgingQuestion, fremtidigSituasjonQuestion))
 
                     val status = controller.status()
 
-                    status.response shouldBe mutableListOf(questionResponse)
+                    status.response shouldBe mutableListOf(fremtidigSituasjonQuestion, behovForOppfolgingQuestion)
                 }
                 it("response submitted after utsendt varsel exist") {
                     every {
