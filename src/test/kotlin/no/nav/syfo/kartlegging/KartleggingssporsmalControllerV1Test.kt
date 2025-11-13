@@ -26,6 +26,7 @@ import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.exception.InvalidFormException
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import no.nav.syfo.kartlegging.service.KandidatService
+import no.nav.syfo.metric.Metric
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.http.HttpStatus
 import java.time.Instant
@@ -47,6 +48,7 @@ class KartleggingssporsmalControllerV1Test :
             dokarkivClient,
         )
         val kandidatService = KandidatService(kandidatDAO)
+        val metric = mockk<Metric>(relaxed = true)
 
         val controller =
             KartleggingssporsmalControllerV1(
@@ -54,6 +56,7 @@ class KartleggingssporsmalControllerV1Test :
                 tokenValidationContextHolder = tokenValidationContextHolder,
                 kartleggingssporsmalService = kartleggingssporsmalService,
                 kandidatService = kandidatService,
+                metric = metric,
             ).apply {
                 this.tokenValidator = tokenValidator
             }
