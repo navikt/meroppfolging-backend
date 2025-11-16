@@ -9,7 +9,6 @@ import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.logger
-import no.nav.syfo.metric.Metric
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component
 @Component
 class KandidatConsumer(
     private val kandidatService: KandidatService,
-    private val metric: Metric,
 ) {
     private val log = logger()
     private val objectMapper = ObjectMapper().apply {
@@ -65,8 +63,6 @@ class KandidatConsumer(
             }
         kandidatService.persistKandidater(kandidater)
         log.info("Persisted ${kandidater.size} kandidater")
-
-        metric.countKartleggingssporsmalKandidatReceived(kandidater.size.toDouble())
     }
 
     companion object {

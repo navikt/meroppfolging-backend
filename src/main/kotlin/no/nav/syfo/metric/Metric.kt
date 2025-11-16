@@ -19,9 +19,6 @@ constructor(
     fun countSenOppfolgingV2SubmittedNo() = countEvent("sen_oppfolging_V2_submitted_no")
     fun countSenOppfolgingVarslerToBeSent(count: Double) = countEvent("sen_oppfolging_varsler_to_be_sent", count)
 
-    fun countKartleggingssporsmalSubmitted() = countEvent("kartleggingssporsmal_submitted")
-    fun countKartleggingssporsmalKandidatReceived(count: Double) = countEvent("kartleggingssporsmal_submitted", count)
-
     fun countEvent(name: String, count: Double = 1.0) {
         registry
             .counter(
