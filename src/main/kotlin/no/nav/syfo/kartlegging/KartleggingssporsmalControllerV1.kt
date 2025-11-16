@@ -11,6 +11,7 @@ import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
 import no.nav.syfo.kartlegging.exception.NotKandidatException
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
+import no.nav.syfo.metric.Metric
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -32,6 +33,7 @@ class KartleggingssporsmalControllerV1(
     // Should always be null in prod
     @Value("\${TOKEN_X_GENERATOR_CLIENT_ID:#{null}}")
     val tokenXGeneratorClientId: String? = null,
+    val metric: Metric,
 ) {
 
     lateinit var tokenValidator: TokenValidator
@@ -55,6 +57,8 @@ class KartleggingssporsmalControllerV1(
         }
         kartleggingssporsmalService.validateFormSnapshot(kartleggingssporsmal.formSnapshot)
         val persisted = kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(muligKandidat, kartleggingssporsmal)
+
+        metric.countKartleggingssporsmalSubmitted()
 
         return ResponseEntity
             .ok(persisted)
