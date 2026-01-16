@@ -1,0 +1,3 @@
+CREATE INDEX idx_kartleggingssporsmal_kandidat_id ON KARTLEGGINGSPORSMAL (KANDIDAT_ID);
+CREATE INDEX idx_kartleggingssporsmal_fnr ON KARTLEGGINGSPORSMAL (FNR);
+CREATE INDEX idx_kandidat_fnr ON KARTLEGGINGSPORSMAL_KANDIDAT (FNR);
