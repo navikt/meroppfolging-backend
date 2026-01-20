@@ -14,10 +14,7 @@ data class PSykepengedagerInformasjon(
     val receivedAt: LocalDateTime,
 )
 
-fun PSykepengedagerInformasjon.forelopigBeregnetSluttFormatted(): String {
-    return formatDateForDisplayAndPdf(this.forelopigBeregnetSlutt)
-}
+fun PSykepengedagerInformasjon.forelopigBeregnetSluttFormatted(): String =
+    formatDateForDisplayAndPdf(this.forelopigBeregnetSlutt)
 
-fun PSykepengedagerInformasjon.utbetaltTomFormatted(): String {
-    return formatDateForDisplayAndPdf(this.utbetaltTom)
-}
+fun PSykepengedagerInformasjon.utbetaltTomFormatted(): String = formatDateForDisplayAndPdf(this.utbetaltTom)

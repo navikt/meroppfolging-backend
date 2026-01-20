@@ -104,11 +104,7 @@ data class RadioGroupFieldSnapshot(
     val wasRequired: Boolean? = true,
 ) : FieldSnapshot(fieldId, fieldType = FormSnapshotFieldType.RADIO_GROUP, label, description, sectionId)
 
-data class FormSnapshotFieldOption(
-    val optionId: String,
-    val optionLabel: String,
-    val wasSelected: Boolean = false,
-)
+data class FormSnapshotFieldOption(val optionId: String, val optionLabel: String, val wasSelected: Boolean = false,)
 
 enum class FormSnapshotFieldType(val type: String) {
     TEXT("text"),
@@ -117,7 +113,4 @@ enum class FormSnapshotFieldType(val type: String) {
     RADIO_GROUP("radioGroup")
 }
 
-data class FormSection(
-    val sectionId: String,
-    val sectionTitle: String,
-)
+data class FormSection(val sectionId: String, val sectionTitle: String,)

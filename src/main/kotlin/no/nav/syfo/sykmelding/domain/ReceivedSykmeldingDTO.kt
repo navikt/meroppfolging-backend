@@ -9,12 +9,6 @@ data class ReceivedSykmeldingDTO(
     val mottattDato: LocalDateTime,
 )
 
-data class Sykmelding(
-    val id: String,
-    val perioder: List<Periode>,
-)
+data class Sykmelding(val id: String, val perioder: List<Periode>,)
 
-data class Periode(
-    val fom: LocalDate,
-    val tom: LocalDate,
-)
+data class Periode(val fom: LocalDate, val tom: LocalDate,)

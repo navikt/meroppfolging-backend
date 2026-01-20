@@ -17,38 +17,39 @@ import org.springframework.http.MediaType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class PdlClientTest : DescribeSpec(
-    {
-        val azureAdClient = mockk<AzureAdClient>()
-        val pdlServer = WireMockServer(8080)
-        listener(WireMockListener(pdlServer, ListenerMode.PER_TEST))
-        val pdlClient = PdlClient(azureAdClient, "http://localhost:8080", "pdl.scope")
+class PdlClientTest :
+    DescribeSpec(
+        {
+            val azureAdClient = mockk<AzureAdClient>()
+            val pdlServer = WireMockServer(8080)
+            listener(WireMockListener(pdlServer, ListenerMode.PER_TEST))
+            val pdlClient = PdlClient(azureAdClient, "http://localhost:8080", "pdl.scope")
 
-        beforeTest {
-            every { azureAdClient.getSystemToken(any()) } returns "token"
-        }
-
-        describe("isBrukerYngreEnnGittMaxAlder") {
-            it("should return true if the user is younger than the given max age") {
-                pdlServer.stubHentPerson(yearsOld = 66)
-
-                pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67).youngerThanMaxAlder shouldBe true
+            beforeTest {
+                every { azureAdClient.getSystemToken(any()) } returns "token"
             }
 
-            it("should return false if the user is max age or older") {
-                pdlServer.stubHentPerson(yearsOld = 67)
+            describe("isBrukerYngreEnnGittMaxAlder") {
+                it("should return true if the user is younger than the given max age") {
+                    pdlServer.stubHentPerson(yearsOld = 66)
 
-                pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67).youngerThanMaxAlder shouldBe false
+                    pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67).youngerThanMaxAlder shouldBe true
+                }
+
+                it("should return false if the user is max age or older") {
+                    pdlServer.stubHentPerson(yearsOld = 67)
+
+                    pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67).youngerThanMaxAlder shouldBe false
+                }
+
+                it("should return true if the birth date is null") {
+                    pdlServer.stubHentPerson(yearsOld = null)
+
+                    pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67).youngerThanMaxAlder shouldBe true
+                }
             }
-
-            it("should return true if the birth date is null") {
-                pdlServer.stubHentPerson(yearsOld = null)
-
-                pdlClient.isBrukerYngreEnnGittMaxAlder("12345678910", 67).youngerThanMaxAlder shouldBe true
-            }
-        }
-    },
-)
+        },
+    )
 
 fun WireMockServer.stubHentPerson(yearsOld: Long?) {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")

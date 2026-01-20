@@ -56,7 +56,10 @@ class KartleggingssporsmalControllerV1(
             throw NotKandidatException("Personen er ikke kandidat for kartlegging")
         }
         kartleggingssporsmalService.validateFormSnapshot(kartleggingssporsmal.formSnapshot)
-        val persisted = kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(muligKandidat, kartleggingssporsmal)
+        val persisted = kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(
+            muligKandidat,
+            kartleggingssporsmal
+        )
 
         metric.countKartleggingssporsmalSubmitted()
 

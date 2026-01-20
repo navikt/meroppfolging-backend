@@ -58,9 +58,7 @@ class SenOppfolgingControllerV2(
 
     @PostMapping("/submitform")
     @ResponseBody
-    fun submitForm(
-        @RequestBody senOppfolgingSvar: SenOppfolgingDTOV2,
-    ): ResponseEntity<Unit> {
+    fun submitForm(@RequestBody senOppfolgingSvar: SenOppfolgingDTOV2,): ResponseEntity<Unit> {
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, TOKENX)
 

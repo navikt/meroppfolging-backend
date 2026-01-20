@@ -30,18 +30,11 @@ data class VarselData(
     val aktivitetskrav: VarselDataAktivitetskrav? = null,
 )
 
-data class VarselDataJournalpost(
-    val uuid: String,
-    val id: String?,
-)
+data class VarselDataJournalpost(val uuid: String, val id: String?,)
 
-data class VarselDataNarmesteLeder(
-    val navn: String?,
-)
+data class VarselDataNarmesteLeder(val navn: String?,)
 
-data class VarselDataMotetidspunkt(
-    val tidspunkt: LocalDateTime,
-)
+data class VarselDataMotetidspunkt(val tidspunkt: LocalDateTime,)
 
 data class VarselDataAktivitetskrav(
     val sendForhandsvarsel: Boolean,

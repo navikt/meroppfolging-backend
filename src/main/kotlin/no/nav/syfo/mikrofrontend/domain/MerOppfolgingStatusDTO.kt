@@ -41,9 +41,7 @@ data class KartleggingStatusDTO(
     val hasAccessToKartlegging: Boolean,
 )
 
-fun PersistedKartleggingssporsmal?.toKartleggingStatusDTO(
-    hasAccessToKartlegging: Boolean,
-): KartleggingStatusDTO =
+fun PersistedKartleggingssporsmal?.toKartleggingStatusDTO(hasAccessToKartlegging: Boolean,): KartleggingStatusDTO =
     if (this == null) {
         KartleggingStatusDTO(
             responseStatus = KartleggingResponseStatusType.NO_RESPONSE,

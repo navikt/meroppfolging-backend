@@ -12,9 +12,7 @@ import org.springframework.kafka.listener.ContainerProperties
 
 @EnableKafka
 @Configuration
-class SykepengedagerInformasjonKafkaConfig(
-    private val kafkaConfig: KafkaConfig,
-) {
+class SykepengedagerInformasjonKafkaConfig(private val kafkaConfig: KafkaConfig,) {
     @Bean
     fun sykepengeDagerConsumerFactory(): ConsumerFactory<String, String?> {
         val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {

@@ -19,80 +19,81 @@ import org.springframework.http.HttpStatusCode
 import java.time.LocalDateTime
 import java.util.UUID
 
-class SenOppfolgingVeilederADControllerV2Test : DescribeSpec(
-    {
-        val tokenValidationContextHolder = mockk<TokenValidationContextHolder>(relaxed = true)
-        val responseDao = mockk<ResponseDao>(relaxed = true)
-        val veilederTilgangClient = mockk<VeilederTilgangClient>(relaxed = true)
+class SenOppfolgingVeilederADControllerV2Test :
+    DescribeSpec(
+        {
+            val tokenValidationContextHolder = mockk<TokenValidationContextHolder>(relaxed = true)
+            val responseDao = mockk<ResponseDao>(relaxed = true)
+            val veilederTilgangClient = mockk<VeilederTilgangClient>(relaxed = true)
 
-        val controller = SenOppfolgingVeilederADControllerV2(
-            tokenValidationContextHolder = tokenValidationContextHolder,
-            veilederTilgangClient = veilederTilgangClient,
-            responseDao = responseDao,
-        )
+            val controller = SenOppfolgingVeilederADControllerV2(
+                tokenValidationContextHolder = tokenValidationContextHolder,
+                veilederTilgangClient = veilederTilgangClient,
+                responseDao = responseDao,
+            )
 
-        val fnr = "12345678910"
-        val personIdent = PersonIdentNumber(fnr)
+            val fnr = "12345678910"
+            val personIdent = PersonIdentNumber(fnr)
 
-        beforeTest {
-            clearAllMocks()
-        }
-
-        describe("Get form response") {
-            it("returns successful response when veileder has access to person") {
-                every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true
-
-                val response = controller.getFormResponse(fnr)
-                TestCase.assertTrue(response.statusCode.is2xxSuccessful)
+            beforeTest {
+                clearAllMocks()
             }
 
-            it("returns no content when veileder has access to person but person has no form response") {
-                every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true
-                every { responseDao.findLatestFormResponse(any(), any()) } returns null
+            describe("Get form response") {
+                it("returns successful response when veileder has access to person") {
+                    every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true
 
-                val response = controller.getFormResponse(fnr)
-                TestCase.assertTrue(response.statusCode.isSameCodeAs(HttpStatusCode.valueOf(204)))
-                TestCase.assertNull(response.body)
-            }
-
-            it("returns OK response when veileder has access to person with form response") {
-                every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true
-
-                val responseUUID = UUID.randomUUID()
-                val responseCreatedAt = LocalDateTime.now()
-
-                every { responseDao.findLatestFormResponse(any(), any()) } returns FormResponse(
-                    uuid = responseUUID,
-                    personIdent = personIdent,
-                    createdAt = responseCreatedAt,
-                    formType = FormType.SEN_OPPFOLGING_V2,
-                    questionResponses = mutableListOf(
-                        QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "JA", "Ja")
-                    )
-                )
-
-                val response = controller.getFormResponse(fnr)
-                TestCase.assertTrue(response.statusCode.isSameCodeAs(HttpStatusCode.valueOf(200)))
-
-                val responseDTOV2 = response.body!!
-                TestCase.assertEquals(responseUUID.toString(), responseDTOV2.uuid)
-                TestCase.assertEquals(fnr, responseDTOV2.personIdent)
-                TestCase.assertEquals(responseCreatedAt, responseDTOV2.createdAt)
-                TestCase.assertEquals(FormType.SEN_OPPFOLGING_V2.name, responseDTOV2.formType)
-                TestCase.assertEquals(1, responseDTOV2.questionResponses.size)
-                val questionResponseDTO = responseDTOV2.questionResponses.first()
-                TestCase.assertEquals(BEHOV_FOR_OPPFOLGING.name, questionResponseDTO.questionType)
-                TestCase.assertEquals("JA", questionResponseDTO.answerType)
-            }
-
-            it("throws NoAccess when veileder denied access to person") {
-                every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns false
-
-                val exception = shouldThrow<NoAccess> {
-                    controller.getFormResponse(fnr)
+                    val response = controller.getFormResponse(fnr)
+                    TestCase.assertTrue(response.statusCode.is2xxSuccessful)
                 }
-                TestCase.assertEquals("Veileder har ikke tilgang til person", exception.message)
+
+                it("returns no content when veileder has access to person but person has no form response") {
+                    every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true
+                    every { responseDao.findLatestFormResponse(any(), any()) } returns null
+
+                    val response = controller.getFormResponse(fnr)
+                    TestCase.assertTrue(response.statusCode.isSameCodeAs(HttpStatusCode.valueOf(204)))
+                    TestCase.assertNull(response.body)
+                }
+
+                it("returns OK response when veileder has access to person with form response") {
+                    every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true
+
+                    val responseUUID = UUID.randomUUID()
+                    val responseCreatedAt = LocalDateTime.now()
+
+                    every { responseDao.findLatestFormResponse(any(), any()) } returns FormResponse(
+                        uuid = responseUUID,
+                        personIdent = personIdent,
+                        createdAt = responseCreatedAt,
+                        formType = FormType.SEN_OPPFOLGING_V2,
+                        questionResponses = mutableListOf(
+                            QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "", "JA", "Ja")
+                        )
+                    )
+
+                    val response = controller.getFormResponse(fnr)
+                    TestCase.assertTrue(response.statusCode.isSameCodeAs(HttpStatusCode.valueOf(200)))
+
+                    val responseDTOV2 = response.body!!
+                    TestCase.assertEquals(responseUUID.toString(), responseDTOV2.uuid)
+                    TestCase.assertEquals(fnr, responseDTOV2.personIdent)
+                    TestCase.assertEquals(responseCreatedAt, responseDTOV2.createdAt)
+                    TestCase.assertEquals(FormType.SEN_OPPFOLGING_V2.name, responseDTOV2.formType)
+                    TestCase.assertEquals(1, responseDTOV2.questionResponses.size)
+                    val questionResponseDTO = responseDTOV2.questionResponses.first()
+                    TestCase.assertEquals(BEHOV_FOR_OPPFOLGING.name, questionResponseDTO.questionType)
+                    TestCase.assertEquals("JA", questionResponseDTO.answerType)
+                }
+
+                it("throws NoAccess when veileder denied access to person") {
+                    every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns false
+
+                    val exception = shouldThrow<NoAccess> {
+                        controller.getFormResponse(fnr)
+                    }
+                    TestCase.assertEquals("Veileder har ikke tilgang til person", exception.message)
+                }
             }
-        }
-    },
-)
+        },
+    )

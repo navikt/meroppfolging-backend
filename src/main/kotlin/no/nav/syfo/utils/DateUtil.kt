@@ -10,11 +10,8 @@ fun parseDate(dateString: String): LocalDate {
     return LocalDate.parse(dateString, formatter)
 }
 
-fun formatDateForDisplayAndPdf(date: LocalDate): String {
-
-    return date.format(
-        DateTimeFormatter.ofPattern(DISPLAY_DATE_FORMAT_PATTERN).withLocale(
-            Locale.forLanguageTag("nb-NO"),
-        ),
-    )
-}
+fun formatDateForDisplayAndPdf(date: LocalDate): String = date.format(
+    DateTimeFormatter.ofPattern(DISPLAY_DATE_FORMAT_PATTERN).withLocale(
+        Locale.forLanguageTag("nb-NO"),
+    ),
+)

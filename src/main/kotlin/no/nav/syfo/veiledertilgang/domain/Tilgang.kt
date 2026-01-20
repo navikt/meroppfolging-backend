@@ -1,5 +1,3 @@
 package no.nav.syfo.veiledertilgang.domain
 
-data class Tilgang(
-    val erGodkjent: Boolean,
-)
+data class Tilgang(val erGodkjent: Boolean,)

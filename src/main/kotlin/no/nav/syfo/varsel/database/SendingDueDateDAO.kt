@@ -11,9 +11,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 @Repository
-class SendingDueDateDAO(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-) {
+class SendingDueDateDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,) {
     fun persistSendingDueDate(merOppfolgingVarselDTO: MerOppfolgingVarselDTO) {
         val insertStatement = """
             INSERT INTO SENDING_DUE_DATE (
@@ -37,11 +35,7 @@ class SendingDueDateDAO(
         namedParameterJdbcTemplate.update(insertStatement, parameters)
     }
 
-    fun getSendingDueDate(
-        personIdent: String,
-        sykmeldingId: String,
-        utbetalingId: String,
-    ): LocalDateTime? {
+    fun getSendingDueDate(personIdent: String, sykmeldingId: String, utbetalingId: String,): LocalDateTime? {
         val selectStatement = """
         SELECT *
         FROM SENDING_DUE_DATE

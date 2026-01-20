@@ -2,7 +2,6 @@ package no.nav.syfo.kartlegging.database
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
-import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -128,6 +127,5 @@ class KandidatDAOTest : DescribeSpec() {
                 result?.status shouldBe kandidat.status
             }
         }
-
     }
 }

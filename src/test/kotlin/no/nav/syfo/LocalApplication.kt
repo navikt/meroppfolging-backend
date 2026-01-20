@@ -13,19 +13,16 @@ class LocalApplication {
 
     @Bean
     @ServiceConnection
-    fun kafkaContainer(): KafkaContainer {
-        return KafkaContainer(DockerImageName.parse("apache/kafka"))
-    }
+    fun kafkaContainer(): KafkaContainer = KafkaContainer(DockerImageName.parse("apache/kafka"))
 
     @Bean
     @ServiceConnection
-    fun dbContainer(): PostgreSQLContainer<Nothing> {
-        return PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:17-alpine")).apply {
+    fun dbContainer(): PostgreSQLContainer<Nothing> =
+        PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:17-alpine")).apply {
             withDatabaseName("testdb")
             withUsername("test")
             withPassword("test")
         }
-    }
 }
 
 fun main(args: Array<String>) {

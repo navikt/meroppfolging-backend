@@ -10,22 +10,22 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
-import no.nav.syfo.kartlegging.database.KartleggingssporsmalDAO
-import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
-import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
-import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
-import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldOption
-import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
-import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.kartlegging.database.KandidatDAO
+import no.nav.syfo.kartlegging.database.KartleggingssporsmalDAO
 import no.nav.syfo.kartlegging.domain.KandidatStatus
+import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
+import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
+import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
+import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldOption
+import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
 import no.nav.syfo.kartlegging.exception.InvalidFormException
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import no.nav.syfo.kartlegging.service.KandidatService
+import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.http.HttpStatus
@@ -115,7 +115,9 @@ class KartleggingssporsmalControllerV1Test :
                 response.statusCode shouldBe HttpStatus.OK
 
                 val persistedSlot: CapturingSlot<Kartleggingssporsmal> = slot()
-                verify(exactly = 1) { kartleggingssporsmalDAO.persistKartleggingssporsmal(capture(persistedSlot), any()) }
+                verify(exactly = 1) {
+                    kartleggingssporsmalDAO.persistKartleggingssporsmal(capture(persistedSlot), any())
+                }
                 verify(exactly = 1) { kafkaProducer.publishResponse(any()) }
 
                 persistedSlot.captured.fnr shouldBe fnr
@@ -154,7 +156,9 @@ class KartleggingssporsmalControllerV1Test :
                 }
             }
 
-            it("returns 400 InvalidFormException if form contains required RadioGroupFieldSnapshot with no option selected") {
+            it(
+                "returns 400 InvalidFormException if form contains required RadioGroupFieldSnapshot with no option selected"
+            ) {
                 val formSnapshot = FormSnapshot(
                     formIdentifier = "kartlegging-test-form",
                     formSemanticVersion = "1.0.0",

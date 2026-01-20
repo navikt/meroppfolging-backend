@@ -45,9 +45,7 @@ class PdlClient(
         }
     }
 
-    private fun hentPersonData(
-        personIdent: String,
-    ): HentPersonData? {
+    private fun hentPersonData(personIdent: String,): HentPersonData? {
         val token = azureAdClient.getSystemToken(pdlScope)
         val request = PdlRequest(createPdlQuery(), Variables(personIdent))
 
@@ -91,13 +89,9 @@ class PdlClient(
         return Period.between(parsedFodselsdato, LocalDate.now()).years < maxAlder
     }
 
-    private fun createPdlQuery(): String {
-        return this::class.java.getResource("/pdl/hentPerson.graphql")?.readText()?.replace("[\n\r]", "")
+    private fun createPdlQuery(): String =
+        this::class.java.getResource("/pdl/hentPerson.graphql")?.readText()?.replace("[\n\r]", "")
             ?: throw FileNotFoundException("Could not find resource for hentPerson.graphql")
-    }
 
-    data class AgeCheckResult(
-        val youngerThanMaxAlder: Boolean,
-        val fodselsdato: String?,
-    )
+    data class AgeCheckResult(val youngerThanMaxAlder: Boolean, val fodselsdato: String?,)
 }

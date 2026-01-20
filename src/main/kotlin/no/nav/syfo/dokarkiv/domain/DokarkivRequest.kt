@@ -45,45 +45,27 @@ data class DokarkivRequest(
     }
 }
 
-data class AvsenderMottaker(
-    val id: String,
-    val idType: String,
-) {
+data class AvsenderMottaker(val id: String, val idType: String,) {
     companion object {
-        fun create(
-            id: String,
-        ) = AvsenderMottaker(
+        fun create(id: String,) = AvsenderMottaker(
             id = id,
             idType = "FNR",
         )
     }
 }
 
-data class Bruker(
-    val id: String,
-    val idType: String,
-) {
+data class Bruker(val id: String, val idType: String,) {
     companion object {
-        fun create(
-            id: String,
-            idType: String = "FNR",
-        ) = Bruker(
+        fun create(id: String, idType: String = "FNR",) = Bruker(
             id = id,
             idType = idType,
         )
     }
 }
 
-data class Dokument(
-    val brevkode: String,
-    val dokumentvarianter: List<Dokumentvariant>,
-    val tittel: String,
-) {
+data class Dokument(val brevkode: String, val dokumentvarianter: List<Dokumentvariant>, val tittel: String,) {
     companion object {
-        fun create(
-            dokumentvarianter: List<Dokumentvariant>,
-            tittel: String
-        ) = Dokument(
+        fun create(dokumentvarianter: List<Dokumentvariant>, tittel: String) = Dokument(
             tittel = tittel,
             brevkode = "KVITTERING_SNART_SLUTT_PA_SYKEPENGER",
             dokumentvarianter = dokumentvarianter,

@@ -72,7 +72,5 @@ class SendSSPSVarselJobb(
         }
     }
 
-    private fun LocalDateTime.isDueDatePassed(): Boolean {
-        return this.isEqual(LocalDateTime.now())
-    }
+    private fun LocalDateTime.isDueDatePassed(): Boolean = this.isEqual(LocalDateTime.now())
 }

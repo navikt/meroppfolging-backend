@@ -26,73 +26,74 @@ import java.util.UUID
 const val BASE_URL = "http://localhost:9000"
 const val REST_PATH = "/rest/v1/personer"
 
-class DkifClientTest : FunSpec(
-    {
-        val azureAdTokenConsumer = mockk<AzureAdClient>()
-        val dkifScope = "some-scope"
-        val dkifUrl = "$BASE_URL$REST_PATH"
+class DkifClientTest :
+    FunSpec(
+        {
+            val azureAdTokenConsumer = mockk<AzureAdClient>()
+            val dkifScope = "some-scope"
+            val dkifUrl = "$BASE_URL$REST_PATH"
 
-        val validFnr = "12345678910"
-        val unknownFnr = "01987654321"
-        val dkifClient = DkifClient(azureAdClient = azureAdTokenConsumer, dkifScope = dkifScope, dkifUrl = dkifUrl)
-        val krrServer = WireMockServer(9000)
-        listener(WireMockListener(krrServer, ListenerMode.PER_TEST))
-        beforeTest {
-            every { azureAdTokenConsumer.getSystemToken(dkifScope) } returns UUID.randomUUID().toString()
-        }
-
-        test("Throws error on request when fnr is not included in response") {
-            krrServer.stubPersonerResponse(
-                PostPersonerResponse(
-                    personer = emptyMap(),
-                    feil = mapOf(unknownFnr to "Not Found"),
-                ),
-            )
-            val exception = shouldThrow<DkifRequestFailedException> {
-                dkifClient.person(unknownFnr)
+            val validFnr = "12345678910"
+            val unknownFnr = "01987654321"
+            val dkifClient = DkifClient(azureAdClient = azureAdTokenConsumer, dkifScope = dkifScope, dkifUrl = dkifUrl)
+            val krrServer = WireMockServer(9000)
+            listener(WireMockListener(krrServer, ListenerMode.PER_TEST))
+            beforeTest {
+                every { azureAdTokenConsumer.getSystemToken(dkifScope) } returns UUID.randomUUID().toString()
             }
-            exception.message shouldContain "Response did not contain person"
-        }
 
-        test("Throws error with did not contain person when response contains json with with invalid contract") {
-            krrServer.stubPersonerWithCustomResponse(
-                response = mapOf("what" to "ever"),
-                HttpStatus.OK,
-            )
-            val exception = shouldThrow<DkifRequestFailedException> {
-                dkifClient.person(validFnr)
+            test("Throws error on request when fnr is not included in response") {
+                krrServer.stubPersonerResponse(
+                    PostPersonerResponse(
+                        personer = emptyMap(),
+                        feil = mapOf(unknownFnr to "Not Found"),
+                    ),
+                )
+                val exception = shouldThrow<DkifRequestFailedException> {
+                    dkifClient.person(unknownFnr)
+                }
+                exception.message shouldContain "Response did not contain person"
             }
-            exception.message shouldContain "Response did not contain person"
-        }
 
-        test("Throws error with message for unexpected status on response") {
-            krrServer.stubPersonerWithCustomResponse(
-                response = mapOf("what" to "ever"),
-                HttpStatus.ACCEPTED,
-            )
-            val exception = shouldThrow<DkifRequestFailedException> {
-                dkifClient.person(validFnr)
+            test("Throws error with did not contain person when response contains json with with invalid contract") {
+                krrServer.stubPersonerWithCustomResponse(
+                    response = mapOf("what" to "ever"),
+                    HttpStatus.OK,
+                )
+                val exception = shouldThrow<DkifRequestFailedException> {
+                    dkifClient.person(validFnr)
+                }
+                exception.message shouldContain "Response did not contain person"
             }
-            exception.message shouldContain "Received response with status code: ${HttpStatus.ACCEPTED}"
-        }
 
-        test("Returns KontaktInfo on successful request") {
-            val digitalKontaktInfo = Kontaktinfo(
-                reservert = false,
-                kanVarsles = true,
-            )
-            krrServer.stubPersonerResponse(
-                PostPersonerResponse(
-                    personer = mapOf(validFnr to digitalKontaktInfo),
-                    feil = emptyMap(),
-                ),
-            )
-            val response = dkifClient.person(validFnr)
-            response.reservert shouldBe digitalKontaktInfo.reservert
-            response.kanVarsles shouldBe digitalKontaktInfo.kanVarsles
-        }
-    },
-)
+            test("Throws error with message for unexpected status on response") {
+                krrServer.stubPersonerWithCustomResponse(
+                    response = mapOf("what" to "ever"),
+                    HttpStatus.ACCEPTED,
+                )
+                val exception = shouldThrow<DkifRequestFailedException> {
+                    dkifClient.person(validFnr)
+                }
+                exception.message shouldContain "Received response with status code: ${HttpStatus.ACCEPTED}"
+            }
+
+            test("Returns KontaktInfo on successful request") {
+                val digitalKontaktInfo = Kontaktinfo(
+                    reservert = false,
+                    kanVarsles = true,
+                )
+                krrServer.stubPersonerResponse(
+                    PostPersonerResponse(
+                        personer = mapOf(validFnr to digitalKontaktInfo),
+                        feil = emptyMap(),
+                    ),
+                )
+                val response = dkifClient.person(validFnr)
+                response.reservert shouldBe digitalKontaktInfo.reservert
+                response.kanVarsles shouldBe digitalKontaktInfo.kanVarsles
+            }
+        },
+    )
 
 val objectMapper: ObjectMapper = ObjectMapper().apply {
     registerKotlinModule()

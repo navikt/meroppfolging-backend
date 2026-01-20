@@ -10,9 +10,7 @@ import org.springframework.kafka.core.ProducerFactory
 
 @EnableKafka
 @Configuration
-class SenOppfolgingVarselKafkaConfig(
-    private val kafkaConfig: KafkaConfig,
-) {
+class SenOppfolgingVarselKafkaConfig(private val kafkaConfig: KafkaConfig,) {
     @Bean
     fun senOppfolgingVarselProducerFactory(): ProducerFactory<String, KSenOppfolgingVarselDTO> =
         DefaultKafkaProducerFactory(kafkaConfig.commonKafkaAivenProducerConfig())

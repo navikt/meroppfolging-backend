@@ -16,47 +16,48 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-class SenOppfolgingSvarKafkaProducerTest : DescribeSpec(
-    {
-        val kafkaTemplate = mockk<KafkaTemplate<String, KSenOppfolgingSvarDTO>>(relaxed = true)
-        val producer = SenOppfolgingSvarKafkaProducer(kafkaTemplate)
-        val ansattFnr = "12345678910"
+class SenOppfolgingSvarKafkaProducerTest :
+    DescribeSpec(
+        {
+            val kafkaTemplate = mockk<KafkaTemplate<String, KSenOppfolgingSvarDTO>>(relaxed = true)
+            val producer = SenOppfolgingSvarKafkaProducer(kafkaTemplate)
+            val ansattFnr = "12345678910"
 
-        beforeTest {
-            clearAllMocks()
-        }
+            beforeTest {
+                clearAllMocks()
+            }
 
-        describe("Publish reponse") {
+            describe("Publish reponse") {
 
-            it("Should publish message on kafka") {
-                val response = KSenOppfolgingSvarDTO(
-                    UUID.randomUUID(),
-                    ansattFnr,
-                    LocalDateTime.now(),
-                    listOf(SenOppfolgingQuestionV2(SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING, "", "", "")),
-                    UUID.randomUUID(),
-                )
-
-                val sendResult = SendResult(
-                    ProducerRecord("topic", "key", response),
-                    RecordMetadata(
-                        TopicPartition("topic", 0),
-                        0,
-                        0,
-                        0,
-                        0,
-                        0
+                it("Should publish message on kafka") {
+                    val response = KSenOppfolgingSvarDTO(
+                        UUID.randomUUID(),
+                        ansattFnr,
+                        LocalDateTime.now(),
+                        listOf(SenOppfolgingQuestionV2(SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING, "", "", "")),
+                        UUID.randomUUID(),
                     )
-                )
-                every {
-                    kafkaTemplate.send(any<ProducerRecord<String, KSenOppfolgingSvarDTO>>())
-                } returns CompletableFuture.completedFuture(sendResult)
 
-                producer.publishResponse(response)
-                verify(atLeast = 1) {
-                    kafkaTemplate.send(any<ProducerRecord<String, KSenOppfolgingSvarDTO>>())
+                    val sendResult = SendResult(
+                        ProducerRecord("topic", "key", response),
+                        RecordMetadata(
+                            TopicPartition("topic", 0),
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                        )
+                    )
+                    every {
+                        kafkaTemplate.send(any<ProducerRecord<String, KSenOppfolgingSvarDTO>>())
+                    } returns CompletableFuture.completedFuture(sendResult)
+
+                    producer.publishResponse(response)
+                    verify(atLeast = 1) {
+                        kafkaTemplate.send(any<ProducerRecord<String, KSenOppfolgingSvarDTO>>())
+                    }
                 }
             }
-        }
-    },
-)
+        },
+    )

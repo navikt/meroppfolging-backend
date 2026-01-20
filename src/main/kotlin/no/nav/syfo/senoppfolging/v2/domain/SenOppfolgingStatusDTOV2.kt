@@ -33,12 +33,10 @@ fun List<QuestionResponse>.toResponseStatus(): ResponseStatus {
     }
 }
 
-fun List<QuestionResponse>.sortForMeroppfolgingFrontend(): List<QuestionResponse> {
-    return this.sortedBy {
-        when (it.questionType) {
-            SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON.name -> 0
-            SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING.name -> 1
-            else -> Int.MAX_VALUE
-        }
+fun List<QuestionResponse>.sortForMeroppfolgingFrontend(): List<QuestionResponse> = this.sortedBy {
+    when (it.questionType) {
+        SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON.name -> 0
+        SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING.name -> 1
+        else -> Int.MAX_VALUE
     }
 }

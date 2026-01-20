@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.KandidatStatus
+import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
@@ -16,10 +16,7 @@ import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
 
 @Component
-class KandidatConsumer(
-    private val kandidatService: KandidatService,
-    private val metric: Metric,
-) {
+class KandidatConsumer(private val kandidatService: KandidatService, private val metric: Metric,) {
     private val log = logger()
     private val objectMapper = ObjectMapper().apply {
         registerKotlinModule()
@@ -28,10 +25,7 @@ class KandidatConsumer(
     }
 
     @KafkaListener(topics = [KANDIDAT_TOPIC], containerFactory = "kandidatKafkaListenerContainerFactory")
-    fun listen(
-        records: List<ConsumerRecord<String, String?>>,
-        ack: Acknowledgment,
-    ) {
+    fun listen(records: List<ConsumerRecord<String, String?>>, ack: Acknowledgment,) {
         try {
             log.info("Received ${records.size} kandidater from $KANDIDAT_TOPIC")
             processRecords(records)
@@ -53,7 +47,9 @@ class KandidatConsumer(
             .filter {
                 when (it.status) {
                     KandidatStatus.IKKE_KANDIDAT -> {
-                        log.info("Received kandidat with kandidatId: ${it.kandidatId} where status is IKKE_KANDIDAT. Skipping...")
+                        log.info(
+                            "Received kandidat with kandidatId: ${it.kandidatId} where status is IKKE_KANDIDAT. Skipping..."
+                        )
                         return@filter false
                     }
 
@@ -88,5 +84,4 @@ class KandidatConsumer(
             createdAt = this.createdAt.toInstant(),
         )
     }
-
 }

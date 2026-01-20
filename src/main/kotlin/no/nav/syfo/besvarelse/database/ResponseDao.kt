@@ -16,9 +16,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Repository
-class ResponseDao(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-) {
+class ResponseDao(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,) {
     fun saveFormResponse(
         personIdent: PersonIdentNumber,
         questionResponses: List<QuestionResponse>,
@@ -99,11 +97,7 @@ class ResponseDao(
     }
 
     @Suppress("SwallowedException")
-    fun find(
-        personIdent: PersonIdentNumber,
-        formType: FormType,
-        from: LocalDate,
-    ): List<QuestionResponse> {
+    fun find(personIdent: PersonIdentNumber, formType: FormType, from: LocalDate,): List<QuestionResponse> {
         val query =
             """
             SELECT 
@@ -131,11 +125,7 @@ class ResponseDao(
         }
     }
 
-    fun findLatestFormResponse(
-        personIdent: PersonIdentNumber,
-        formType: FormType,
-        from: LocalDate,
-    ): FormResponse? {
+    fun findLatestFormResponse(personIdent: PersonIdentNumber, formType: FormType, from: LocalDate,): FormResponse? {
         val query =
             """
             SELECT 
@@ -165,10 +155,7 @@ class ResponseDao(
         return executeFormResponseQuery(query, namedParameters)?.firstOrNull()
     }
 
-    fun findLatestFormResponse(
-        personIdent: PersonIdentNumber,
-        formType: FormType,
-    ): FormResponse? {
+    fun findLatestFormResponse(personIdent: PersonIdentNumber, formType: FormType,): FormResponse? {
         val query =
             """
             SELECT 
@@ -223,10 +210,7 @@ class ResponseDao(
     }
 
     @Suppress("SwallowedException")
-    private fun executeFormResponseQuery(
-        query: String,
-        namedParameters: SqlParameterSource,
-    ): List<FormResponse>? =
+    private fun executeFormResponseQuery(query: String, namedParameters: SqlParameterSource,): List<FormResponse>? =
         try {
             namedParameterJdbcTemplate.query(
                 query,

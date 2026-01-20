@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
 import no.nav.syfo.LocalApplication
-import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.KandidatStatus
+import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -56,7 +56,8 @@ class KandidatServiceTest : DescribeSpec() {
                 kandidatService.persistKandidater(listOf(first, second))
 
                 val count: Int = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(1) FROM KARTLEGGINGSPORSMAL_KANDIDAT", Int::class.java
+                    "SELECT COUNT(1) FROM KARTLEGGINGSPORSMAL_KANDIDAT",
+                    Int::class.java
                 )!!
                 // Assert
                 count shouldBe 2

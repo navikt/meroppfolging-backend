@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
-    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
     kotlin("jvm") version "2.2.21"
     kotlin("plugin.spring") version "2.2.21"
 }
@@ -28,7 +28,6 @@ val kotestTestContainersExtensionVersion = "2.0.2"
 val mockkVersion = "1.14.7"
 val wiremockVersion = "3.13.2"
 val wiremockKotestExtensionVersion = "3.1.0"
-val detektVersion = "1.23.8"
 val testcontainersVersion = "1.21.4"
 val springMockkVersion = "4.0.2"
 
@@ -67,30 +66,24 @@ dependencies {
     testImplementation("org.testcontainers:kafka:$testcontainersVersion")
     testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
     testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
-
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
 }
-
-tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    this.archiveFileName.set("app.jar")
-}
-
-tasks.withType<KotlinCompile> {
-    compilerOptions {
-        freeCompilerArgs.add("-Xjsr305=strict")
-        jvmTarget.set(JvmTarget.JVM_21)
+tasks {
+    named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+        this.archiveFileName.set("app.jar")
     }
-}
-
-tasks.named<Jar>("jar") {
-    enabled = false
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-detekt {
-    config.from("detekt-config.yml")
-    buildUponDefaultConfig = true
+    named<Jar>("jar") {
+        enabled = false
+    }
+    named("check") {
+        dependsOn("ktlintCheck")
+    }
+    withType<KotlinCompile> {
+        compilerOptions {
+            freeCompilerArgs.add("-Xjsr305=strict")
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
+    }
+    withType<Test> {
+        useJUnitPlatform()
+    }
 }

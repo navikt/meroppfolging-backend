@@ -26,10 +26,7 @@ class PdfgenClient(
         "$pdfgenUrl/api/v1/genpdf/oppfolging/mer_veiledning_for_reserverte"
     private val pdfGenUrlSenOppfolgingLanding = "$pdfgenUrl/api/v1/genpdf/senoppfolging/landing"
 
-    private fun createPdf(
-        url: String,
-        requestEntity: HttpEntity<PdfgenRequest>,
-    ): ByteArray {
+    private fun createPdf(url: String, requestEntity: HttpEntity<PdfgenRequest>,): ByteArray {
         try {
             return restTemplate
                 .exchange(
@@ -48,9 +45,7 @@ class PdfgenClient(
         }
     }
 
-    fun createRequestEntity(
-        brevdata: Brevdata,
-    ): HttpEntity<PdfgenRequest> {
+    fun createRequestEntity(brevdata: Brevdata,): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
         headers.accept = mutableListOf(MediaType.APPLICATION_JSON)
@@ -150,9 +145,7 @@ class PdfgenClient(
         return createPdf(url, requestEntity)
     }
 
-    fun getKartleggingPdf(
-        kartleggingPdfgenRequest: KartleggingPdfgenRequest,
-    ): ByteArray {
+    fun getKartleggingPdf(kartleggingPdfgenRequest: KartleggingPdfgenRequest,): ByteArray {
         val url = "$pdfgenUrl/api/v1/genpdf/kartlegging/receipt"
         val requestEntity = createRequestEntity(kartleggingPdfgenRequest)
 

@@ -10,14 +10,13 @@ import org.springframework.kafka.core.ProducerFactory
 
 @EnableKafka
 @Configuration
-class EsyfovarselKafkaConfig(
-    private val kafkaConfig: KafkaConfig,
-) {
+class EsyfovarselKafkaConfig(private val kafkaConfig: KafkaConfig,) {
     @Bean
     fun esyfovarselProducerFactory(): ProducerFactory<String, EsyfovarselHendelse> =
         DefaultKafkaProducerFactory(kafkaConfig.commonKafkaAivenProducerConfig())
 
     @Bean
-    fun esyfovarselKafkaTemplate(producerFactory: ProducerFactory<String, EsyfovarselHendelse>):
-        KafkaTemplate<String, EsyfovarselHendelse> = KafkaTemplate(producerFactory)
+    fun esyfovarselKafkaTemplate(
+        producerFactory: ProducerFactory<String, EsyfovarselHendelse>
+    ): KafkaTemplate<String, EsyfovarselHendelse> = KafkaTemplate(producerFactory)
 }

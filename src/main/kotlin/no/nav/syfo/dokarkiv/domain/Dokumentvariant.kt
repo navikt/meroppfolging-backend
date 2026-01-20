@@ -7,16 +7,11 @@ data class Dokumentvariant(
     val filnavn: String,
 ) {
     companion object {
-        fun create(
-            fysiskDokument: ByteArray,
-            filnavn: String,
-        ): Dokumentvariant {
-            return Dokumentvariant(
-                filtype = "PDFA",
-                variantformat = "ARKIV",
-                fysiskDokument = fysiskDokument,
-                filnavn = filnavn,
-            )
-        }
+        fun create(fysiskDokument: ByteArray, filnavn: String,): Dokumentvariant = Dokumentvariant(
+            filtype = "PDFA",
+            variantformat = "ARKIV",
+            fysiskDokument = fysiskDokument,
+            filnavn = filnavn,
+        )
     }
 }

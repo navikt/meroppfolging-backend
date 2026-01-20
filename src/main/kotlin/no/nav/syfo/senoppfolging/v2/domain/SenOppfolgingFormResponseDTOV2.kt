@@ -18,12 +18,11 @@ data class QuestionResponseDTO(
     val answerText: String,
 )
 
-fun List<QuestionResponse>.toQuestionResponseDTOs(): List<QuestionResponseDTO> =
-    this.map {
-        QuestionResponseDTO(
-            questionType = it.questionType,
-            questionText = it.questionText,
-            answerType = it.answerType,
-            answerText = it.answerText,
-        )
-    }
+fun List<QuestionResponse>.toQuestionResponseDTOs(): List<QuestionResponseDTO> = this.map {
+    QuestionResponseDTO(
+        questionType = it.questionType,
+        questionText = it.questionText,
+        answerType = it.answerType,
+        answerText = it.answerText,
+    )
+}

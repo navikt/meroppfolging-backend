@@ -49,10 +49,7 @@ class DkifClient(
         return kontaktinfo
     }
 
-    private fun createHttpEntity(
-        token: String,
-        fnr: String,
-    ): HttpEntity<PostPersonerRequest> {
+    private fun createHttpEntity(token: String, fnr: String,): HttpEntity<PostPersonerRequest> {
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, bearerHeader(token))
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString())

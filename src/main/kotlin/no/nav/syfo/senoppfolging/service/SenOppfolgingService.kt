@@ -42,10 +42,7 @@ class SenOppfolgingService(
 ) {
     private val log = logger()
 
-    fun prepareAndBuildSenOppfolgingStatusDTOV2(
-        personIdent: String,
-        token: String,
-    ): SenOppfolgingStatusDTOV2 {
+    fun prepareAndBuildSenOppfolgingStatusDTOV2(personIdent: String, token: String,): SenOppfolgingStatusDTOV2 {
         val sykepengerInformasjon =
             sykepengedagerInformasjonService.fetchSykepengedagerInformasjonByIdent(personIdent)
 
@@ -65,11 +62,7 @@ class SenOppfolgingService(
         )
     }
 
-    fun handleSubmitForm(
-        personIdent: String,
-        senOppfolgingForm: SenOppfolgingDTOV2,
-        varsel: Varsel,
-    ) {
+    fun handleSubmitForm(personIdent: String, senOppfolgingForm: SenOppfolgingDTOV2, varsel: Varsel,) {
         countMetricsForSvarBeforeProcessing(senOppfolgingForm)
 
         val currentDateTime = LocalDateTime.now()
@@ -93,20 +86,14 @@ class SenOppfolgingService(
         countMetricsForSvarAfterProcessing(senOppfolgingForm)
     }
 
-    fun getUserAccess(
-        personIdent: String,
-        token: String,
-    ): UserAccess {
+    fun getUserAccess(personIdent: String, token: String,): UserAccess {
         val oppfolgingstilfelle = isOppfolgingstilfelleClient.getOppfolgingstilfeller(token)
         val varsel = varselService.getUtsendtVarsel(personIdent)
 
         return createUserAccess(varsel, oppfolgingstilfelle)
     }
 
-    fun getResponseOrNull(
-        varsel: Varsel?,
-        personIdent: String,
-    ): FormResponse? =
+    fun getResponseOrNull(varsel: Varsel?, personIdent: String,): FormResponse? =
         // run block is necessary as long as users with utsendt varsel has response without varsel id
         varsel?.let {
             responseDao.findResponseByVarselId(it.uuid)
@@ -215,10 +202,9 @@ class SenOppfolgingService(
     }
 }
 
-private fun List<Oppfolgingstilfelle>.isInOppfolgingstilfellePlus16Days() =
-    this.firstOrNull()?.let {
-        LocalDate.now().isBefore(it.end.plusDays(17))
-    } ?: false
+private fun List<Oppfolgingstilfelle>.isInOppfolgingstilfellePlus16Days() = this.firstOrNull()?.let {
+    LocalDate.now().isBefore(it.end.plusDays(17))
+} ?: false
 
 enum class UserAccessError {
     NoUtsendtVarsel,
@@ -226,19 +212,12 @@ enum class UserAccessError {
 }
 
 sealed class UserAccess {
-    data class Good(
-        val varsel: Varsel,
-    ) : UserAccess()
+    data class Good(val varsel: Varsel,) : UserAccess()
 
-    data class Error(
-        val error: UserAccessError,
-    ) : UserAccess()
+    data class Error(val error: UserAccessError,) : UserAccess()
 }
 
-private fun createUserAccess(
-    varsel: Varsel?,
-    oppfolgingstilfelle: List<Oppfolgingstilfelle>,
-): UserAccess {
+private fun createUserAccess(varsel: Varsel?, oppfolgingstilfelle: List<Oppfolgingstilfelle>,): UserAccess {
     if (!oppfolgingstilfelle.isInOppfolgingstilfellePlus16Days()) {
         return UserAccess.Error(UserAccessError.NoAccessToSenOppfolging)
     }
