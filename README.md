@@ -1,16 +1,29 @@
-# Getting Started
+# Meroppfolgin Backend"
 
-## Running unit tests in IntelliJ IDEA
+## Henvendelser
 
-To run unit tests in IntelliJ IDEA, you need to have the Kotest plugin installed.
+Spørsmål knyttet til koden eller prosjektet kan stilles til team-esyfo
 
-## Running integration tests
+## For NAV-ansatte
 
-Integration tests use Testcontainers to start a PostgreSQL container.
-To run the tests, you need to have Docker installed on your machine.
-Recommended docker application: https://rancherdesktop.io/
+Interne henvendelser kan sendes via Slack i kanalen #esyfo.
 
-### Installing Rancher desktop
+## Development
+
+### 🧹 Code style and formatting
+
+We use **Ktlint** (`intellij_idea` style) to ensure consistent Kotlin formatting.
+
+👉 Please install the **Ktlint** plugin in IntelliJ:
+- Go to *Preferences → Plugins → Marketplace → search “Ktlint” → Install*
+- Then enable **“Format on Save”**
+
+Alternatively, you can always run:
+```bash
+./gradlew ktlintFormat
+```### Installing Rancher desktop
+
+### Run tests with Rancher Desktop
 
 Download and install Rancher Desktop from https://rancherdesktop.io/
 
@@ -26,20 +39,3 @@ Download and install Rancher Desktop from https://rancherdesktop.io/
   ```shell
   sudo ln -s $HOME/.rd/docker.sock /var/run/docker.sock
   ```
-
-## Reference Documentation
-
-For further reference, please consider the following sections:
-
-* [Official Gradle documentation](https://docs.gradle.org)
-* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/3.1.5/gradle-plugin/reference/html/)
-* [Create an OCI image](https://docs.spring.io/spring-boot/docs/3.1.5/gradle-plugin/reference/html/#build-image)
-* [Flyway Migration](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/index.html#howto.data-initialization.migration-tool.flyway)
-* [Spring for Apache Kafka](https://docs.spring.io/spring-boot/docs/3.1.5/reference/htmlsingle/index.html#messaging.kafka)
-
-## Additional Links
-
-These additional references should also help you:
-
-* [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
-
