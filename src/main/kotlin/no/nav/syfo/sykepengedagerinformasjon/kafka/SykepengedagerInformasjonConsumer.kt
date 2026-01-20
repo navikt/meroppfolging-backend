@@ -28,10 +28,7 @@ class SykepengedagerInformasjonConsumer(private val sykepengeDagerService: Sykep
     }
 
     @KafkaListener(topics = [SPDI_TOPIC], containerFactory = "sykepengedagerInformasjonListenerContainerFactory")
-    fun listen(
-        record: ConsumerRecord<String, String>,
-        ack: Acknowledgment,
-    ) {
+    fun listen(record: ConsumerRecord<String, String>, ack: Acknowledgment,) {
         try {
             log.info("[SYKEPENGEDAGER_INFO] received a record from topic")
             val sykepengedagerInformasjonDTO: SykepengedagerInformasjonDTO = objectMapper.readValue(record.value())

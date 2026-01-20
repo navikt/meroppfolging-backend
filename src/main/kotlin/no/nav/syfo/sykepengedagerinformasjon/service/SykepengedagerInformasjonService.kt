@@ -21,7 +21,6 @@ class SykepengedagerInformasjonService(private val sykepengedagerInformasjonDAO:
         }
     }
 
-    fun fetchSykepengedagerInformasjonByIdent(personIdent: String): PSykepengedagerInformasjon? {
-        return sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByIdent(personIdent)
-    }
+    fun fetchSykepengedagerInformasjonByIdent(personIdent: String): PSykepengedagerInformasjon? =
+        sykepengedagerInformasjonDAO.fetchSykepengedagerInformasjonByIdent(personIdent)
 }

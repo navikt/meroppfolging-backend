@@ -6,10 +6,7 @@ import java.time.LocalDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Suppress("ConstructorParameterNaming")
-data class AzureAdTokenResponse(
-    val access_token: String,
-    val expires_in: Long,
-) : Serializable {
+data class AzureAdTokenResponse(val access_token: String, val expires_in: Long,) : Serializable {
     companion object {
         private const val serialVersionUID = 4346464L
     }

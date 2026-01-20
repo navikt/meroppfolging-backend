@@ -10,18 +10,13 @@ import java.util.UUID
 import kotlin.collections.forEach
 
 @Service
-class KandidatService(
-    private val kandidatDAO: KandidatDAO,
-) {
+class KandidatService(private val kandidatDAO: KandidatDAO,) {
     private val logger = logger()
 
-    fun getKandidatByFnr(fnr: String): KartleggingssporsmalKandidat? {
-        return kandidatDAO.findKandidatByFnr(fnr)
-    }
+    fun getKandidatByFnr(fnr: String): KartleggingssporsmalKandidat? = kandidatDAO.findKandidatByFnr(fnr)
 
-    fun getKandidatByKandidatId(kandidatId: UUID): KartleggingssporsmalKandidat? {
-        return kandidatDAO.findKandidatByKandidatId(kandidatId)
-    }
+    fun getKandidatByKandidatId(kandidatId: UUID): KartleggingssporsmalKandidat? =
+        kandidatDAO.findKandidatByKandidatId(kandidatId)
 
     @Transactional
     fun persistKandidater(kandidater: List<KartleggingssporsmalKandidat>) {

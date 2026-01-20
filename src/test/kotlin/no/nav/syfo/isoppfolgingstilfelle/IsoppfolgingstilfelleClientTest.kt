@@ -23,67 +23,66 @@ import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
 import org.springframework.http.HttpHeaders
 import java.time.LocalDate
 
-class IsoppfolgingstilfelleClientTest : FunSpec(
-    {
-        val tokendingsClient: TokendingsClient = mockk<TokendingsClient>()
-        val baseUrl = "http://localhost:9000"
-        val exchangedToken = "123abc"
-        val targetApp = "meroppfolging-backend-test"
-        val userToken = "token123"
-        val oppfolgingstilfelleSykmeldt = Oppfolgingstilfelle(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
-        val oppfolgingstilfelleSykmeldtTidligere =
-            Oppfolgingstilfelle(LocalDate.now().minusDays(10), LocalDate.now().minusDays(2))
-        val isoppfolgingstilfelleClient = IsOppfolgingstilfelleClient(tokendingsClient, baseUrl, targetApp)
+class IsoppfolgingstilfelleClientTest :
+    FunSpec(
+        {
+            val tokendingsClient: TokendingsClient = mockk<TokendingsClient>()
+            val baseUrl = "http://localhost:9000"
+            val exchangedToken = "123abc"
+            val targetApp = "meroppfolging-backend-test"
+            val userToken = "token123"
+            val oppfolgingstilfelleSykmeldt =
+                Oppfolgingstilfelle(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
+            val oppfolgingstilfelleSykmeldtTidligere =
+                Oppfolgingstilfelle(LocalDate.now().minusDays(10), LocalDate.now().minusDays(2))
+            val isoppfolgingstilfelleClient = IsOppfolgingstilfelleClient(tokendingsClient, baseUrl, targetApp)
 
-        val isoppfolgingstilfelleServer = WireMockServer(9000)
-        listener(WireMockListener(isoppfolgingstilfelleServer, ListenerMode.PER_TEST))
+            val isoppfolgingstilfelleServer = WireMockServer(9000)
+            listener(WireMockListener(isoppfolgingstilfelleServer, ListenerMode.PER_TEST))
 
-        beforeTest {
-            every { tokendingsClient.exchangeToken(userToken, targetApp) } returns exchangedToken
-        }
+            beforeTest {
+                every { tokendingsClient.exchangeToken(userToken, targetApp) } returns exchangedToken
+            }
 
-        test("Aktivt oppfolgingstilfelle gir true") {
-            isoppfolgingstilfelleServer.stubOppfolgingstilfelle(
-                exchangedToken,
-                listOf(oppfolgingstilfelleSykmeldt),
-            )
-            val result = isoppfolgingstilfelleClient.isSykmeldt(userToken)
-            result shouldBe true
-        }
+            test("Aktivt oppfolgingstilfelle gir true") {
+                isoppfolgingstilfelleServer.stubOppfolgingstilfelle(
+                    exchangedToken,
+                    listOf(oppfolgingstilfelleSykmeldt),
+                )
+                val result = isoppfolgingstilfelleClient.isSykmeldt(userToken)
+                result shouldBe true
+            }
 
-        test("Flere oppfolgingstilfeller med aktivt oppfolgingstilfelle gir true") {
-            isoppfolgingstilfelleServer.stubOppfolgingstilfelle(
-                exchangedToken,
-                listOf(oppfolgingstilfelleSykmeldt, oppfolgingstilfelleSykmeldtTidligere),
-            )
-            val result = isoppfolgingstilfelleClient.isSykmeldt(userToken)
-            result shouldBe true
-        }
+            test("Flere oppfolgingstilfeller med aktivt oppfolgingstilfelle gir true") {
+                isoppfolgingstilfelleServer.stubOppfolgingstilfelle(
+                    exchangedToken,
+                    listOf(oppfolgingstilfelleSykmeldt, oppfolgingstilfelleSykmeldtTidligere),
+                )
+                val result = isoppfolgingstilfelleClient.isSykmeldt(userToken)
+                result shouldBe true
+            }
 
-        test("Tidligere oppfolgingstilfelle gir false") {
-            isoppfolgingstilfelleServer.stubOppfolgingstilfelle(
-                exchangedToken,
-                listOf(oppfolgingstilfelleSykmeldtTidligere),
-            )
-            val result = isoppfolgingstilfelleClient.isSykmeldt(userToken)
-            result shouldBe false
-        }
+            test("Tidligere oppfolgingstilfelle gir false") {
+                isoppfolgingstilfelleServer.stubOppfolgingstilfelle(
+                    exchangedToken,
+                    listOf(oppfolgingstilfelleSykmeldtTidligere),
+                )
+                val result = isoppfolgingstilfelleClient.isSykmeldt(userToken)
+                result shouldBe false
+            }
 
-        test("Ingen oppfolgingstilfelle gir false") {
-            isoppfolgingstilfelleServer.stubOppfolgingstilfelle(
-                exchangedToken,
-                emptyList(),
-            )
-            val result = isoppfolgingstilfelleClient.isSykmeldt(userToken)
-            result shouldBe false
-        }
-    },
-)
+            test("Ingen oppfolgingstilfelle gir false") {
+                isoppfolgingstilfelleServer.stubOppfolgingstilfelle(
+                    exchangedToken,
+                    emptyList(),
+                )
+                val result = isoppfolgingstilfelleClient.isSykmeldt(userToken)
+                result shouldBe false
+            }
+        },
+    )
 
-fun WireMockServer.stubOppfolgingstilfelle(
-    token: String,
-    oppfolgingstilfeller: List<Oppfolgingstilfelle>,
-) {
+fun WireMockServer.stubOppfolgingstilfelle(token: String, oppfolgingstilfeller: List<Oppfolgingstilfelle>,) {
     this.stubFor(
         get(urlPathEqualTo(ISOPPFOLGINGSTILFELLE_PATH))
             .withHeader(HttpHeaders.AUTHORIZATION, containing(token))

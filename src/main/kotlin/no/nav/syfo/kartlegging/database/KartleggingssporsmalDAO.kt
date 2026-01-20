@@ -13,9 +13,7 @@ import java.time.Instant
 import java.util.UUID
 
 @Repository
-class KartleggingssporsmalDAO(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-) {
+class KartleggingssporsmalDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,) {
 
     fun persistKartleggingssporsmal(
         kartleggingssporsmal: Kartleggingssporsmal,
@@ -29,7 +27,7 @@ class KartleggingssporsmalDAO(
             created_at
         ) VALUES (:fnr, :kandidat_id, :form_snapshot::jsonb, :created_at)
         RETURNING uuid, fnr, kandidat_id, form_snapshot, created_at;
-    """.trimIndent()
+        """.trimIndent()
 
         val parameters = mapOf(
             "fnr" to kartleggingssporsmal.fnr,

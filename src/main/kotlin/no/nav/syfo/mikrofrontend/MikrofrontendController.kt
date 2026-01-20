@@ -41,5 +41,4 @@ class MikrofrontendController(
 
         return mikrofrontendService.status(personIdent, token)
     }
-
 }

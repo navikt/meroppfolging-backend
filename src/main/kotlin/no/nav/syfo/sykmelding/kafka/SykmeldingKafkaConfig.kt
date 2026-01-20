@@ -12,9 +12,7 @@ import org.springframework.kafka.listener.ContainerProperties
 
 @EnableKafka
 @Configuration
-class SykmeldingKafkaConfig(
-    private val kafkaConfig: KafkaConfig,
-) {
+class SykmeldingKafkaConfig(private val kafkaConfig: KafkaConfig,) {
     @Bean
     fun sykmeldingConsumerFactory(): ConsumerFactory<String, String?> {
         val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {

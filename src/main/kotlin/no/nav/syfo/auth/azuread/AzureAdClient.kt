@@ -24,9 +24,7 @@ class AzureAdClient(
     private val restTemplate: RestTemplate,
 ) {
 
-    fun getSystemToken(
-        scopeClientId: String,
-    ): String {
+    fun getSystemToken(scopeClientId: String,): String {
         if (env.isLocal()) {
             return "localToken"
         }
@@ -65,10 +63,7 @@ class AzureAdClient(
         }
     }
 
-    fun getOnBehalfOfToken(
-        scopeClientId: String,
-        token: String,
-    ): String {
+    fun getOnBehalfOfToken(scopeClientId: String, token: String,): String {
         try {
             val response = restTemplate.exchange(
                 azureTokenEndpoint,
@@ -89,9 +84,7 @@ class AzureAdClient(
         }
     }
 
-    fun systemTokenRequestEntity(
-        scopeClientId: String,
-    ): HttpEntity<MultiValueMap<String, String>> {
+    fun systemTokenRequestEntity(scopeClientId: String,): HttpEntity<MultiValueMap<String, String>> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.MULTIPART_FORM_DATA
         val body: MultiValueMap<String, String> = LinkedMultiValueMap()

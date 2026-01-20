@@ -10,15 +10,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Repository
-class SykmeldingDao(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-) {
-    fun persistSykmelding(
-        sykmeldingId: String,
-        employeeIdentificationNumber: String,
-        fom: LocalDate,
-        tom: LocalDate,
-    ) {
+class SykmeldingDao(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,) {
+    fun persistSykmelding(sykmeldingId: String, employeeIdentificationNumber: String, fom: LocalDate, tom: LocalDate,) {
         val insertStatement = """
             INSERT INTO SYKMELDING (
                 sykmelding_id,
@@ -56,9 +49,7 @@ class SykmeldingDao(
         namedParameterJdbcTemplate.update(deleteStatement, parameters)
     }
 
-    fun getSykmelding(
-        employeeIdentificationNumber: String,
-    ): PSykmelding? {
+    fun getSykmelding(employeeIdentificationNumber: String,): PSykmelding? {
         val selectStatement = """
         SELECT *
         FROM SYKMELDING

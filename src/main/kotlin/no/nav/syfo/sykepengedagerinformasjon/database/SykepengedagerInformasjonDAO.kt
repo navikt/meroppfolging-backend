@@ -40,9 +40,7 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
         namedParameterJdbcTemplate.update(insertStatement, parameters)
     }
 
-    fun fetchSykepengedagerInformasjon(
-        utbetalingId: String,
-    ): PSykepengedagerInformasjon? {
+    fun fetchSykepengedagerInformasjon(utbetalingId: String,): PSykepengedagerInformasjon? {
         val selectStatement = """
             SELECT *
             FROM SYKEPENGEDAGER_INFORMASJON
@@ -59,9 +57,7 @@ class SykepengedagerInformasjonDAO(private val namedParameterJdbcTemplate: Named
             .firstOrNull()
     }
 
-    fun fetchSykepengedagerInformasjonByIdent(
-        personIdent: String,
-    ): PSykepengedagerInformasjon? {
+    fun fetchSykepengedagerInformasjonByIdent(personIdent: String,): PSykepengedagerInformasjon? {
         val selectStatement = """
             SELECT *
             FROM SYKEPENGEDAGER_INFORMASJON

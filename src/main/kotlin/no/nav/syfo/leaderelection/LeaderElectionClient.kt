@@ -28,19 +28,15 @@ class LeaderElectionClient(
         return parseLeaderJson(leaderJsonString)
     }
 
-    private fun callElectorPath(path: String): String? {
-        return try {
-            restTemplate.getForObject(path, String::class.java)
-        } catch (e: HttpClientErrorException) {
-            log.error("Error calling elector path: ${e.message}", e)
-            null
-        }
+    private fun callElectorPath(path: String): String? = try {
+        restTemplate.getForObject(path, String::class.java)
+    } catch (e: HttpClientErrorException) {
+        log.error("Error calling elector path: ${e.message}", e)
+        null
     }
 
-    private fun parseLeaderJson(leaderJsonString: String?): String {
-        return leaderJsonString?.let {
-            val leaderJson = objectMapper.readTree(it)
-            leaderJson["name"].asText()
-        } ?: error("Failed to retrieve leader pod information")
-    }
+    private fun parseLeaderJson(leaderJsonString: String?): String = leaderJsonString?.let {
+        val leaderJson = objectMapper.readTree(it)
+        leaderJson["name"].asText()
+    } ?: error("Failed to retrieve leader pod information")
 }

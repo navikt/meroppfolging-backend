@@ -39,15 +39,11 @@ class FieldSnapshotDeserializer : JsonDeserializer<FieldSnapshot>() {
     }
 }
 
-fun FormSnapshot.toJsonString(): String {
-    return jacksonObjectMapper().writeValueAsString(this)
-}
+fun FormSnapshot.toJsonString(): String = jacksonObjectMapper().writeValueAsString(this)
 
-fun FormSnapshot.Companion.jsonToFormSnapshot(json: String): FormSnapshot {
-    return try {
-        jacksonObjectMapper().readValue(json)
-    } catch (e: Exception) {
-        logger.error("Failed to parse FormSnapshot JSON", e)
-        throw e
-    }
+fun FormSnapshot.Companion.jsonToFormSnapshot(json: String): FormSnapshot = try {
+    jacksonObjectMapper().readValue(json)
+} catch (e: Exception) {
+    logger.error("Failed to parse FormSnapshot JSON", e)
+    throw e
 }

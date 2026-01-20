@@ -4,9 +4,7 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.FieldSnapshot
 import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 
-data class PdfgenRequest(
-    val brevdata: Brevdata,
-)
+data class PdfgenRequest(val brevdata: Brevdata,)
 
 interface Brevdata
 
@@ -22,11 +20,8 @@ class BrevdataSenOppfolgingReceipt(
     val daysUntilMaxDate: String?,
 ) : Brevdata
 
-class BrevdataSenOppfolgingLandingReservert(
-    val sendtdato: String,
-    val utbetaltTom: String?,
-    val maxdato: String?,
-) : Brevdata
+class BrevdataSenOppfolgingLandingReservert(val sendtdato: String, val utbetaltTom: String?, val maxdato: String?,) :
+    Brevdata
 
 class BrevdataSenOppfolgingLanding(
     val sendtdato: String,
@@ -40,7 +35,4 @@ class BrevdataSenOppfolgingFormSteps(
     val behovForOppfolgingAnswer: BehovForOppfolgingSvar?,
 ) : Brevdata
 
-data class KartleggingPdfgenRequest(
-    val createdAt: String,
-    val fieldSnapshots: List<FieldSnapshot>,
-): Brevdata
+data class KartleggingPdfgenRequest(val createdAt: String, val fieldSnapshots: List<FieldSnapshot>,) : Brevdata

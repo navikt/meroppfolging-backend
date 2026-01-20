@@ -6,9 +6,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 
 @Component
-class KartleggingssvarKafkaProducer(
-    private val kafkaTemplate: KafkaTemplate<String, KartleggingssvarEvent>,
-) {
+class KartleggingssvarKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, KartleggingssvarEvent>,) {
 
     fun publishResponse(event: KartleggingssvarEvent) {
         logger.info("KartleggingssvarKafkaProducer: Publiserer kartleggingsvar")
@@ -20,7 +18,10 @@ class KartleggingssvarKafkaProducer(
             ),
         ).whenComplete { _, throwable ->
             if (throwable != null) {
-                logger.error("Noe gikk galt ved sending av melding til topic $KARTLEGGINGSVAR_TOPIC: svarId=${event.svarId}", throwable)
+                logger.error(
+                    "Noe gikk galt ved sending av melding til topic $KARTLEGGINGSVAR_TOPIC: svarId=${event.svarId}",
+                    throwable
+                )
             } else {
                 logger.info("Melding sendt til topic $KARTLEGGINGSVAR_TOPIC: svarId=${event.svarId}")
             }

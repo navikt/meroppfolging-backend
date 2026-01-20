@@ -18,14 +18,11 @@ import org.springframework.util.backoff.FixedBackOff.UNLIMITED_ATTEMPTS
 
 @EnableKafka
 @Configuration
-class KartleggingKafkaConfig(
-    private val kafkaConfig: KafkaConfig,
-) {
+class KartleggingKafkaConfig(private val kafkaConfig: KafkaConfig,) {
     @Bean
-    fun kartleggingSvarProducerFactory() =
-        DefaultKafkaProducerFactory<String, KartleggingssvarEvent>(
-            kafkaConfig.commonKafkaAivenProducerConfig(),
-        )
+    fun kartleggingSvarProducerFactory() = DefaultKafkaProducerFactory<String, KartleggingssvarEvent>(
+        kafkaConfig.commonKafkaAivenProducerConfig(),
+    )
 
     @Bean
     fun kartleggingSvarKafkaTemplate(producerFactory: ProducerFactory<String, KartleggingssvarEvent>) =

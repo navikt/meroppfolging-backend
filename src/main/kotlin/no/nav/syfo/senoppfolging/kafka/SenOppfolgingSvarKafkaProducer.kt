@@ -9,12 +9,8 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 
 @Component
-class SenOppfolgingSvarKafkaProducer(
-    private val kafkaTemplate: KafkaTemplate<String, KSenOppfolgingSvarDTO>,
-) {
-    fun publishResponse(
-        hendelse: KSenOppfolgingSvarDTO,
-    ) {
+class SenOppfolgingSvarKafkaProducer(private val kafkaTemplate: KafkaTemplate<String, KSenOppfolgingSvarDTO>,) {
+    fun publishResponse(hendelse: KSenOppfolgingSvarDTO,) {
         try {
             log.info("SenOppfolgingSvarProducer: Publiserer  sen-oppfolging-svar")
             kafkaTemplate.send(

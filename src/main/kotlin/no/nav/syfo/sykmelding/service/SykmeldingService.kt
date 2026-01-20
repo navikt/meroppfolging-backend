@@ -29,9 +29,6 @@ class SykmeldingService(private val sykmeldingDao: SykmeldingDao) {
         sykmeldingDao.deleteSykmelding(sykmeldingId)
     }
 
-    fun getSykmelding(
-        employeeIdentificationNumber: String,
-    ): PSykmelding? {
-        return sykmeldingDao.getSykmelding(employeeIdentificationNumber)
-    }
+    fun getSykmelding(employeeIdentificationNumber: String,): PSykmelding? =
+        sykmeldingDao.getSykmelding(employeeIdentificationNumber)
 }

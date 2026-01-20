@@ -36,9 +36,7 @@ class PdfgenService(
         )
     }
 
-    fun getSenOppfolgingFormStepsPdf(
-        answersToQuestions: List<SenOppfolgingQuestionV2>,
-    ): ByteArray? {
+    fun getSenOppfolgingFormStepsPdf(answersToQuestions: List<SenOppfolgingQuestionV2>,): ByteArray? {
         val fremtidigSituasjonSvar: FremtidigSituasjonSvar? = answersToQuestions.firstOrNull {
             it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON
         }?.let {

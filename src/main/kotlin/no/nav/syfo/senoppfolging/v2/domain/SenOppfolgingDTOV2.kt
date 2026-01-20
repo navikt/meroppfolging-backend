@@ -28,13 +28,10 @@ data class SenOppfolgingQuestionV2(
     val answerText: String,
 )
 
-data class SenOppfolgingDTOV2(
-    val senOppfolgingFormV2: List<SenOppfolgingQuestionV2>,
-)
+data class SenOppfolgingDTOV2(val senOppfolgingFormV2: List<SenOppfolgingQuestionV2>,)
 
-fun SenOppfolgingQuestionV2.toQuestionResponse(): QuestionResponse {
-    return QuestionResponse(questionType.name, questionText, answerType, answerText)
-}
+fun SenOppfolgingQuestionV2.toQuestionResponse(): QuestionResponse =
+    QuestionResponse(questionType.name, questionText, answerType, answerText)
 
 fun List<SenOppfolgingQuestionV2>.behovForOppfolging(): Boolean {
     val behovForOppfolgingSvar = this.filter { it.questionType == SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING }

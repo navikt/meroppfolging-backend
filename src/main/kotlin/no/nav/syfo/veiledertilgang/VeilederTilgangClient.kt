@@ -64,10 +64,7 @@ class VeilederTilgangClient(
         Tilgang::class.java,
     )
 
-    private fun handleException(
-        e: RestClientResponseException,
-        httpEntity: HttpEntity<*>,
-    ): Nothing {
+    private fun handleException(e: RestClientResponseException, httpEntity: HttpEntity<*>,): Nothing {
         if (e.statusCode.isSameCodeAs(HttpStatus.UNAUTHORIZED)) {
             throw RequestUnauthorizedException(
                 "Unauthorized request to istilgangskontroll",

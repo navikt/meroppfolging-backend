@@ -21,34 +21,29 @@ class GlobalExceptionHandler {
     private val log = logger()
 
     @ExceptionHandler(java.lang.Exception::class)
-    fun handleException(
-        ex: Exception,
-        request: HttpServletRequest,
-    ): ResponseEntity<Any> {
-        return when (ex) {
-            is AbstractApiError -> {
-                when (ex.loglevel) {
-                    LogLevel.WARN -> log.warn(ex.message, ex)
-                    LogLevel.ERROR -> log.error(ex.message, ex)
-                    LogLevel.OFF -> {}
-                }
-
-                ResponseEntity(ApiError(ex.reason), ex.httpStatus)
+    fun handleException(ex: Exception, request: HttpServletRequest,): ResponseEntity<Any> = when (ex) {
+        is AbstractApiError -> {
+            when (ex.loglevel) {
+                LogLevel.WARN -> log.warn(ex.message, ex)
+                LogLevel.ERROR -> log.error(ex.message, ex)
+                LogLevel.OFF -> {}
             }
 
-            is JwtTokenInvalidClaimException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
-            is JwtTokenUnauthorizedException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
-            is HttpMediaTypeNotAcceptableException -> createResponseEntity(HttpStatus.NOT_ACCEPTABLE)
-            is AlreadyRespondedException -> createResponseEntity(HttpStatus.CONFLICT, ex)
-            is NoAccessToSenOppfolgingException -> createResponseEntity(HttpStatus.FORBIDDEN, ex)
-            is NoUtsendtVarselException -> createResponseEntity(HttpStatus.CONFLICT, ex)
-            is InvalidFormException -> createResponseEntity(HttpStatus.BAD_REQUEST, ex)
-            is UserResponseNotFoundException -> createResponseEntity(HttpStatus.NOT_FOUND, ex)
-            is KandidatNotFoundException -> createResponseEntity(HttpStatus.NOT_FOUND, ex)
-            else -> {
-                log.error("Internal server error - ${ex.message} - ${request.method}: ${request.requestURI}", ex)
-                createResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
-            }
+            ResponseEntity(ApiError(ex.reason), ex.httpStatus)
+        }
+
+        is JwtTokenInvalidClaimException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
+        is JwtTokenUnauthorizedException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
+        is HttpMediaTypeNotAcceptableException -> createResponseEntity(HttpStatus.NOT_ACCEPTABLE)
+        is AlreadyRespondedException -> createResponseEntity(HttpStatus.CONFLICT, ex)
+        is NoAccessToSenOppfolgingException -> createResponseEntity(HttpStatus.FORBIDDEN, ex)
+        is NoUtsendtVarselException -> createResponseEntity(HttpStatus.CONFLICT, ex)
+        is InvalidFormException -> createResponseEntity(HttpStatus.BAD_REQUEST, ex)
+        is UserResponseNotFoundException -> createResponseEntity(HttpStatus.NOT_FOUND, ex)
+        is KandidatNotFoundException -> createResponseEntity(HttpStatus.NOT_FOUND, ex)
+        else -> {
+            log.error("Internal server error - ${ex.message} - ${request.method}: ${request.requestURI}", ex)
+            createResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 }

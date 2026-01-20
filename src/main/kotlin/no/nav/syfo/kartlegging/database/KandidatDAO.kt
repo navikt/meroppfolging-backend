@@ -8,9 +8,7 @@ import java.sql.Timestamp
 import java.util.UUID
 
 @Repository
-class KandidatDAO(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-) {
+class KandidatDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,) {
 
     fun persistKandidat(kandidat: KartleggingssporsmalKandidat) {
         val insertStatement = """
@@ -20,7 +18,7 @@ class KandidatDAO(
             status,
             created_at
         ) VALUES (:kandidat_id, :fnr, :status, :created_at);
-    """.trimIndent()
+        """.trimIndent()
 
         val parameters = mapOf(
             "fnr" to kandidat.personIdent,
@@ -69,12 +67,10 @@ class KandidatDAO(
             .firstOrNull()
     }
 
-    fun ResultSet.toKandidat(): KartleggingssporsmalKandidat {
-        return KartleggingssporsmalKandidat(
-            personIdent = this.getString("fnr"),
-            kandidatId = UUID.fromString(this.getString("kandidat_id")),
-            status = enumValueOf(this.getString("status")),
-            createdAt = this.getTimestamp("created_at").toInstant(),
-        )
-    }
+    fun ResultSet.toKandidat(): KartleggingssporsmalKandidat = KartleggingssporsmalKandidat(
+        personIdent = this.getString("fnr"),
+        kandidatId = UUID.fromString(this.getString("kandidat_id")),
+        status = enumValueOf(this.getString("status")),
+        createdAt = this.getTimestamp("created_at").toInstant(),
+    )
 }

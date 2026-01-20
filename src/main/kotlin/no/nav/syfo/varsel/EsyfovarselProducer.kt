@@ -9,12 +9,8 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 
 @Component
-class EsyfovarselProducer(
-    private val kafkaTemplate: KafkaTemplate<String, EsyfovarselHendelse>,
-) {
-    fun sendVarselTilEsyfovarsel(
-        hendelse: EsyfovarselHendelse,
-    ) {
+class EsyfovarselProducer(private val kafkaTemplate: KafkaTemplate<String, EsyfovarselHendelse>,) {
+    fun sendVarselTilEsyfovarsel(hendelse: EsyfovarselHendelse,) {
         try {
             val handling = if (hendelse.ferdigstill == true) "Ferdigstiller" else "Sender"
             log.info("EsyfovarselProducer: $handling varsel av type ${hendelse.type.name}")

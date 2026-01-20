@@ -29,11 +29,13 @@ class KartleggingssporsmalService(
 
     private val logger = logger()
 
-    fun getLatestKartleggingssporsmal(kandidatId: UUID): PersistedKartleggingssporsmal? {
-        return kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(kandidatId)
-    }
+    fun getLatestKartleggingssporsmal(kandidatId: UUID): PersistedKartleggingssporsmal? =
+        kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(kandidatId)
 
-    fun persistAndPublishKartleggingssporsmal(kandidat: KartleggingssporsmalKandidat, kartleggingssporsmalRequest: KartleggingssporsmalRequest): PersistedKartleggingssporsmal {
+    fun persistAndPublishKartleggingssporsmal(
+        kandidat: KartleggingssporsmalKandidat,
+        kartleggingssporsmalRequest: KartleggingssporsmalRequest
+    ): PersistedKartleggingssporsmal {
         val persistedKartleggingssporsmal = kartleggingssporsmalDAO.persistKartleggingssporsmal(
             Kartleggingssporsmal(
                 fnr = kandidat.personIdent,
@@ -52,9 +54,8 @@ class KartleggingssporsmalService(
         return persistedKartleggingssporsmal
     }
 
-    fun getKartleggingssporsmalByUuid(uuid: UUID): PersistedKartleggingssporsmal? {
-        return kartleggingssporsmalDAO.getKartleggingssporsmalByUuid(uuid)
-    }
+    fun getKartleggingssporsmalByUuid(uuid: UUID): PersistedKartleggingssporsmal? =
+        kartleggingssporsmalDAO.getKartleggingssporsmalByUuid(uuid)
 
     fun validateFormSnapshot(formSnapshot: FormSnapshot) {
         val requiredFieldIds = listOf(
@@ -70,7 +71,9 @@ class KartleggingssporsmalService(
                     throw IllegalArgumentException("Missing required field with id: $requiredFieldId")
                 }
                 if (fieldSnapshot.fieldType != requiredFieldType) {
-                    throw IllegalArgumentException("Field with id: $requiredFieldId has incorrect type. Expected: $requiredFieldType, Found: ${fieldSnapshot.fieldType}")
+                    throw IllegalArgumentException(
+                        "Field with id: $requiredFieldId has incorrect type. Expected: $requiredFieldType, Found: ${fieldSnapshot.fieldType}"
+                    )
                 }
             }
             formSnapshot.validateFields()
@@ -80,13 +83,10 @@ class KartleggingssporsmalService(
         }
     }
 
-    fun getKartleggingssporsmalNotJournaled(): List<PersistedKartleggingssporsmal> {
-        return kartleggingssporsmalDAO.getKartleggingssporsmalNotJournaled()
-    }
+    fun getKartleggingssporsmalNotJournaled(): List<PersistedKartleggingssporsmal> =
+        kartleggingssporsmalDAO.getKartleggingssporsmalNotJournaled()
 
-    fun jornalforKartleggingssporsmal(
-        kartleggingssporsmal: PersistedKartleggingssporsmal,
-    ) {
+    fun jornalforKartleggingssporsmal(kartleggingssporsmal: PersistedKartleggingssporsmal,) {
         val uuid = kartleggingssporsmal.uuid
         val createdAt = kartleggingssporsmal.createdAt
         try {

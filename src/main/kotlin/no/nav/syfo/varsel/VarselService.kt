@@ -41,9 +41,7 @@ class VarselService(
         return filteredVarsler
     }
 
-    fun ferdigstillMerOppfolgingVarsel(
-        fnr: String,
-    ) {
+    fun ferdigstillMerOppfolgingVarsel(fnr: String,) {
         val hendelse = ArbeidstakerHendelse(
             type = HendelseType.SM_MER_VEILEDNING,
             ferdigstill = true,

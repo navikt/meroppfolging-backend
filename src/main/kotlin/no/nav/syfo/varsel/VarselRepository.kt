@@ -8,9 +8,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Repository
-class VarselRepository(
-    private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
-) {
+class VarselRepository(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,) {
     val gjenstaendeSykedagerLimit = 91
     val nyttVarselLimit = 106
     val maxDateLimit = 14
@@ -49,11 +47,7 @@ class VarselRepository(
         return namedParameterJdbcTemplate.query(sql, parameters, UtsendtVarselEsyfovarselCopyRowMapper()).firstOrNull()
     }
 
-    fun storeUtsendtVarsel(
-        personIdent: String,
-        utbetalingId: String,
-        sykmeldingId: String,
-    ): UUID {
+    fun storeUtsendtVarsel(personIdent: String, utbetalingId: String, sykmeldingId: String,): UUID {
         val sql =
             """
             INSERT INTO UTSENDT_VARSEL (uuid, person_ident, utsendt_tidspunkt, utbetaling_id, sykmelding_id)
@@ -74,10 +68,7 @@ class VarselRepository(
         return utsendtVarselUUID
     }
 
-    fun storeSkipVarselDueToAge(
-        personIdent: String,
-        fodselsdato: String?,
-    ): UUID {
+    fun storeSkipVarselDueToAge(personIdent: String, fodselsdato: String?,): UUID {
         val sql =
             """
             INSERT INTO SKIP_VARSELUTSENDING (person_ident, fodselsdato, created_at)
@@ -135,39 +126,27 @@ class VarselRepository(
 }
 
 internal class UtsendtVarselRowMapper : RowMapper<UtsendtVarsel> {
-    override fun mapRow(
-        rs: ResultSet,
-        rowNum: Int,
-    ): UtsendtVarsel =
-        UtsendtVarsel(
-            uuid = UUID.fromString(rs.getString("uuid")),
-            personIdent = rs.getString("person_ident"),
-            utsendtTidspunkt = rs.getTimestamp("utsendt_tidspunkt").toLocalDateTime(),
-            utbetalingId = rs.getString("utbetaling_id"),
-            sykmeldingId = rs.getString("sykmelding_id"),
-        )
+    override fun mapRow(rs: ResultSet, rowNum: Int,): UtsendtVarsel = UtsendtVarsel(
+        uuid = UUID.fromString(rs.getString("uuid")),
+        personIdent = rs.getString("person_ident"),
+        utsendtTidspunkt = rs.getTimestamp("utsendt_tidspunkt").toLocalDateTime(),
+        utbetalingId = rs.getString("utbetaling_id"),
+        sykmeldingId = rs.getString("sykmelding_id"),
+    )
 }
 
 internal class UtsendtVarselEsyfovarselCopyRowMapper : RowMapper<UtsendtVarselEsyfovarselCopy> {
-    override fun mapRow(
-        rs: ResultSet,
-        rowNum: Int,
-    ): UtsendtVarselEsyfovarselCopy =
-        UtsendtVarselEsyfovarselCopy(
-            uuid = UUID.fromString(rs.getString("uuid_esyfovarsel")),
-            personIdent = rs.getString("fnr"),
-            utsendtTidspunkt = rs.getTimestamp("utsendt_tidspunkt").toLocalDateTime(),
-        )
+    override fun mapRow(rs: ResultSet, rowNum: Int,): UtsendtVarselEsyfovarselCopy = UtsendtVarselEsyfovarselCopy(
+        uuid = UUID.fromString(rs.getString("uuid_esyfovarsel")),
+        personIdent = rs.getString("fnr"),
+        utsendtTidspunkt = rs.getTimestamp("utsendt_tidspunkt").toLocalDateTime(),
+    )
 }
 
 internal class MerOppfolgingVarselDTOMapper : RowMapper<MerOppfolgingVarselDTO> {
-    override fun mapRow(
-        rs: ResultSet,
-        rowNum: Int,
-    ): MerOppfolgingVarselDTO =
-        MerOppfolgingVarselDTO(
-            personIdent = rs.getString("person_ident"),
-            utbetalingId = rs.getString("utbetaling_id"),
-            sykmeldingId = rs.getString("sykmelding_id"),
-        )
+    override fun mapRow(rs: ResultSet, rowNum: Int,): MerOppfolgingVarselDTO = MerOppfolgingVarselDTO(
+        personIdent = rs.getString("person_ident"),
+        utbetalingId = rs.getString("utbetaling_id"),
+        sykmeldingId = rs.getString("sykmelding_id"),
+    )
 }

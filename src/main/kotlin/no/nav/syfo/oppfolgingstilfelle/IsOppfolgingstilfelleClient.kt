@@ -56,19 +56,15 @@ class IsOppfolgingstilfelleClient(
         return HttpEntity<Any>(headers)
     }
 
-    private fun getResponse(httpEntity: HttpEntity<*>): ResponseEntity<List<Oppfolgingstilfelle>> {
-        return RestTemplate().exchange(
+    private fun getResponse(httpEntity: HttpEntity<*>): ResponseEntity<List<Oppfolgingstilfelle>> =
+        RestTemplate().exchange(
             "$baseUrl$ISOPPFOLGINGSTILFELLE_PATH",
             HttpMethod.GET,
             httpEntity,
             object : ParameterizedTypeReference<List<Oppfolgingstilfelle>>() {},
         )
-    }
 
-    private fun handleException(
-        e: RestClientResponseException,
-        httpEntity: HttpEntity<*>,
-    ): Nothing {
+    private fun handleException(e: RestClientResponseException, httpEntity: HttpEntity<*>,): Nothing {
         if (e.statusCode.isSameCodeAs(HttpStatus.UNAUTHORIZED)) {
             throw RequestUnauthorizedException(
                 "Unauthorized request to get oppfolgingstilfeller from isoppfolgingstilfelle",

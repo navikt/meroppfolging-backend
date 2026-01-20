@@ -33,10 +33,7 @@ constructor(
     @Value("\${token.x.private.jwk}") private val privateJwk: String,
     @Value("\${token.x.token.endpoint}") private val tokenxEndpoint: String,
 ) {
-    fun exchangeToken(
-        subjectToken: String,
-        targetApp: String,
-    ): String {
+    fun exchangeToken(subjectToken: String, targetApp: String,): String {
         val requestEntity = requestEntity(subjectToken, tokenxEndpoint, targetApp)
 
         try {
@@ -97,12 +94,11 @@ constructor(
     }
 }
 
-internal fun JWTClaimsSet.sign(rsaKey: RSAKey): SignedJWT =
-    SignedJWT(
-        JWSHeader.Builder(JWSAlgorithm.RS256)
-            .keyID(rsaKey.keyID)
-            .type(JOSEObjectType.JWT).build(),
-        this,
-    ).apply {
-        sign(RSASSASigner(rsaKey.toPrivateKey()))
-    }
+internal fun JWTClaimsSet.sign(rsaKey: RSAKey): SignedJWT = SignedJWT(
+    JWSHeader.Builder(JWSAlgorithm.RS256)
+        .keyID(rsaKey.keyID)
+        .type(JOSEObjectType.JWT).build(),
+    this,
+).apply {
+    sign(RSASSASigner(rsaKey.toPrivateKey()))
+}

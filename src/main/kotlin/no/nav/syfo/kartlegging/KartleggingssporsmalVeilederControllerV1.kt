@@ -68,5 +68,4 @@ class KartleggingssporsmalVeilederControllerV1(
         return ResponseEntity
             .ok(response)
     }
-
 }

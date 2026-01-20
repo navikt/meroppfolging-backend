@@ -31,8 +31,8 @@ import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.NO_RESPONSE
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_IKKE_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus.TRENGER_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
-import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
+import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.syfoopppdfgen.PdfgenService
@@ -301,11 +301,23 @@ class SenOppfolgingControllerV2Test :
                 }
                 it("return response if response with varsel uuid exist") {
                     val behovForOppfolgingQuestion =
-                        QuestionResponse(BEHOV_FOR_OPPFOLGING.name, "Test question", BehovForOppfolgingSvar.JA.name, "Test answer")
+                        QuestionResponse(
+                            BEHOV_FOR_OPPFOLGING.name,
+                            "Test question",
+                            BehovForOppfolgingSvar.JA.name,
+                            "Test answer"
+                        )
                     val fremtidigSituasjonQuestion =
-                        QuestionResponse(FREMTIDIG_SITUASJON.name, "Another question", FremtidigSituasjonSvar.FORTSATT_SYK.name, "Another answer")
+                        QuestionResponse(
+                            FREMTIDIG_SITUASJON.name,
+                            "Another question",
+                            FremtidigSituasjonSvar.FORTSATT_SYK.name,
+                            "Another answer"
+                        )
                     every { responseDao.findResponseByVarselId(varselUuid) } returns
-                        formResponse.copy(questionResponses = mutableListOf(behovForOppfolgingQuestion, fremtidigSituasjonQuestion))
+                        formResponse.copy(
+                            questionResponses = mutableListOf(behovForOppfolgingQuestion, fremtidigSituasjonQuestion)
+                        )
 
                     val status = controller.status()
 

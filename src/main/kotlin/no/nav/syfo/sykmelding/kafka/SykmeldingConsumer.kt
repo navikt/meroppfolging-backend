@@ -18,9 +18,7 @@ import java.io.IOException
 const val SYKMELDING_TOPIC = "teamsykmelding.ok-sykmelding"
 
 @Component
-class SykmeldingConsumer(
-    private val sykmeldingService: SykmeldingService,
-) {
+class SykmeldingConsumer(private val sykmeldingService: SykmeldingService,) {
     private val log = logger()
     private val objectMapper = ObjectMapper().apply {
         registerKotlinModule()
@@ -29,10 +27,7 @@ class SykmeldingConsumer(
     }
 
     @KafkaListener(topics = [SYKMELDING_TOPIC], containerFactory = "sykmeldingKafkaListenerContainerFactory")
-    fun listen(
-        records: List<ConsumerRecord<String, String?>>,
-        ack: Acknowledgment,
-    ) {
+    fun listen(records: List<ConsumerRecord<String, String?>>, ack: Acknowledgment,) {
         try {
             log.info("Received ${records.size} sykmeldinger from $SYKMELDING_TOPIC")
             records.forEach { record ->
