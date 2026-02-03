@@ -29,7 +29,7 @@ val mockkVersion = "1.14.9"
 val wiremockVersion = "3.13.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val testcontainersVersion = "1.21.4"
-val springMockkVersion = "4.0.2"
+val springMockkVersion = "5.0.1"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
