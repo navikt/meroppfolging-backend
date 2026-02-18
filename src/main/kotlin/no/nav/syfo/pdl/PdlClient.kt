@@ -29,28 +29,18 @@ class PdlClient(
     fun hentPersonstatus(ident: String, maxAlder: Int): PersonstatusResultat {
         val personDataResultat = hentPersonData(ident)
         if (personDataResultat.feilet) {
-            return PersonstatusResultat(
-                status = Personstatus.UKJENT,
-                erUnderMaksAlder = null,
-                fodselsdato = null,
-            )
+            return PersonstatusResultat.Ukjent
         }
 
         val personData = personDataResultat.data
         if (personData == null) {
             log.warn("Mottok tom persondata fra PDL, personstatus settes til UKJENT")
-            return PersonstatusResultat(
-                status = Personstatus.UKJENT,
-                erUnderMaksAlder = null,
-                fodselsdato = null,
-            )
+            return PersonstatusResultat.Ukjent
         }
 
         val fodselsdato = personData.hentFodselsdato()
         if (personData.erDoed()) {
-            return PersonstatusResultat(
-                status = Personstatus.DOED,
-                erUnderMaksAlder = null,
+            return PersonstatusResultat.Doed(
                 fodselsdato = fodselsdato,
             )
         }
@@ -60,15 +50,13 @@ class PdlClient(
                 "Returnert fødselsdato for en person fra PDL er null. " +
                     "Fortsetter som om bruker er yngre enn $maxAlder år da fødselsdato er ukjent.",
             )
-            return PersonstatusResultat(
-                status = Personstatus.LEVENDE,
+            return PersonstatusResultat.Levende(
                 erUnderMaksAlder = true,
                 fodselsdato = null,
             )
         }
 
-        return PersonstatusResultat(
-            status = Personstatus.LEVENDE,
+        return PersonstatusResultat.Levende(
             erUnderMaksAlder = isAlderMindreEnnGittAr(fodselsdato, maxAlder),
             fodselsdato = fodselsdato,
         )
@@ -128,16 +116,17 @@ class PdlClient(
         this::class.java.getResource("/pdl/hentPerson.graphql")?.readText()?.replace("[\n\r]", "")
             ?: throw FileNotFoundException("Could not find resource for hentPerson.graphql")
 
-    data class PersonstatusResultat(
-        val status: Personstatus,
-        val erUnderMaksAlder: Boolean?,
-        val fodselsdato: String?,
-    )
+    sealed interface PersonstatusResultat {
+        data class Levende(
+            val erUnderMaksAlder: Boolean,
+            val fodselsdato: String?,
+        ) : PersonstatusResultat
 
-    enum class Personstatus {
-        LEVENDE,
-        DOED,
-        UKJENT,
+        data class Doed(
+            val fodselsdato: String?,
+        ) : PersonstatusResultat
+
+        data object Ukjent : PersonstatusResultat
     }
 
     private data class HentPersonDataResultat(

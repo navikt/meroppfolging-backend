@@ -40,6 +40,7 @@ class VarselRepositoryTest : DescribeSpec() {
             jdbcTemplate.execute("TRUNCATE TABLE COPY_UTSENDT_VARSEL_ESYFOVARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKMELDING CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE sykepengedager_informasjon CASCADE")
+            jdbcTemplate.execute("TRUNCATE TABLE SKIP_VARSELUTSENDING CASCADE")
         }
 
         val personIdent = "12345678910"
@@ -110,6 +111,32 @@ class VarselRepositoryTest : DescribeSpec() {
                 val candidates = varselRepository.fetchMerOppfolgingVarselToBeSent()
                 candidates.size shouldBe 1
                 candidates[0].sykmeldingId shouldBe sykmeldingId2
+            }
+
+            it("Should update skip reason for existing person_ident") {
+                varselRepository.storeSkipVarsel(personIdent, "1950-01-01", VarselSkipReason.AGE)
+                varselRepository.storeSkipVarsel(personIdent, "1940-01-01", VarselSkipReason.DECEASED)
+
+                val reason =
+                    jdbcTemplate.queryForObject(
+                        "SELECT reason FROM SKIP_VARSELUTSENDING WHERE person_ident = '$personIdent'",
+                        String::class.java,
+                    )
+                reason shouldBe "DECEASED"
+
+                val fodselsdato =
+                    jdbcTemplate.queryForObject(
+                        "SELECT fodselsdato FROM SKIP_VARSELUTSENDING WHERE person_ident = '$personIdent'",
+                        String::class.java,
+                    )
+                fodselsdato shouldBe "1940-01-01"
+
+                val antallSkip =
+                    jdbcTemplate.queryForObject(
+                        "SELECT count(*) FROM SKIP_VARSELUTSENDING WHERE person_ident = '$personIdent'",
+                        Int::class.java,
+                    )
+                antallSkip shouldBe 1
             }
         }
     }

@@ -34,54 +34,53 @@ class PdlClientTest :
                     pdlServer.stubHentPerson(yearsOld = 66)
 
                     val result = pdlClient.hentPersonstatus("12345678910", 67)
-                    result.status shouldBe PdlClient.Personstatus.LEVENDE
-                    result.erUnderMaksAlder shouldBe true
+                    (result is PdlClient.PersonstatusResultat.Levende) shouldBe true
+                    (result as PdlClient.PersonstatusResultat.Levende).erUnderMaksAlder shouldBe true
                 }
 
                 it("should return false if the user is max age or older") {
                     pdlServer.stubHentPerson(yearsOld = 67)
 
                     val result = pdlClient.hentPersonstatus("12345678910", 67)
-                    result.status shouldBe PdlClient.Personstatus.LEVENDE
-                    result.erUnderMaksAlder shouldBe false
+                    (result is PdlClient.PersonstatusResultat.Levende) shouldBe true
+                    (result as PdlClient.PersonstatusResultat.Levende).erUnderMaksAlder shouldBe false
                 }
 
                 it("should return true if the birth date is null") {
                     pdlServer.stubHentPerson(yearsOld = null)
 
                     val result = pdlClient.hentPersonstatus("12345678910", 67)
-                    result.status shouldBe PdlClient.Personstatus.LEVENDE
-                    result.erUnderMaksAlder shouldBe true
+                    (result is PdlClient.PersonstatusResultat.Levende) shouldBe true
+                    (result as PdlClient.PersonstatusResultat.Levende).erUnderMaksAlder shouldBe true
                 }
 
                 it("should return DOED if person has doedsfall") {
                     pdlServer.stubHentPerson(yearsOld = 55, deceased = true)
 
                     val result = pdlClient.hentPersonstatus("12345678910", 67)
-                    result.status shouldBe PdlClient.Personstatus.DOED
-                    result.erUnderMaksAlder shouldBe null
+                    (result is PdlClient.PersonstatusResultat.Doed) shouldBe true
                 }
 
                 it("should return LEVENDE if person has no doedsfall") {
                     pdlServer.stubHentPerson(yearsOld = 55, deceased = false)
 
-                    pdlClient.hentPersonstatus("12345678910", 67).status shouldBe PdlClient.Personstatus.LEVENDE
+                    val result = pdlClient.hentPersonstatus("12345678910", 67)
+                    (result is PdlClient.PersonstatusResultat.Levende) shouldBe true
                 }
 
                 it("should return LEVENDE when foedselsdato list is empty") {
                     pdlServer.stubHentPerson(yearsOld = 55, foedselsdatoListeIsEmpty = true)
 
                     val result = pdlClient.hentPersonstatus("12345678910", 67)
-                    result.status shouldBe PdlClient.Personstatus.LEVENDE
-                    result.erUnderMaksAlder shouldBe true
+                    (result is PdlClient.PersonstatusResultat.Levende) shouldBe true
+                    (result as PdlClient.PersonstatusResultat.Levende).erUnderMaksAlder shouldBe true
                 }
 
                 it("should return UKJENT when pdl responds with error") {
                     pdlServer.stubHentPersonError()
 
                     val result = pdlClient.hentPersonstatus("12345678910", 67)
-                    result.status shouldBe PdlClient.Personstatus.UKJENT
-                    result.erUnderMaksAlder shouldBe null
+                    result shouldBe PdlClient.PersonstatusResultat.Ukjent
                 }
             }
         },
@@ -96,6 +95,7 @@ fun WireMockServer.stubHentPerson(yearsOld: Long?, deceased: Boolean = false, fo
         } else {
             """[{ "foedselsdato": $foedselsdatoJson }]"""
         }
+    // Exact date value is irrelevant in these tests, we only care that doedsfall is present.
     val doedsfallJson = if (deceased) """[{ "doedsdato": "2024-01-15" }]""" else "[]"
     this.stubFor(
         post(urlEqualTo("/"))

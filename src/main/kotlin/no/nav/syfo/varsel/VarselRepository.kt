@@ -68,15 +68,17 @@ class VarselRepository(private val namedParameterJdbcTemplate: NamedParameterJdb
         return utsendtVarselUUID
     }
 
-    fun storeSkipVarsel(personIdent: String, fodselsdato: String?, reason: VarselSkipReason,): UUID {
+    fun storeSkipVarsel(personIdent: String, fodselsdato: String?, reason: VarselSkipReason,) {
         val sql =
             """
             INSERT INTO SKIP_VARSELUTSENDING (person_ident, fodselsdato, reason, created_at)
             VALUES (:person_ident, :fodselsdato, :reason, :created_at)
-            ON CONFLICT (person_ident) DO UPDATE SET reason = :reason
+            ON CONFLICT (person_ident) DO UPDATE SET
+                reason = :reason,
+                fodselsdato = :fodselsdato,
+                created_at = :created_at
             """.trimIndent()
 
-        val utsendtVarselUUID = UUID.randomUUID()
         val parameters =
             mapOf(
                 "person_ident" to personIdent,
@@ -86,7 +88,6 @@ class VarselRepository(private val namedParameterJdbcTemplate: NamedParameterJdb
             )
 
         namedParameterJdbcTemplate.update(sql, parameters)
-        return utsendtVarselUUID
     }
 
     fun fetchMerOppfolgingVarselToBeSent(): List<MerOppfolgingVarselDTO> {
