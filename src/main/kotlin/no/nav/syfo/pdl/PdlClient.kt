@@ -26,26 +26,55 @@ class PdlClient(
 
     private val log: Logger = LoggerFactory.getLogger(PdlClient::class.qualifiedName)
 
-    fun isBrukerYngreEnnGittMaxAlder(ident: String, maxAlder: Int): AgeCheckResult {
-        val fodselsdato = hentPersonData(ident)?.getFodselsdato()
+    fun hentPersonstatus(ident: String, maxAlder: Int): PersonstatusResultat {
+        val personDataResultat = hentPersonData(ident)
+        if (personDataResultat.feilet) {
+            return PersonstatusResultat(
+                status = Personstatus.UKJENT,
+                erUnderMaksAlder = null,
+                fodselsdato = null,
+            )
+        }
+
+        val personData = personDataResultat.data
+        if (personData == null) {
+            log.warn("Mottok tom persondata fra PDL, personstatus settes til UKJENT")
+            return PersonstatusResultat(
+                status = Personstatus.UKJENT,
+                erUnderMaksAlder = null,
+                fodselsdato = null,
+            )
+        }
+
+        val fodselsdato = personData.hentFodselsdato()
+        if (personData.erDoed()) {
+            return PersonstatusResultat(
+                status = Personstatus.DOED,
+                erUnderMaksAlder = null,
+                fodselsdato = fodselsdato,
+            )
+        }
+
         if (fodselsdato == null) {
             log.warn(
                 "Returnert fødselsdato for en person fra PDL er null. " +
                     "Fortsetter som om bruker er yngre enn $maxAlder år da fødselsdato er ukjent.",
             )
-            return AgeCheckResult(
-                youngerThanMaxAlder = true,
+            return PersonstatusResultat(
+                status = Personstatus.LEVENDE,
+                erUnderMaksAlder = true,
                 fodselsdato = null,
             )
-        } else {
-            return AgeCheckResult(
-                youngerThanMaxAlder = isAlderMindreEnnGittAr(fodselsdato, maxAlder),
-                fodselsdato = fodselsdato,
-            )
         }
+
+        return PersonstatusResultat(
+            status = Personstatus.LEVENDE,
+            erUnderMaksAlder = isAlderMindreEnnGittAr(fodselsdato, maxAlder),
+            fodselsdato = fodselsdato,
+        )
     }
 
-    private fun hentPersonData(personIdent: String,): HentPersonData? {
+    private fun hentPersonData(personIdent: String,): HentPersonDataResultat {
         val token = azureAdClient.getSystemToken(pdlScope)
         val request = PdlRequest(createPdlQuery(), Variables(personIdent))
 
@@ -64,17 +93,23 @@ class PdlClient(
             )
 
             val pdlPersonResponse = response.body
-            if (pdlPersonResponse?.errors.isNullOrEmpty()) {
-                pdlPersonResponse?.data
+            if (pdlPersonResponse == null) {
+                log.error("Mottok tom respons fra PersonDataLosningen")
+                HentPersonDataResultat(data = null, feilet = true)
+            } else if (pdlPersonResponse.errors.isNullOrEmpty()) {
+                HentPersonDataResultat(data = pdlPersonResponse.data, feilet = false)
             } else {
-                pdlPersonResponse?.errors?.forEach {
+                pdlPersonResponse.errors?.forEach {
                     log.error("Error while requesting person from PersonDataLosningen: ${it.errorMessage()}")
                 }
-                null
+                HentPersonDataResultat(data = null, feilet = true)
             }
         } catch (e: RestClientResponseException) {
             log.error("Request with url: $pdlUrl failed with response code ${e.statusCode.value()}")
-            null
+            HentPersonDataResultat(data = null, feilet = true)
+        } catch (e: Exception) {
+            log.error("Request with url: $pdlUrl failed with exception: ${e.message}", e)
+            HentPersonDataResultat(data = null, feilet = true)
         }
     }
 
@@ -93,5 +128,20 @@ class PdlClient(
         this::class.java.getResource("/pdl/hentPerson.graphql")?.readText()?.replace("[\n\r]", "")
             ?: throw FileNotFoundException("Could not find resource for hentPerson.graphql")
 
-    data class AgeCheckResult(val youngerThanMaxAlder: Boolean, val fodselsdato: String?,)
+    data class PersonstatusResultat(
+        val status: Personstatus,
+        val erUnderMaksAlder: Boolean?,
+        val fodselsdato: String?,
+    )
+
+    enum class Personstatus {
+        LEVENDE,
+        DOED,
+        UKJENT,
+    }
+
+    private data class HentPersonDataResultat(
+        val data: HentPersonData?,
+        val feilet: Boolean,
+    )
 }

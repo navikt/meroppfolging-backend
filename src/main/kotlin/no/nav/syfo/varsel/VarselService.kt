@@ -6,6 +6,9 @@ import no.nav.syfo.dokarkiv.domain.Distribusjonskanal
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.pdl.PdlClient
+import no.nav.syfo.pdl.PdlClient.Personstatus.DOED
+import no.nav.syfo.pdl.PdlClient.Personstatus.LEVENDE
+import no.nav.syfo.pdl.PdlClient.Personstatus.UKJENT
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingVarselDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingVarselKafkaProducer
 import no.nav.syfo.syfoopppdfgen.PdfgenService
@@ -29,12 +32,32 @@ class VarselService(
         val allVarsler = varselRepository.fetchMerOppfolgingVarselToBeSent()
 
         val filteredVarsler = allVarsler.mapNotNull {
-            val ageCheckResult = pdlClient.isBrukerYngreEnnGittMaxAlder(it.personIdent, 67)
-            if (ageCheckResult.youngerThanMaxAlder) {
-                it
-            } else {
-                varselRepository.storeSkipVarselDueToAge(it.personIdent, ageCheckResult.fodselsdato)
-                null
+            val personstatus = pdlClient.hentPersonstatus(it.personIdent, 67)
+            when (personstatus.status) {
+                DOED -> {
+                    log.info("Skipper varsel for person som er registrert doed i PDL")
+                    varselRepository.storeSkipVarsel(it.personIdent, personstatus.fodselsdato, VarselSkipReason.DECEASED)
+                    null
+                }
+
+                UKJENT -> {
+                    log.warn("Skipper varsel fordi personstatus er ukjent fra PDL. Forsøker igjen i neste kjøring")
+                    metric.countSenOppfolgingVarselSkippedDueToPdlUnknown()
+                    null
+                }
+
+                LEVENDE -> {
+                    if (personstatus.erUnderMaksAlder == false) {
+                        varselRepository.storeSkipVarsel(it.personIdent, personstatus.fodselsdato, VarselSkipReason.AGE)
+                        null
+                    } else if (personstatus.erUnderMaksAlder == null) {
+                        log.warn("Skipper varsel fordi aldersstatus er ukjent fra PDL. Forsøker igjen i neste kjøring")
+                        metric.countSenOppfolgingVarselSkippedDueToPdlUnknown()
+                        null
+                    } else {
+                        it
+                    }
+                }
             }
         }
 

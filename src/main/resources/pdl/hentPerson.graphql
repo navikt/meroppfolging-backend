@@ -3,6 +3,9 @@ query($ident: ID!) {
         foedselsdato {
             foedselsdato
         }
+        doedsfall {
+            doedsdato
+        }
         navn(historikk: false) {
             fornavn
             mellomnavn

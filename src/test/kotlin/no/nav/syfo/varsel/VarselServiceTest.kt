@@ -17,6 +17,7 @@ import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
 import no.nav.syfo.pdl.PdlClient
 import no.nav.syfo.pdl.stubHentPerson
+import no.nav.syfo.pdl.stubHentPersonError
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
 import no.nav.syfo.sykepengedagerinformasjon.domain.SykepengedagerInformasjonDTO
@@ -301,13 +302,65 @@ class VarselServiceTest : DescribeSpec() {
                 )
 
                 val varselSomSkalSendes = varselService.findMerOppfolgingVarselToBeSent()
-                verify(exactly = 1) { pdlClient.isBrukerYngreEnnGittMaxAlder(any(), any()) }
+                verify(exactly = 1) { pdlClient.hentPersonstatus(any(), any()) }
                 varselSomSkalSendes.size shouldBe 0
+                val reason =
+                    jdbcTemplate.queryForObject(
+                        "SELECT reason FROM SKIP_VARSELUTSENDING WHERE person_ident = '$personIdent'",
+                        String::class.java,
+                    )
+                reason shouldBe "AGE"
 
                 varselService.findMerOppfolgingVarselToBeSent()
-                verify(exactly = 1) { pdlClient.isBrukerYngreEnnGittMaxAlder(any(), any()) }
+                verify(exactly = 1) { pdlClient.hentPersonstatus(any(), any()) }
 
                 varselService.findMerOppfolgingVarselToBeSent()
+            }
+
+            it("Should not send varsel for deceased person") {
+                pdlServer.stubHentPerson(yearsOld = 55, deceased = true)
+                val personIdent = "12345678910"
+                createMockdataForFnr(
+                    fnr = personIdent,
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                val varselSomSkalSendes = varselService.findMerOppfolgingVarselToBeSent()
+                varselSomSkalSendes.size shouldBe 0
+                val reason =
+                    jdbcTemplate.queryForObject(
+                        "SELECT reason FROM SKIP_VARSELUTSENDING WHERE person_ident = '$personIdent'",
+                        String::class.java,
+                    )
+                reason shouldBe "DECEASED"
+
+                // Should be stored in skip table, so PDL is not called again
+                varselService.findMerOppfolgingVarselToBeSent()
+                verify(exactly = 1) { pdlClient.hentPersonstatus(any(), any()) }
+            }
+
+            it("Should retry PDL lookup when personstatus is UKJENT") {
+                pdlServer.stubHentPersonError()
+                val personIdent = "12345678910"
+                createMockdataForFnr(
+                    fnr = personIdent,
+                    activeSykmelding = true,
+                    gjenstaendeSykedager = "70",
+                    forelopigBeregnetSlutt = LocalDate.now().plusDays(50),
+                )
+
+                varselService.findMerOppfolgingVarselToBeSent().size shouldBe 0
+                varselService.findMerOppfolgingVarselToBeSent().size shouldBe 0
+
+                verify(exactly = 2) { pdlClient.hentPersonstatus(any(), any()) }
+                val antallSkip =
+                    jdbcTemplate.queryForObject(
+                        "SELECT count(*) FROM SKIP_VARSELUTSENDING WHERE person_ident = '$personIdent'",
+                        Int::class.java,
+                    )
+                antallSkip shouldBe 0
             }
         }
     }
