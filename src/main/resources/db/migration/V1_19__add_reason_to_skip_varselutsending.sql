@@ -1,5 +1,5 @@
 ALTER TABLE SKIP_VARSELUTSENDING
-ADD COLUMN reason VARCHAR(32);
+ADD COLUMN IF NOT EXISTS reason VARCHAR(32);
 
 UPDATE SKIP_VARSELUTSENDING
 SET reason = 'AGE'
@@ -18,5 +18,9 @@ WHERE ctid IN (
     WHERE duplicate_rows.row_number > 1
 );
 
-ALTER TABLE SKIP_VARSELUTSENDING
-ADD CONSTRAINT skip_varselutsending_person_ident_unique UNIQUE (person_ident);
+DO $$ BEGIN
+    ALTER TABLE SKIP_VARSELUTSENDING
+    ADD CONSTRAINT skip_varselutsending_person_ident_unique UNIQUE (person_ident);
+EXCEPTION WHEN duplicate_object THEN
+    NULL;
+END $$;
