@@ -21,6 +21,6 @@ WHERE ctid IN (
 DO $$ BEGIN
     ALTER TABLE SKIP_VARSELUTSENDING
     ADD CONSTRAINT skip_varselutsending_person_ident_unique UNIQUE (person_ident);
-EXCEPTION WHEN duplicate_object THEN
+EXCEPTION WHEN duplicate_table OR duplicate_object THEN
     NULL;
 END $$;
