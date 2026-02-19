@@ -38,13 +38,13 @@ class PdlClient(
             return PersonstatusResultat.Ukjent
         }
 
-        val fodselsdato = personData.hentFodselsdato()
         if (personData.erDoed()) {
             return PersonstatusResultat.Doed(
-                fodselsdato = fodselsdato,
+                fodselsdato = personData.hentFodselsdato(),
             )
         }
 
+        val fodselsdato = personData.hentFodselsdato()
         if (fodselsdato == null) {
             log.warn(
                 "Returnert fødselsdato for en person fra PDL er null. " +
@@ -87,7 +87,7 @@ class PdlClient(
             } else if (pdlPersonResponse.errors.isNullOrEmpty()) {
                 HentPersonDataResultat(data = pdlPersonResponse.data, feilet = false)
             } else {
-                pdlPersonResponse.errors?.forEach {
+                pdlPersonResponse.errors.forEach {
                     log.error("Error while requesting person from PersonDataLosningen: ${it.errorMessage()}")
                 }
                 HentPersonDataResultat(data = null, feilet = true)
