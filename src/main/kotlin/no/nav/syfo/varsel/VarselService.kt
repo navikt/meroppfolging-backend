@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
 
+private const val MAKS_ALDER = 67
+
 @Service
 class VarselService(
     private val producer: EsyfovarselProducer,
@@ -29,7 +31,7 @@ class VarselService(
         val allVarsler = varselRepository.fetchMerOppfolgingVarselToBeSent()
 
         val filteredVarsler = allVarsler.mapNotNull {
-            val personstatus = pdlClient.hentPersonstatus(it.personIdent, 67)
+            val personstatus = pdlClient.hentPersonstatus(it.personIdent, MAKS_ALDER)
             when (personstatus) {
                 is PdlClient.PersonstatusResultat.Doed -> {
                     log.info("Skipper varsel for person som er registrert doed i PDL")
