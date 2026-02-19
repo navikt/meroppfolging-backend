@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
 
+private const val MAKS_ALDER = 67
+
 @Service
 class VarselService(
     private val producer: EsyfovarselProducer,
@@ -29,12 +31,28 @@ class VarselService(
         val allVarsler = varselRepository.fetchMerOppfolgingVarselToBeSent()
 
         val filteredVarsler = allVarsler.mapNotNull {
-            val ageCheckResult = pdlClient.isBrukerYngreEnnGittMaxAlder(it.personIdent, 67)
-            if (ageCheckResult.youngerThanMaxAlder) {
-                it
-            } else {
-                varselRepository.storeSkipVarselDueToAge(it.personIdent, ageCheckResult.fodselsdato)
-                null
+            val personstatus = pdlClient.hentPersonstatus(it.personIdent, MAKS_ALDER)
+            when (personstatus) {
+                is PdlClient.PersonstatusResultat.Doed -> {
+                    log.info("Skipper varsel for person som er registrert doed i PDL")
+                    varselRepository.storeSkipVarsel(it.personIdent, personstatus.fodselsdato, VarselSkipReason.DECEASED)
+                    null
+                }
+
+                PdlClient.PersonstatusResultat.Ukjent -> {
+                    log.warn("Skipper varsel fordi personstatus er ukjent fra PDL. Forsøker igjen i neste kjøring")
+                    metric.countSenOppfolgingVarselSkippedDueToPdlUnknown()
+                    null
+                }
+
+                is PdlClient.PersonstatusResultat.Levende -> {
+                    if (!personstatus.erUnderMaksAlder) {
+                        varselRepository.storeSkipVarsel(it.personIdent, personstatus.fodselsdato, VarselSkipReason.AGE)
+                        null
+                    } else {
+                        it
+                    }
+                }
             }
         }
 

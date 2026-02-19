@@ -26,26 +26,43 @@ class PdlClient(
 
     private val log: Logger = LoggerFactory.getLogger(PdlClient::class.qualifiedName)
 
-    fun isBrukerYngreEnnGittMaxAlder(ident: String, maxAlder: Int): AgeCheckResult {
-        val fodselsdato = hentPersonData(ident)?.getFodselsdato()
+    fun hentPersonstatus(ident: String, maxAlder: Int): PersonstatusResultat {
+        val personDataResultat = hentPersonData(ident)
+        if (personDataResultat.feilet) {
+            return PersonstatusResultat.Ukjent
+        }
+
+        val personData = personDataResultat.data
+        if (personData == null) {
+            log.warn("Mottok tom persondata fra PDL, personstatus settes til UKJENT")
+            return PersonstatusResultat.Ukjent
+        }
+
+        if (personData.erDoed()) {
+            return PersonstatusResultat.Doed(
+                fodselsdato = personData.hentFodselsdato(),
+            )
+        }
+
+        val fodselsdato = personData.hentFodselsdato()
         if (fodselsdato == null) {
             log.warn(
                 "Returnert fødselsdato for en person fra PDL er null. " +
                     "Fortsetter som om bruker er yngre enn $maxAlder år da fødselsdato er ukjent.",
             )
-            return AgeCheckResult(
-                youngerThanMaxAlder = true,
+            return PersonstatusResultat.Levende(
+                erUnderMaksAlder = true,
                 fodselsdato = null,
             )
-        } else {
-            return AgeCheckResult(
-                youngerThanMaxAlder = isAlderMindreEnnGittAr(fodselsdato, maxAlder),
-                fodselsdato = fodselsdato,
-            )
         }
+
+        return PersonstatusResultat.Levende(
+            erUnderMaksAlder = isAlderMindreEnnGittAr(fodselsdato, maxAlder),
+            fodselsdato = fodselsdato,
+        )
     }
 
-    private fun hentPersonData(personIdent: String,): HentPersonData? {
+    private fun hentPersonData(personIdent: String,): HentPersonDataResultat {
         val token = azureAdClient.getSystemToken(pdlScope)
         val request = PdlRequest(createPdlQuery(), Variables(personIdent))
 
@@ -64,17 +81,23 @@ class PdlClient(
             )
 
             val pdlPersonResponse = response.body
-            if (pdlPersonResponse?.errors.isNullOrEmpty()) {
-                pdlPersonResponse?.data
+            if (pdlPersonResponse == null) {
+                log.error("Mottok tom respons fra PersonDataLosningen")
+                HentPersonDataResultat(data = null, feilet = true)
+            } else if (pdlPersonResponse.errors.isNullOrEmpty()) {
+                HentPersonDataResultat(data = pdlPersonResponse.data, feilet = false)
             } else {
-                pdlPersonResponse?.errors?.forEach {
+                pdlPersonResponse.errors.forEach {
                     log.error("Error while requesting person from PersonDataLosningen: ${it.errorMessage()}")
                 }
-                null
+                HentPersonDataResultat(data = null, feilet = true)
             }
         } catch (e: RestClientResponseException) {
             log.error("Request with url: $pdlUrl failed with response code ${e.statusCode.value()}")
-            null
+            HentPersonDataResultat(data = null, feilet = true)
+        } catch (e: Exception) {
+            log.error("Request with url: $pdlUrl failed with exception: ${e.message}", e)
+            HentPersonDataResultat(data = null, feilet = true)
         }
     }
 
@@ -93,5 +116,21 @@ class PdlClient(
         this::class.java.getResource("/pdl/hentPerson.graphql")?.readText()?.replace("[\n\r]", "")
             ?: throw FileNotFoundException("Could not find resource for hentPerson.graphql")
 
-    data class AgeCheckResult(val youngerThanMaxAlder: Boolean, val fodselsdato: String?,)
+    sealed interface PersonstatusResultat {
+        data class Levende(
+            val erUnderMaksAlder: Boolean,
+            val fodselsdato: String?,
+        ) : PersonstatusResultat
+
+        data class Doed(
+            val fodselsdato: String?,
+        ) : PersonstatusResultat
+
+        data object Ukjent : PersonstatusResultat
+    }
+
+    private data class HentPersonDataResultat(
+        val data: HentPersonData?,
+        val feilet: Boolean,
+    )
 }

@@ -1,14 +1,18 @@
 package no.nav.syfo.pdl
 
-data class HentPersonResponse(val errors: List<PdlError>?, val data: HentPersonData)
+data class HentPersonResponse(val errors: List<PdlError>?, val data: HentPersonData?)
 
-data class HentPersonData(val hentPerson: HentPerson)
+data class HentPersonData(val hentPerson: HentPerson?)
 
-fun HentPersonData.getFodselsdato(): String? = this.hentPerson.foedselsdato.first().foedselsdato
+fun HentPersonData.hentFodselsdato(): String? = this.hentPerson?.foedselsdato?.firstOrNull()?.foedselsdato
 
-data class HentPerson(val foedselsdato: List<Foedselsdato>, val navn: List<Navn>)
+fun HentPersonData.erDoed(): Boolean = this.hentPerson?.doedsfall?.isNotEmpty() == true
+
+data class HentPerson(val foedselsdato: List<Foedselsdato>?, val doedsfall: List<Doedsfall>?, val navn: List<Navn>?)
 
 data class Foedselsdato(val foedselsdato: String?)
+
+data class Doedsfall(val doedsdato: String?)
 
 data class Navn(val fornavn: String, val mellomnavn: String?, val etternavn: String)
 

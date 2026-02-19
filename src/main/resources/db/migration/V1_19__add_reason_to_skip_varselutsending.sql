@@ -1,0 +1,26 @@
+ALTER TABLE SKIP_VARSELUTSENDING
+ADD COLUMN IF NOT EXISTS reason VARCHAR(32);
+
+UPDATE SKIP_VARSELUTSENDING
+SET reason = 'AGE'
+WHERE reason IS NULL;
+
+ALTER TABLE SKIP_VARSELUTSENDING
+ALTER COLUMN reason SET NOT NULL;
+
+DELETE FROM SKIP_VARSELUTSENDING
+WHERE ctid IN (
+    SELECT ctid
+    FROM (
+        SELECT ctid, ROW_NUMBER() OVER (PARTITION BY person_ident ORDER BY created_at DESC, ctid DESC) AS row_number
+        FROM SKIP_VARSELUTSENDING
+    ) duplicate_rows
+    WHERE duplicate_rows.row_number > 1
+);
+
+DO $$ BEGIN
+    ALTER TABLE SKIP_VARSELUTSENDING
+    ADD CONSTRAINT skip_varselutsending_person_ident_unique UNIQUE (person_ident);
+EXCEPTION WHEN duplicate_table OR duplicate_object THEN
+    NULL;
+END $$;
