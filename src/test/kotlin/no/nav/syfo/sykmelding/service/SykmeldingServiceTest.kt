@@ -1,5 +1,6 @@
 package no.nav.syfo.sykmelding.service
 
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
@@ -16,6 +17,7 @@ import java.time.LocalDate
 @EmbeddedKafka
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class SykmeldingServiceTest : DescribeSpec() {
 
     val employeeIdentificationNumber = "12345678910"
@@ -27,8 +29,6 @@ class SykmeldingServiceTest : DescribeSpec() {
     lateinit var jdbcTemplate: JdbcTemplate
 
     init {
-        extension(SpringExtension)
-
         beforeTest {
             jdbcTemplate.execute("TRUNCATE TABLE SYKMELDING CASCADE")
         }

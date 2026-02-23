@@ -6,8 +6,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.extensions.wiremock.ListenerMode
-import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -22,11 +20,14 @@ class PdlClientTest :
         {
             val azureAdClient = mockk<AzureAdClient>()
             val pdlServer = WireMockServer(8080)
-            listener(WireMockListener(pdlServer, ListenerMode.PER_TEST))
             val pdlClient = PdlClient(azureAdClient, "http://localhost:8080", "pdl.scope")
 
             beforeTest {
+                pdlServer.start()
                 every { azureAdClient.getSystemToken(any()) } returns "token"
+            }
+            afterTest {
+                pdlServer.stop()
             }
 
             describe("hentPersonstatus") {

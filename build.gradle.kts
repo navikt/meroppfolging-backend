@@ -22,8 +22,7 @@ repositories {
 
 val tokenSupportVersion = "5.0.40"
 val logstashLogbackEncoderVersion = "8.1"
-val kotestVersion = "5.9.1"
-val springKotestExtensionVersion = "1.3.0"
+val kotestVersion = "6.1.3"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val mockkVersion = "1.14.9"
 val wiremockVersion = "3.13.2"
@@ -57,7 +56,7 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:$kotestTestContainersExtensionVersion")
-    testImplementation("io.kotest.extensions:kotest-extensions-spring:$springKotestExtensionVersion")
+    testImplementation("io.kotest:kotest-extensions-spring:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:$wiremockKotestExtensionVersion")
     testImplementation("org.wiremock:wiremock-standalone:$wiremockVersion")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")

@@ -11,8 +11,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.wiremock.ListenerMode
-import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -38,10 +36,13 @@ class IsoppfolgingstilfelleClientTest :
             val isoppfolgingstilfelleClient = IsOppfolgingstilfelleClient(tokendingsClient, baseUrl, targetApp)
 
             val isoppfolgingstilfelleServer = WireMockServer(9000)
-            listener(WireMockListener(isoppfolgingstilfelleServer, ListenerMode.PER_TEST))
 
             beforeTest {
+                isoppfolgingstilfelleServer.start()
                 every { tokendingsClient.exchangeToken(userToken, targetApp) } returns exchangedToken
+            }
+            afterTest {
+                isoppfolgingstilfelleServer.stop()
             }
 
             test("Aktivt oppfolgingstilfelle gir true") {

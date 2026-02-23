@@ -3,10 +3,9 @@ package no.nav.syfo.varsel
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.SpykBean
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
-import io.kotest.extensions.wiremock.ListenerMode
-import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
@@ -34,6 +33,7 @@ import java.util.*
 @EmbeddedKafka
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class VarselServiceTest : DescribeSpec() {
     @MockkBean(relaxed = true)
     lateinit var pdfgenService: PdfgenService
@@ -60,18 +60,19 @@ class VarselServiceTest : DescribeSpec() {
     lateinit var jdbcTemplate: JdbcTemplate
 
     init {
-        extension(SpringExtension)
-
         val pdlServer = WireMockServer(8080)
-        listener(WireMockListener(pdlServer, ListenerMode.PER_TEST))
 
         beforeTest {
+            pdlServer.start()
             pdlServer.stubHentPerson(yearsOld = 55)
             jdbcTemplate.execute("TRUNCATE TABLE UTSENDT_VARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKMELDING CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKEPENGEDAGER_INFORMASJON CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE COPY_UTSENDT_VARSEL_ESYFOVARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SKIP_VARSELUTSENDING CASCADE")
+        }
+        afterTest {
+            pdlServer.stop()
         }
 
         describe("VarselService") {

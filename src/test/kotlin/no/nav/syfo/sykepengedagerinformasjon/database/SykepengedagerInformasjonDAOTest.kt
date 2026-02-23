@@ -1,5 +1,6 @@
 package no.nav.syfo.sykepengedagerinformasjon.database
 
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
@@ -18,6 +19,7 @@ import java.time.LocalDateTime
 @EmbeddedKafka
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class SykepengedagerInformasjonDAOTest : DescribeSpec() {
     val personIdent = "12345678910"
     val utbetalingId = "123"
@@ -30,8 +32,6 @@ class SykepengedagerInformasjonDAOTest : DescribeSpec() {
     lateinit var jdbcTemplate: JdbcTemplate
 
     init {
-        extension(SpringExtension)
-
         beforeTest {
             jdbcTemplate.execute("TRUNCATE TABLE SYKEPENGEDAGER_INFORMASJON CASCADE")
         }
