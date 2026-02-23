@@ -1,5 +1,6 @@
 package no.nav.syfo.varsel
 
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
@@ -19,6 +20,7 @@ import java.util.*
 @EmbeddedKafka
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class VarselRepositoryTest : DescribeSpec() {
     @Autowired
     private lateinit var varselRepository: VarselRepository
@@ -33,8 +35,6 @@ class VarselRepositoryTest : DescribeSpec() {
     lateinit var jdbcTemplate: JdbcTemplate
 
     init {
-        extension(SpringExtension)
-
         beforeTest {
             jdbcTemplate.execute("TRUNCATE TABLE UTSENDT_VARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE COPY_UTSENDT_VARSEL_ESYFOVARSEL CASCADE")

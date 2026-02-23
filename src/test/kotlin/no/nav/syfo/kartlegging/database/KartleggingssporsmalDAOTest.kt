@@ -1,5 +1,6 @@
 package no.nav.syfo.kartlegging.database
 
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
@@ -17,6 +18,7 @@ import java.util.UUID
 @EmbeddedKafka
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class KartleggingssporsmalDAOTest : DescribeSpec() {
     @Autowired
     private lateinit var kartleggingssporsmalDAO: KartleggingssporsmalDAO
@@ -25,8 +27,6 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
     lateinit var jdbcTemplate: JdbcTemplate
 
     init {
-        extension(SpringExtension)
-
         beforeTest {
             jdbcTemplate.execute("TRUNCATE TABLE KARTLEGGINGSPORSMAL CASCADE")
         }

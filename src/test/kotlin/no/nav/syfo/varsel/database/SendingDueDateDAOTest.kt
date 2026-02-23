@@ -1,5 +1,6 @@
 package no.nav.syfo.varsel.database
 
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
@@ -16,6 +17,7 @@ import java.time.LocalDate
 @EmbeddedKafka
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class SendingDueDateDAOTest : DescribeSpec() {
     @Autowired
     private lateinit var sendingDueDateDAO: SendingDueDateDAO
@@ -24,8 +26,6 @@ class SendingDueDateDAOTest : DescribeSpec() {
     lateinit var jdbcTemplate: JdbcTemplate
 
     init {
-        extension(SpringExtension)
-
         beforeTest {
             jdbcTemplate.execute("TRUNCATE TABLE SENDING_DUE_DATE CASCADE")
         }

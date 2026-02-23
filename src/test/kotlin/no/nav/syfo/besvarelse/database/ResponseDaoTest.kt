@@ -1,5 +1,6 @@
 package no.nav.syfo.besvarelse.database
 
+import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
@@ -20,6 +21,7 @@ import java.util.UUID
 @EmbeddedKafka
 @TestConfiguration
 @SpringBootTest(classes = [LocalApplication::class])
+@ApplyExtension(SpringExtension::class)
 class ResponseDaoTest : DescribeSpec() {
     @Autowired
     private lateinit var responseDao: ResponseDao
@@ -28,7 +30,6 @@ class ResponseDaoTest : DescribeSpec() {
     lateinit var jdbcTemplate: JdbcTemplate
 
     init {
-        extension(SpringExtension)
 
         beforeTest {
             jdbcTemplate.execute("TRUNCATE TABLE FORM_RESPONSE CASCADE")

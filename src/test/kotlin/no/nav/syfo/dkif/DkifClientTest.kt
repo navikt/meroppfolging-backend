@@ -10,8 +10,6 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.wiremock.ListenerMode
-import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.every
@@ -37,9 +35,12 @@ class DkifClientTest :
             val unknownFnr = "01987654321"
             val dkifClient = DkifClient(azureAdClient = azureAdTokenConsumer, dkifScope = dkifScope, dkifUrl = dkifUrl)
             val krrServer = WireMockServer(9000)
-            listener(WireMockListener(krrServer, ListenerMode.PER_TEST))
             beforeTest {
+                krrServer.start()
                 every { azureAdTokenConsumer.getSystemToken(dkifScope) } returns UUID.randomUUID().toString()
+            }
+            afterTest {
+                krrServer.stop()
             }
 
             test("Throws error on request when fnr is not included in response") {
