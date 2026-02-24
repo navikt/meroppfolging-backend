@@ -36,7 +36,7 @@ class DokarkivClient(
     private val journalpostParamString = "forsoekFerdigstill"
     private val journalpostParamValue = true
 
-    val url = UriComponentsBuilder.fromHttpUrl(dokarkivUrl)
+    val url = UriComponentsBuilder.fromUriString(dokarkivUrl)
         .path(journalpostPath)
         .queryParam(journalpostParamString, journalpostParamValue)
         .toUriString()
