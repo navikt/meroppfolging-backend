@@ -87,7 +87,11 @@ class PdlClientTest :
         },
     )
 
-fun WireMockServer.stubHentPerson(yearsOld: Long?, deceased: Boolean = false, foedselsdatoListeIsEmpty: Boolean = false) {
+fun WireMockServer.stubHentPerson(
+    yearsOld: Long?,
+    deceased: Boolean = false,
+    foedselsdatoListeIsEmpty: Boolean = false
+) {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val foedselsdatoJson = yearsOld?.let { "\"${LocalDate.now().minusYears(it).format(formatter)}\"" } ?: "null"
     val foedselsdatoListJson =
