@@ -11,8 +11,7 @@ spring:
     hikari:
       minimum-idle: 1
       maximum-pool-size: 5
-  jackson:
-    property-naming-strategy: LOWER_CAMEL_CASE
+
 management:
   endpoint:
     prometheus.enabled: true
