@@ -2,7 +2,7 @@ package no.nav.syfo.varsel
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.ninjasquad.springmockk.MockkBean
-import com.ninjasquad.springmockk.SpykBean
+import com.ninjasquad.springmockk.MockkSpyBean
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
@@ -41,7 +41,7 @@ class VarselServiceTest : DescribeSpec() {
     @MockkBean(relaxed = true)
     lateinit var dokarkivClient: DokarkivClient
 
-    @SpykBean
+    @MockkSpyBean
     lateinit var pdlClient: PdlClient
 
     @MockkBean(relaxed = true)
