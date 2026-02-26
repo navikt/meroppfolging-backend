@@ -29,7 +29,7 @@ class KartleggingKafkaConfig(private val kafkaConfig: KafkaConfig,) {
         KafkaTemplate(producerFactory)
 
     @Bean
-    fun kandidatConsumerFactory(): ConsumerFactory<String, String> {
+    fun kandidatConsumerFactory(): ConsumerFactory<String, String?> {
         val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-kartlegging-kandidat")
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
@@ -38,11 +38,11 @@ class KartleggingKafkaConfig(private val kafkaConfig: KafkaConfig,) {
     }
 
     @Bean
-    fun kandidatKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
-        factory.setConsumerFactory(kandidatConsumerFactory())
+    fun kandidatKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String?> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, String?>()
+        factory.consumerFactory = kandidatConsumerFactory()
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
-        factory.setBatchListener(true)
+        factory.isBatchListener = true
         // try again every 30 seconds indefinitely
         factory.setCommonErrorHandler(
             DefaultErrorHandler(

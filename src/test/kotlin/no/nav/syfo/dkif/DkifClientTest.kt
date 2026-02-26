@@ -40,7 +40,6 @@ class DkifClientTest :
                 every { azureAdTokenConsumer.getSystemToken(dkifScope) } returns UUID.randomUUID().toString()
             }
             afterTest {
-                krrServer.resetAll()
                 krrServer.stop()
             }
 
@@ -69,15 +68,8 @@ class DkifClientTest :
             }
 
             test("Throws error with message for unexpected status on response") {
-                val digitalKontaktInfo = Kontaktinfo(
-                    reservert = false,
-                    kanVarsles = true,
-                )
-                krrServer.stubPersonerResponse(
-                    PostPersonerResponse(
-                        personer = mapOf(validFnr to digitalKontaktInfo),
-                        feil = emptyMap(),
-                    ),
+                krrServer.stubPersonerWithCustomResponse(
+                    response = mapOf("what" to "ever"),
                     HttpStatus.ACCEPTED,
                 )
                 val exception = shouldThrow<DkifRequestFailedException> {
@@ -111,11 +103,11 @@ val objectMapper: ObjectMapper = ObjectMapper().apply {
     configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 }
 
-fun WireMockServer.stubPersonerResponse(response: PostPersonerResponse, statusCode: HttpStatus = HttpStatus.OK) {
+fun WireMockServer.stubPersonerResponse(response: PostPersonerResponse) {
     this.stubFor(
         WireMock.post(WireMock.urlPathEqualTo(REST_PATH)).willReturn(
             aResponse().withBody(objectMapper.writeValueAsString(response))
-                .withHeader("Content-Type", "application/json").withStatus(statusCode.value()),
+                .withHeader("Content-Type", "application/json").withStatus(200),
         ),
     )
 }
