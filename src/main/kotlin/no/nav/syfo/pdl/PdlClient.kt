@@ -117,20 +117,12 @@ class PdlClient(
             ?: throw FileNotFoundException("Could not find resource for hentPerson.graphql")
 
     sealed interface PersonstatusResultat {
-        data class Levende(
-            val erUnderMaksAlder: Boolean,
-            val fodselsdato: String?,
-        ) : PersonstatusResultat
+        data class Levende(val erUnderMaksAlder: Boolean, val fodselsdato: String?,) : PersonstatusResultat
 
-        data class Doed(
-            val fodselsdato: String?,
-        ) : PersonstatusResultat
+        data class Doed(val fodselsdato: String?,) : PersonstatusResultat
 
         data object Ukjent : PersonstatusResultat
     }
 
-    private data class HentPersonDataResultat(
-        val data: HentPersonData?,
-        val feilet: Boolean,
-    )
+    private data class HentPersonDataResultat(val data: HentPersonData?, val feilet: Boolean,)
 }
