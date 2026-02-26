@@ -38,10 +38,9 @@ class SykmeldingConsumerTest : DescribeSpec() {
         }
 
         @Bean
-        fun kafkaDynamicProperties(): DynamicPropertyRegistrar =
-            DynamicPropertyRegistrar { registry ->
-                registry.add("kafka.brokers") { kafkaContainer.bootstrapServers }
-            }
+        fun kafkaDynamicProperties(): DynamicPropertyRegistrar = DynamicPropertyRegistrar { registry ->
+            registry.add("kafka.brokers") { kafkaContainer.bootstrapServers }
+        }
     }
 
     init {
