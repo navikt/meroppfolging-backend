@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -21,7 +22,6 @@ import no.nav.syfo.exception.DkifRequestFailedException
 import org.springframework.http.HttpStatus
 import java.util.UUID
 
-const val BASE_URL = "http://localhost:9000"
 const val REST_PATH = "/rest/v1/personer"
 
 class DkifClientTest :
@@ -29,17 +29,17 @@ class DkifClientTest :
         {
             val azureAdTokenConsumer = mockk<AzureAdClient>()
             val dkifScope = "some-scope"
-            val dkifUrl = "$BASE_URL$REST_PATH"
+            val krrServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort()).also { it.start() }
+            val dkifUrl = "http://localhost:${krrServer.port()}$REST_PATH"
 
             val validFnr = "12345678910"
             val unknownFnr = "01987654321"
             val dkifClient = DkifClient(azureAdClient = azureAdTokenConsumer, dkifScope = dkifScope, dkifUrl = dkifUrl)
-            val krrServer = WireMockServer(9000)
             beforeTest {
-                krrServer.start()
+                krrServer.resetAll()
                 every { azureAdTokenConsumer.getSystemToken(dkifScope) } returns UUID.randomUUID().toString()
             }
-            afterTest {
+            afterSpec {
                 krrServer.resetAll()
                 krrServer.stop()
             }
