@@ -1,0 +1,44 @@
+meta {
+  name: create tokenx
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:6969/tokenx/token
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  grant_type: authorization_code
+  code: tokenx
+  client_id: bro-frontend
+  acr: Level4
+  pid: 15823349332
+  aud: meroppfolging-backend
+  ~sub: 15823349332
+}
+
+body:multipart-form {
+  grant_type: client_credentials
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  const token = res.getBody();
+  
+  if (token != null) {
+    bru.setVar("token", token.access_token)
+    bru.setVar("identityProvider", "tokenx")
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

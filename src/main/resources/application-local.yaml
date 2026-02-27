@@ -1,0 +1,80 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/meroppfolging_backend_dev
+    username: username
+    password: password
+  embedded:
+    kafka:
+      brokers: http://localhost:9092
+no.nav.security.jwt:
+  issuer:
+    tokenx:
+      discoveryurl: http://localhost:6969/tokenx/.well-known/openid-configuration
+      accepted_audience: meroppfolging-backend
+    azuread:
+      discoveryurl: http://localhost:6969/aad/.well-known/openid-configuration
+      accepted_audience: meroppfolging-backend
+
+logging:
+  level:
+    no.nav.security.token: DEBUG
+azure:
+  app:
+    client:
+      id: meroppfolging-backend
+      secret: client-secret
+  openid:
+    config:
+      token:
+        endpoint: http://localhost:6969/aad/token
+
+token:
+    x:
+      generator:
+        client:
+          id: meroppfolging-backend
+      client:
+        id: tokenx-client
+      private:
+        jwk: tokenx-jwk
+      token:
+        endpoint: http://localhost:6969/tokenx/token
+
+kafka:
+  brokers: http://localhost:9092
+  truststore:
+    path: truststore
+  keystore:
+    path: keystore
+  credstore:
+    password: credstore-password
+
+MEROPPFOLGING_FRONTEND_CLIENT_ID: 'meroppfolging-frontend-client-id'
+BRO_FRONTEND_CLIENT_ID: 'bro-frontend'
+ESYFO_PROXY_CLIENT_ID: 'esyfo-proxy-client-id'
+SYFOOPPDFGEN_URL: 'http://syfooppdfgenurl'
+NAIS_CLUSTER_NAME: 'local'
+ELECTOR_GET_URL: 'http://elector-get-url'
+
+token.x.client.id: "meroppfolging-backend"
+token.x.private.jwk: "tokenx-jwk"
+token.x.token.endpoint: "http://localhost:6969/tokenx/token"
+
+isoppfolgingstilfelle.url: "http://isoppfolgingstilfelle"
+isoppfolgingstilfelle.id: "local:teamsykefravr:isoppfolgingstilfelle"
+
+dokarkiv.url: "http://dokarkiv"
+dokarkiv.scope: "local:teamdokumenthandtering:dokarkiv"
+
+pdl.url: "http://localhost:8080"
+pdl.scope: "local:pdl:pdl"
+
+dkif.url: "http://dkif"
+dkif.scope: "local:dkif:dkif"
+
+istilgangskontroll.url: "http://istilgangskontroll"
+istilgangskontroll.id: "local:teamsykefravr:istilgangskontroll"
+
+toggle.ssps.varselutsending: "false"
+send.varsel.job.cron: "0 */5 * * * *"
+retry.kartlegging.journalfor.job.cron: "0 3/5 * * * *"

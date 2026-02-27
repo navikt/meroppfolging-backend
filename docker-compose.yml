@@ -1,0 +1,30 @@
+services:
+
+  db:
+    image: postgres:17.6-alpine3.22
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: username
+      POSTGRES_DB: meroppfolging_backend_dev
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  authserver:
+    image: ghcr.io/navikt/mock-oauth2-server:3.0.0
+    environment:
+      TZ: Europe/Oslo
+      SERVER_PORT: 6969
+      LOG_LEVEL: ALL
+      JSON_CONFIG_PATH: /mount/config.json
+    volumes:
+      - ./docker-compose/authserver/mount:/mount
+    ports:
+      - "6969:6969"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+volumes:
+  pgdata:
