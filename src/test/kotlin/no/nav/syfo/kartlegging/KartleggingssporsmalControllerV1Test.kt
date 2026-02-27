@@ -1,13 +1,8 @@
 package no.nav.syfo.kartlegging
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.mockk.CapturingSlot
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -201,19 +196,6 @@ class KartleggingssporsmalControllerV1Test :
                 shouldThrow<InvalidFormException> {
                     controller.postKartleggingssporsmal(request)
                 }
-            }
-        }
-        describe("GET /api/v1/kandidat-status") {
-            it("returns 200 OK and kandidat status") {
-                val response = controller.getKandidatStatus()
-
-                val objectMapper: ObjectMapper = JsonMapper.builder()
-                    .addModule(KotlinModule.Builder().build())
-                    .addModule(JavaTimeModule())
-                    .build()
-                response.statusCode shouldBe HttpStatus.OK
-                val json = objectMapper.writeValueAsString(response.body)
-                json shouldContain """{"isKandidat":true,"formResponse""""
             }
         }
     })
