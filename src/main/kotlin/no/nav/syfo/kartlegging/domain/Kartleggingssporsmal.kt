@@ -22,7 +22,7 @@ data class PersistedKartleggingssporsmal(
 )
 
 data class KandidatStatusResponse(
-    @param:JsonProperty("isKandidat")
+    @get:JsonProperty("isKandidat")
     val isKandidat: Boolean,
     val formResponse: PersistedKartleggingssporsmal?
 )
