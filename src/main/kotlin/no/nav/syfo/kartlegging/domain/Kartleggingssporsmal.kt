@@ -1,6 +1,5 @@
 package no.nav.syfo.kartlegging.domain
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import java.time.Instant
 import java.util.UUID
@@ -21,8 +20,4 @@ data class PersistedKartleggingssporsmal(
     formSnapshot = formSnapshot,
 )
 
-data class KandidatStatusResponse(
-    @get:JsonProperty("isKandidat")
-    val isKandidat: Boolean,
-    val formResponse: PersistedKartleggingssporsmal?
-)
+data class KandidatStatusResponse(val isKandidat: Boolean, val formResponse: PersistedKartleggingssporsmal?)

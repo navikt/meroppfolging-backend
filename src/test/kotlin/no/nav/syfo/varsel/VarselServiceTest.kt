@@ -1,7 +1,6 @@
 package no.nav.syfo.varsel
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.ninjasquad.springmockk.MockkBean
 import com.ninjasquad.springmockk.MockkSpyBean
 import io.kotest.core.extensions.ApplyExtension
@@ -27,8 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -62,26 +59,20 @@ class VarselServiceTest : DescribeSpec() {
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate
 
-    companion object {
-        @JvmField
-        val pdlServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort()).also { it.start() }
-
-        @DynamicPropertySource
-        @JvmStatic
-        fun overrideProperties(registry: DynamicPropertyRegistry) {
-            registry.add("pdl.url") { "http://localhost:${pdlServer.port()}" }
-        }
-    }
-
     init {
+        val pdlServer = WireMockServer(8080)
+
         beforeTest {
-            pdlServer.resetAll()
+            pdlServer.start()
             pdlServer.stubHentPerson(yearsOld = 55)
             jdbcTemplate.execute("TRUNCATE TABLE UTSENDT_VARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKMELDING CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SYKEPENGEDAGER_INFORMASJON CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE COPY_UTSENDT_VARSEL_ESYFOVARSEL CASCADE")
             jdbcTemplate.execute("TRUNCATE TABLE SKIP_VARSELUTSENDING CASCADE")
+        }
+        afterTest {
+            pdlServer.stop()
         }
 
         describe("VarselService") {

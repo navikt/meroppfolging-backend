@@ -35,11 +35,7 @@ class VarselService(
             when (personstatus) {
                 is PdlClient.PersonstatusResultat.Doed -> {
                     log.info("Skipper varsel for person som er registrert doed i PDL")
-                    varselRepository.storeSkipVarsel(
-                        it.personIdent,
-                        personstatus.fodselsdato,
-                        VarselSkipReason.DECEASED
-                    )
+                    varselRepository.storeSkipVarsel(it.personIdent, personstatus.fodselsdato, VarselSkipReason.DECEASED)
                     null
                 }
 
