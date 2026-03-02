@@ -8,7 +8,6 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -22,6 +21,7 @@ import no.nav.syfo.exception.DkifRequestFailedException
 import org.springframework.http.HttpStatus
 import java.util.UUID
 
+const val BASE_URL = "http://localhost:9000"
 const val REST_PATH = "/rest/v1/personer"
 
 class DkifClientTest :
@@ -29,18 +29,17 @@ class DkifClientTest :
         {
             val azureAdTokenConsumer = mockk<AzureAdClient>()
             val dkifScope = "some-scope"
-            val krrServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort()).also { it.start() }
-            val dkifUrl = "http://localhost:${krrServer.port()}$REST_PATH"
+            val dkifUrl = "$BASE_URL$REST_PATH"
 
             val validFnr = "12345678910"
             val unknownFnr = "01987654321"
             val dkifClient = DkifClient(azureAdClient = azureAdTokenConsumer, dkifScope = dkifScope, dkifUrl = dkifUrl)
+            val krrServer = WireMockServer(9000)
             beforeTest {
-                krrServer.resetAll()
+                krrServer.start()
                 every { azureAdTokenConsumer.getSystemToken(dkifScope) } returns UUID.randomUUID().toString()
             }
-            afterSpec {
-                krrServer.resetAll()
+            afterTest {
                 krrServer.stop()
             }
 
@@ -69,15 +68,8 @@ class DkifClientTest :
             }
 
             test("Throws error with message for unexpected status on response") {
-                val digitalKontaktInfo = Kontaktinfo(
-                    reservert = false,
-                    kanVarsles = true,
-                )
-                krrServer.stubPersonerResponse(
-                    PostPersonerResponse(
-                        personer = mapOf(validFnr to digitalKontaktInfo),
-                        feil = emptyMap(),
-                    ),
+                krrServer.stubPersonerWithCustomResponse(
+                    response = mapOf("what" to "ever"),
                     HttpStatus.ACCEPTED,
                 )
                 val exception = shouldThrow<DkifRequestFailedException> {
@@ -111,11 +103,11 @@ val objectMapper: ObjectMapper = ObjectMapper().apply {
     configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 }
 
-fun WireMockServer.stubPersonerResponse(response: PostPersonerResponse, statusCode: HttpStatus = HttpStatus.OK) {
+fun WireMockServer.stubPersonerResponse(response: PostPersonerResponse) {
     this.stubFor(
         WireMock.post(WireMock.urlPathEqualTo(REST_PATH)).willReturn(
             aResponse().withBody(objectMapper.writeValueAsString(response))
-                .withHeader("Content-Type", "application/json").withStatus(statusCode.value()),
+                .withHeader("Content-Type", "application/json").withStatus(200),
         ),
     )
 }

@@ -31,7 +31,7 @@ class KartleggingssporsmalVeilederControllerV1(
 ) {
 
     @GetMapping("/{uuid}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getKartleggingssporsmal(@PathVariable uuid: UUID): ResponseEntity<PersistedKartleggingssporsmal> {
+    fun getKartleggingssporsmal(@PathVariable uuid: UUID): ResponseEntity<PersistedKartleggingssporsmal?> {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, AZUREAD)
 
         val response = kartleggingssporsmalService.getKartleggingssporsmalByUuid(uuid)
@@ -49,7 +49,7 @@ class KartleggingssporsmalVeilederControllerV1(
     }
 
     @GetMapping("/kandidat/{kandidatId}/svar", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getKartleggingssporsmalSvar(@PathVariable kandidatId: UUID): ResponseEntity<PersistedKartleggingssporsmal> {
+    fun getKartleggingssporsmalSvar(@PathVariable kandidatId: UUID): ResponseEntity<PersistedKartleggingssporsmal?> {
         val token = TokenUtil.getIssuerToken(tokenValidationContextHolder, AZUREAD)
 
         val kandidat = kandidatService.getKandidatByKandidatId(kandidatId)
@@ -64,7 +64,6 @@ class KartleggingssporsmalVeilederControllerV1(
         }
 
         val response = kartleggingssporsmalService.getLatestKartleggingssporsmal(kandidat.kandidatId)
-            ?: throw UserResponseNotFoundException("Fant ikke kartleggingsspørsmål for kandidatId: $kandidatId")
 
         return ResponseEntity
             .ok(response)

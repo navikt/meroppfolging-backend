@@ -10,7 +10,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -26,6 +25,7 @@ class IsoppfolgingstilfelleClientTest :
     FunSpec(
         {
             val tokendingsClient: TokendingsClient = mockk<TokendingsClient>()
+            val baseUrl = "http://localhost:9000"
             val exchangedToken = "123abc"
             val targetApp = "meroppfolging-backend-test"
             val userToken = "token123"
@@ -33,17 +33,15 @@ class IsoppfolgingstilfelleClientTest :
                 Oppfolgingstilfelle(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
             val oppfolgingstilfelleSykmeldtTidligere =
                 Oppfolgingstilfelle(LocalDate.now().minusDays(10), LocalDate.now().minusDays(2))
-
-            val isoppfolgingstilfelleServer =
-                WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort()).also { it.start() }
-            val baseUrl = "http://localhost:${isoppfolgingstilfelleServer.port()}"
             val isoppfolgingstilfelleClient = IsOppfolgingstilfelleClient(tokendingsClient, baseUrl, targetApp)
 
+            val isoppfolgingstilfelleServer = WireMockServer(9000)
+
             beforeTest {
-                isoppfolgingstilfelleServer.resetAll()
+                isoppfolgingstilfelleServer.start()
                 every { tokendingsClient.exchangeToken(userToken, targetApp) } returns exchangedToken
             }
-            afterSpec {
+            afterTest {
                 isoppfolgingstilfelleServer.stop()
             }
 
