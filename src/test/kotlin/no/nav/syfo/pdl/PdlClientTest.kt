@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -19,14 +20,14 @@ class PdlClientTest :
     DescribeSpec(
         {
             val azureAdClient = mockk<AzureAdClient>()
-            val pdlServer = WireMockServer(8080)
-            val pdlClient = PdlClient(azureAdClient, "http://localhost:8080", "pdl.scope")
+            val pdlServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort()).also { it.start() }
+            val pdlClient = PdlClient(azureAdClient, "http://localhost:${pdlServer.port()}", "pdl.scope")
 
             beforeTest {
-                pdlServer.start()
+                pdlServer.resetAll()
                 every { azureAdClient.getSystemToken(any()) } returns "token"
             }
-            afterTest {
+            afterSpec {
                 pdlServer.stop()
             }
 
@@ -87,7 +88,11 @@ class PdlClientTest :
         },
     )
 
-fun WireMockServer.stubHentPerson(yearsOld: Long?, deceased: Boolean = false, foedselsdatoListeIsEmpty: Boolean = false) {
+fun WireMockServer.stubHentPerson(
+    yearsOld: Long?,
+    deceased: Boolean = false,
+    foedselsdatoListeIsEmpty: Boolean = false
+) {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val foedselsdatoJson = yearsOld?.let { "\"${LocalDate.now().minusYears(it).format(formatter)}\"" } ?: "null"
     val foedselsdatoListJson =

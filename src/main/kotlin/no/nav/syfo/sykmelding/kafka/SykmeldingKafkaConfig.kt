@@ -14,7 +14,7 @@ import org.springframework.kafka.listener.ContainerProperties
 @Configuration
 class SykmeldingKafkaConfig(private val kafkaConfig: KafkaConfig,) {
     @Bean
-    fun sykmeldingConsumerFactory(): ConsumerFactory<String, String?> {
+    fun sykmeldingConsumerFactory(): ConsumerFactory<String, String> {
         val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-ok-sykmelding-2")
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
@@ -23,11 +23,11 @@ class SykmeldingKafkaConfig(private val kafkaConfig: KafkaConfig,) {
     }
 
     @Bean
-    fun sykmeldingKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String?> {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, String?>()
-        factory.consumerFactory = sykmeldingConsumerFactory()
+    fun sykmeldingKafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
+        factory.setConsumerFactory(sykmeldingConsumerFactory())
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
-        factory.isBatchListener = true
+        factory.setBatchListener(true)
         return factory
     }
 }
