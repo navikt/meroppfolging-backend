@@ -16,6 +16,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 
 @Service
@@ -31,12 +32,16 @@ class DkifClient(
         val token = azureAdClient.getSystemToken(dkifScope)
         val httpEntity = createHttpEntity(token, fnr)
 
-        val response = RestTemplate().exchange(
-            dkifUrl,
-            HttpMethod.POST,
-            httpEntity,
-            PostPersonerResponse::class.java,
-        )
+        val response = try {
+            RestTemplate().exchange(
+                dkifUrl,
+                HttpMethod.POST,
+                httpEntity,
+                PostPersonerResponse::class.java,
+            )
+        } catch (e: RestClientException) {
+            logAndThrowError("Response did not contain person")
+        }
         if (response.statusCode != HttpStatus.OK) {
             logAndThrowError("Received response with status code: ${response.statusCode}")
         }
@@ -49,7 +54,7 @@ class DkifClient(
         return kontaktinfo
     }
 
-    private fun createHttpEntity(token: String, fnr: String,): HttpEntity<PostPersonerRequest> {
+    private fun createHttpEntity(token: String, fnr: String): HttpEntity<PostPersonerRequest> {
         val headers = HttpHeaders()
         headers.add(HttpHeaders.AUTHORIZATION, bearerHeader(token))
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString())
