@@ -32,7 +32,10 @@ val springMockkVersion = "5.0.1"
 
 dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter") {
+        exclude(group = "org.springframework.boot", module = "spring-boot-jackson")
+    }
+    implementation("org.springframework.boot:spring-boot-jackson2")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
