@@ -1,0 +1,97 @@
+meta {
+  name: post kartleggingspørsmål
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/api/v1/kartleggingssporsmal
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "formSnapshot": {
+      "formIdentifier": "kartlegging-test-form",
+      "formSemanticVersion": "1.0.0",
+      "formSnapshotVersion": "1",
+      "fieldSnapshots": [
+        {
+          "fieldId": "hvorSannsynligTilbakeTilJobben",
+          "label": "Label 1",
+          "description": null,
+          "sectionId": null,
+          "options": [
+            {
+              "optionId": "opt1",
+              "optionLabel": "Option 1",
+              "wasSelected": true
+            },
+            {
+              "optionId": "opt2",
+              "optionLabel": "Option 2",
+              "wasSelected": false
+            }
+          ],
+          "wasRequired": true,
+          "fieldType": "RADIO_GROUP"
+        },
+        {
+          "fieldId": "samarbeidOgRelasjonTilArbeidsgiver",
+          "label": "Label 2",
+          "description": null,
+          "sectionId": null,
+          "options": [
+            {
+              "optionId": "opt1",
+              "optionLabel": "Option 1",
+              "wasSelected": true
+            },
+            {
+              "optionId": "opt2",
+              "optionLabel": "Option 2",
+              "wasSelected": false
+            }
+          ],
+          "wasRequired": true,
+          "fieldType": "RADIO_GROUP"
+        },
+        {
+          "fieldId": "naarTilbakeTilJobben",
+          "label": "Label 3",
+          "description": null,
+          "sectionId": null,
+          "options": [
+            {
+              "optionId": "opt1",
+              "optionLabel": "Option 1",
+              "wasSelected": true
+            },
+            {
+              "optionId": "opt2",
+              "optionLabel": "Option 2",
+              "wasSelected": false
+            }
+          ],
+          "wasRequired": true,
+          "fieldType": "RADIO_GROUP"
+        }
+      ],
+      "sections": null
+    }
+  }
+}
+
+script:pre-request {
+  await bru.runRequest("mock-auth/tokenx/create tokenx");
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
