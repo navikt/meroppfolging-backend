@@ -27,6 +27,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.MockMvcResultMatchersDsl
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import java.time.Instant
@@ -113,6 +114,29 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
         ),
     )
 
+    private fun MockMvcResultMatchersDsl.assertPersistedKartleggingssporsmalJson(prefix: String, uuid: UUID,) {
+        jsonPath("$prefix.uuid") { value(uuid.toString()) }
+        jsonPath("$prefix.fnr") { value(fnr) }
+        jsonPath("$prefix.kandidatId") { value(kandidatId.toString()) }
+        jsonPath("$prefix.createdAt") { exists() }
+        jsonPath("$prefix.formSnapshot.formIdentifier") { value("kartlegging-test-form") }
+        jsonPath("$prefix.formSnapshot.formSemanticVersion") { value("1.0.0") }
+        jsonPath("$prefix.formSnapshot.formSnapshotVersion") { value("1") }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots") { isArray() }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots.length()") { value(3) }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].fieldId") { value("hvorSannsynligTilbakeTilJobben") }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].fieldType") { value("RADIO_GROUP") }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].label") { value("Label 1") }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].options") { isArray() }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].options.length()") { value(2) }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].options[0].optionId") { value("opt1") }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].options[0].optionLabel") { value("Option 1") }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].options[0].wasSelected") { value(true) }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].options[1].optionId") { value("opt2") }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].options[1].optionLabel") { value("Option 2") }
+        jsonPath("$prefix.formSnapshot.fieldSnapshots[0].options[1].wasSelected") { value(false) }
+    }
+
     init {
         beforeTest {
             every { kandidatService.getKandidatByFnr(fnr) } returns KartleggingssporsmalKandidat(
@@ -148,26 +172,7 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
                 }.andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.uuid") { value(uuid.toString()) }
-                    jsonPath("$.fnr") { value(fnr) }
-                    jsonPath("$.kandidatId") { value(kandidatId.toString()) }
-                    jsonPath("$.createdAt") { exists() }
-                    jsonPath("$.formSnapshot.formIdentifier") { value("kartlegging-test-form") }
-                    jsonPath("$.formSnapshot.formSemanticVersion") { value("1.0.0") }
-                    jsonPath("$.formSnapshot.formSnapshotVersion") { value("1") }
-                    jsonPath("$.formSnapshot.fieldSnapshots") { isArray() }
-                    jsonPath("$.formSnapshot.fieldSnapshots.length()") { value(3) }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].fieldId") { value("hvorSannsynligTilbakeTilJobben") }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].fieldType") { value("RADIO_GROUP") }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].label") { value("Label 1") }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].options") { isArray() }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].options.length()") { value(2) }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[0].optionId") { value("opt1") }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[0].optionLabel") { value("Option 1") }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[0].wasSelected") { value(true) }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[1].optionId") { value("opt2") }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[1].optionLabel") { value("Option 2") }
-                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[1].wasSelected") { value(false) }
+                    assertPersistedKartleggingssporsmalJson("$", uuid)
                 }
             }
         }
@@ -192,32 +197,7 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.isKandidat") { value(true) }
-                    jsonPath("$.formResponse.uuid") { value(uuid.toString()) }
-                    jsonPath("$.formResponse.fnr") { value(fnr) }
-                    jsonPath("$.formResponse.kandidatId") { value(kandidatId.toString()) }
-                    jsonPath("$.formResponse.createdAt") { exists() }
-                    jsonPath("$.formResponse.formSnapshot.formIdentifier") { value("kartlegging-test-form") }
-                    jsonPath("$.formResponse.formSnapshot.formSemanticVersion") { value("1.0.0") }
-                    jsonPath("$.formResponse.formSnapshot.formSnapshotVersion") { value("1") }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots") { isArray() }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots.length()") { value(3) }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].fieldId") {
-                        value("hvorSannsynligTilbakeTilJobben")
-                    }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].fieldType") { value("RADIO_GROUP") }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].label") { value("Label 1") }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options") { isArray() }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options.length()") { value(2) }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[0].optionId") { value("opt1") }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[0].optionLabel") {
-                        value("Option 1")
-                    }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[0].wasSelected") { value(true) }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[1].optionId") { value("opt2") }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[1].optionLabel") {
-                        value("Option 2")
-                    }
-                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[1].wasSelected") { value(false) }
+                    assertPersistedKartleggingssporsmalJson("$.formResponse", uuid)
                 }
             }
 
