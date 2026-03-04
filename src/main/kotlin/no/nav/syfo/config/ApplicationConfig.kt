@@ -14,12 +14,4 @@ class ApplicationConfig {
     @Primary
     @Bean
     fun restTemplate() = RestTemplate()
-
-//    @Bean
-//    fun objectMapper() = jacksonObjectMapper().apply {
-//        registerModule(JavaTimeModule())
-//        registerModule(kotlinModule())
-//        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-//        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-//    }
 }

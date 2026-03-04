@@ -1,10 +1,5 @@
 package no.nav.syfo.kartlegging.kafka
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.service.KandidatService
@@ -14,14 +9,15 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.module.kotlin.jsonMapper
+import tools.jackson.module.kotlin.readValue
 
 @Component
 class KandidatConsumer(private val kandidatService: KandidatService, private val metric: Metric,) {
     private val log = logger()
-    private val objectMapper = ObjectMapper().apply {
-        registerKotlinModule()
-        registerModule(JavaTimeModule())
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val objectMapper = jsonMapper {
+        disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     }
 
     @KafkaListener(topics = [KANDIDAT_TOPIC], containerFactory = "kandidatKafkaListenerContainerFactory")

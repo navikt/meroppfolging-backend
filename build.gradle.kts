@@ -29,16 +29,10 @@ val wiremockVersion = "3.13.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val testcontainersVersion = "1.21.4"
 val springMockkVersion = "5.0.1"
-val kotlinModuleJackson = "3.1.0"
 
 dependencies {
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("org.springframework.boot:spring-boot-starter")
-//    implementation("org.springframework.boot:spring-boot-jackson2")
-    implementation("tools.jackson.module:jackson-module-kotlin:$kotlinModuleJackson")
-//    implementation("org.springframework.boot:spring-boot-starter-jackson") {
-//        exclude(group = "org.springframework.boot", module = "spring-boot-jackson")
-//    }
+    implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")

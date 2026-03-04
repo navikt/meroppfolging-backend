@@ -34,7 +34,6 @@ class KartleggingssporsmalControllerV1(
     @Value("\${TOKEN_X_GENERATOR_CLIENT_ID:#{null}}")
     val tokenXGeneratorClientId: String? = null,
     val metric: Metric,
-//    val objectMapper: ObjectMapper,
 ) {
 
     lateinit var tokenValidator: TokenValidator
@@ -50,10 +49,7 @@ class KartleggingssporsmalControllerV1(
     @PostMapping
     fun postKartleggingssporsmal(
         @RequestBody kartleggingssporsmal: KartleggingssporsmalRequest,
-//        @RequestBody kartleggingssporsmalString: String,
     ): ResponseEntity<PersistedKartleggingssporsmal> {
-//        val objectMapper = jacksonObjectMapper()
-//        val kartleggingssporsmal = objectMapper.readValue(kartleggingssporsmalString, KartleggingssporsmalRequest::class.java)
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
         val muligKandidat = kandidatService.getKandidatByFnr(personIdent)
         if (muligKandidat == null || !muligKandidat.isKandidat()) {
