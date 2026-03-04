@@ -5,9 +5,13 @@ import com.ninjasquad.springmockk.MockkBean
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.shouldBe
+import io.mockk.CapturingSlot
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
+import io.mockk.slot
+import io.mockk.verify
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.MockOAuth2ServerAutoConfiguration
@@ -174,6 +178,12 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     assertPersistedKartleggingssporsmalJson("$", uuid)
                 }
+
+                val formSnapshotSlot: CapturingSlot<FormSnapshot> = slot()
+                verify(exactly = 1) {
+                    kartleggingssporsmalService.validateFormSnapshot(capture(formSnapshotSlot))
+                }
+                formSnapshotSlot.captured shouldBe formSnapshot
             }
         }
 
