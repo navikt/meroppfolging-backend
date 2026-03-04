@@ -2,6 +2,9 @@ package no.nav.syfo.kartlegging
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
+import io.kotest.core.extensions.ApplyExtension
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.extensions.spring.SpringExtension
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -17,8 +20,6 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.metric.Metric
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
@@ -40,7 +41,8 @@ import java.util.UUID
         "no.nav.security.jwt.issuer.tokenx.accepted_audience=meroppfolging-backend-client-id",
     ],
 )
-class KartleggingssporsmalControllerV1WebMvcTest {
+@ApplyExtension(SpringExtension::class)
+class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -111,119 +113,126 @@ class KartleggingssporsmalControllerV1WebMvcTest {
         ),
     )
 
-    @BeforeEach
-    fun setUp() {
-        every { kandidatService.getKandidatByFnr(fnr) } returns KartleggingssporsmalKandidat(
-            kandidatId = kandidatId,
-            personIdent = fnr,
-            status = KandidatStatus.KANDIDAT,
-            createdAt = Instant.now(),
-        )
-    }
-
-    @Test
-    fun `POST kartleggingssporsmal returns all expected JSON properties`() {
-        val formSnapshot = formSnapshot()
-        val uuid = UUID.randomUUID()
-        val persisted = PersistedKartleggingssporsmal(
-            uuid = uuid,
-            fnr = fnr,
-            kandidatId = kandidatId,
-            formSnapshot = formSnapshot,
-            createdAt = Instant.now(),
-        )
-
-        every { kartleggingssporsmalService.validateFormSnapshot(any()) } just Runs
-        every { kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(any(), any()) } returns persisted
-
-        val requestBody = mapOf("formSnapshot" to formSnapshot)
-
-        mockMvc.post("/api/v1/kartleggingssporsmal") {
-            header(HttpHeaders.AUTHORIZATION, "Bearer ${bearerToken()}")
-            contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(requestBody)
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            jsonPath("$.uuid") { value(uuid.toString()) }
-            jsonPath("$.fnr") { value(fnr) }
-            jsonPath("$.kandidatId") { value(kandidatId.toString()) }
-            jsonPath("$.createdAt") { exists() }
-            jsonPath("$.formSnapshot.formIdentifier") { value("kartlegging-test-form") }
-            jsonPath("$.formSnapshot.formSemanticVersion") { value("1.0.0") }
-            jsonPath("$.formSnapshot.formSnapshotVersion") { value("1") }
-            jsonPath("$.formSnapshot.fieldSnapshots") { isArray() }
-            jsonPath("$.formSnapshot.fieldSnapshots.length()") { value(3) }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].fieldId") { value("hvorSannsynligTilbakeTilJobben") }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].fieldType") { value("RADIO_GROUP") }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].label") { value("Label 1") }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].options") { isArray() }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].options.length()") { value(2) }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].options[0].optionId") { value("opt1") }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].options[0].optionLabel") { value("Option 1") }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].options[0].wasSelected") { value(true) }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].options[1].optionId") { value("opt2") }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].options[1].optionLabel") { value("Option 2") }
-            jsonPath("$.formSnapshot.fieldSnapshots[0].options[1].wasSelected") { value(false) }
+    init {
+        beforeTest {
+            every { kandidatService.getKandidatByFnr(fnr) } returns KartleggingssporsmalKandidat(
+                kandidatId = kandidatId,
+                personIdent = fnr,
+                status = KandidatStatus.KANDIDAT,
+                createdAt = Instant.now(),
+            )
         }
-    }
 
-    @Test
-    fun `GET kandidat-status returns all expected JSON properties when user is kandidat with previous form response`() {
-        val formSnapshot = formSnapshot()
-        val uuid = UUID.randomUUID()
-        val persisted = PersistedKartleggingssporsmal(
-            uuid = uuid,
-            fnr = fnr,
-            kandidatId = kandidatId,
-            formSnapshot = formSnapshot,
-            createdAt = Instant.now(),
-        )
+        describe("POST /api/v1/kartleggingssporsmal") {
+            it("returns all expected JSON properties") {
+                val formSnapshot = formSnapshot()
+                val uuid = UUID.randomUUID()
+                val persisted = PersistedKartleggingssporsmal(
+                    uuid = uuid,
+                    fnr = fnr,
+                    kandidatId = kandidatId,
+                    formSnapshot = formSnapshot,
+                    createdAt = Instant.now(),
+                )
 
-        every { kartleggingssporsmalService.getLatestKartleggingssporsmal(kandidatId) } returns persisted
+                every { kartleggingssporsmalService.validateFormSnapshot(any()) } just Runs
+                every { kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(any(), any()) } returns
+                    persisted
 
-        mockMvc.get("/api/v1/kartleggingssporsmal/kandidat-status") {
-            header(HttpHeaders.AUTHORIZATION, "Bearer ${bearerToken()}")
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            jsonPath("$.isKandidat") { value(true) }
-            jsonPath("$.formResponse.uuid") { value(uuid.toString()) }
-            jsonPath("$.formResponse.fnr") { value(fnr) }
-            jsonPath("$.formResponse.kandidatId") { value(kandidatId.toString()) }
-            jsonPath("$.formResponse.createdAt") { exists() }
-            jsonPath("$.formResponse.formSnapshot.formIdentifier") { value("kartlegging-test-form") }
-            jsonPath("$.formResponse.formSnapshot.formSemanticVersion") { value("1.0.0") }
-            jsonPath("$.formResponse.formSnapshot.formSnapshotVersion") { value("1") }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots") { isArray() }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots.length()") { value(3) }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].fieldId") {
-                value("hvorSannsynligTilbakeTilJobben")
+                val requestBody = mapOf("formSnapshot" to formSnapshot)
+
+                mockMvc.post("/api/v1/kartleggingssporsmal") {
+                    header(HttpHeaders.AUTHORIZATION, "Bearer ${bearerToken()}")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(requestBody)
+                }.andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.uuid") { value(uuid.toString()) }
+                    jsonPath("$.fnr") { value(fnr) }
+                    jsonPath("$.kandidatId") { value(kandidatId.toString()) }
+                    jsonPath("$.createdAt") { exists() }
+                    jsonPath("$.formSnapshot.formIdentifier") { value("kartlegging-test-form") }
+                    jsonPath("$.formSnapshot.formSemanticVersion") { value("1.0.0") }
+                    jsonPath("$.formSnapshot.formSnapshotVersion") { value("1") }
+                    jsonPath("$.formSnapshot.fieldSnapshots") { isArray() }
+                    jsonPath("$.formSnapshot.fieldSnapshots.length()") { value(3) }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].fieldId") { value("hvorSannsynligTilbakeTilJobben") }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].fieldType") { value("RADIO_GROUP") }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].label") { value("Label 1") }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].options") { isArray() }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].options.length()") { value(2) }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[0].optionId") { value("opt1") }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[0].optionLabel") { value("Option 1") }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[0].wasSelected") { value(true) }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[1].optionId") { value("opt2") }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[1].optionLabel") { value("Option 2") }
+                    jsonPath("$.formSnapshot.fieldSnapshots[0].options[1].wasSelected") { value(false) }
+                }
             }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].fieldType") { value("RADIO_GROUP") }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].label") { value("Label 1") }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options") { isArray() }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options.length()") { value(2) }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[0].optionId") { value("opt1") }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[0].optionLabel") { value("Option 1") }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[0].wasSelected") { value(true) }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[1].optionId") { value("opt2") }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[1].optionLabel") { value("Option 2") }
-            jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[1].wasSelected") { value(false) }
         }
-    }
 
-    @Test
-    fun `GET kandidat-status returns isKandidat false with null formResponse when user is not kandidat`() {
-        every { kandidatService.getKandidatByFnr(fnr) } returns null
+        describe("GET /api/v1/kartleggingssporsmal/kandidat-status") {
+            it("returns all expected JSON properties when kandidat with previous form response") {
+                val formSnapshot = formSnapshot()
+                val uuid = UUID.randomUUID()
+                val persisted = PersistedKartleggingssporsmal(
+                    uuid = uuid,
+                    fnr = fnr,
+                    kandidatId = kandidatId,
+                    formSnapshot = formSnapshot,
+                    createdAt = Instant.now(),
+                )
 
-        mockMvc.get("/api/v1/kartleggingssporsmal/kandidat-status") {
-            header(HttpHeaders.AUTHORIZATION, "Bearer ${bearerToken()}")
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            jsonPath("$.isKandidat") { value(false) }
-            jsonPath("$.formResponse") { value(null as Any?) }
+                every { kartleggingssporsmalService.getLatestKartleggingssporsmal(kandidatId) } returns persisted
+
+                mockMvc.get("/api/v1/kartleggingssporsmal/kandidat-status") {
+                    header(HttpHeaders.AUTHORIZATION, "Bearer ${bearerToken()}")
+                }.andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.isKandidat") { value(true) }
+                    jsonPath("$.formResponse.uuid") { value(uuid.toString()) }
+                    jsonPath("$.formResponse.fnr") { value(fnr) }
+                    jsonPath("$.formResponse.kandidatId") { value(kandidatId.toString()) }
+                    jsonPath("$.formResponse.createdAt") { exists() }
+                    jsonPath("$.formResponse.formSnapshot.formIdentifier") { value("kartlegging-test-form") }
+                    jsonPath("$.formResponse.formSnapshot.formSemanticVersion") { value("1.0.0") }
+                    jsonPath("$.formResponse.formSnapshot.formSnapshotVersion") { value("1") }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots") { isArray() }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots.length()") { value(3) }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].fieldId") {
+                        value("hvorSannsynligTilbakeTilJobben")
+                    }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].fieldType") { value("RADIO_GROUP") }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].label") { value("Label 1") }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options") { isArray() }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options.length()") { value(2) }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[0].optionId") { value("opt1") }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[0].optionLabel") {
+                        value("Option 1")
+                    }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[0].wasSelected") { value(true) }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[1].optionId") { value("opt2") }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[1].optionLabel") {
+                        value("Option 2")
+                    }
+                    jsonPath("$.formResponse.formSnapshot.fieldSnapshots[0].options[1].wasSelected") { value(false) }
+                }
+            }
+
+            it("returns isKandidat false with null formResponse when not kandidat") {
+                every { kandidatService.getKandidatByFnr(fnr) } returns null
+
+                mockMvc.get("/api/v1/kartleggingssporsmal/kandidat-status") {
+                    header(HttpHeaders.AUTHORIZATION, "Bearer ${bearerToken()}")
+                }.andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.isKandidat") { value(false) }
+                    jsonPath("$.formResponse") { value(null as Any?) }
+                }
+            }
         }
     }
 }
