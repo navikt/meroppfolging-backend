@@ -1,7 +1,5 @@
 package no.nav.syfo.kartlegging
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.annotation.PostConstruct
 import no.nav.security.token.support.core.api.ProtectedWithClaims
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
@@ -14,7 +12,6 @@ import no.nav.syfo.kartlegging.exception.NotKandidatException
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.metric.Metric
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity

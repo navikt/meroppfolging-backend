@@ -1,6 +1,5 @@
 package no.nav.syfo.kartlegging
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
@@ -25,7 +24,7 @@ import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.metric.Metric
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -34,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MockMvcResultMatchersDsl
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 import java.util.UUID
 
@@ -56,7 +56,7 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
     private lateinit var mockOAuth2Server: MockOAuth2Server
 
     @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    lateinit var objectMapper: ObjectMapper
 
     @MockkBean
     private lateinit var kartleggingssporsmalService: KartleggingssporsmalService
