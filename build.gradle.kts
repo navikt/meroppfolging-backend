@@ -29,13 +29,16 @@ val wiremockVersion = "3.13.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val testcontainersVersion = "1.21.4"
 val springMockkVersion = "5.0.1"
+val kotlinModuleJackson = "3.1.0"
 
 dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    implementation("org.springframework.boot:spring-boot-starter") {
-        exclude(group = "org.springframework.boot", module = "spring-boot-jackson")
-    }
-    implementation("org.springframework.boot:spring-boot-jackson2")
+    implementation("org.springframework.boot:spring-boot-starter")
+//    implementation("org.springframework.boot:spring-boot-jackson2")
+    implementation("tools.jackson.module:jackson-module-kotlin:$kotlinModuleJackson")
+//    implementation("org.springframework.boot:spring-boot-starter-jackson") {
+//        exclude(group = "org.springframework.boot", module = "spring-boot-jackson")
+//    }
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -51,6 +54,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.springframework.kafka:spring-kafka-test")
