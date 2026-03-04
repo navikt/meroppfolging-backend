@@ -1,12 +1,12 @@
 package no.nav.syfo.leaderelection
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.syfo.config.kafka.jacksonMapper
 import no.nav.syfo.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
+import tools.jackson.databind.ObjectMapper
 import java.net.InetAddress
 
 @Component

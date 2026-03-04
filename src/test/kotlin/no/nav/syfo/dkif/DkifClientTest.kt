@@ -1,10 +1,5 @@
 package no.nav.syfo.dkif
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -20,6 +15,8 @@ import no.nav.syfo.dkif.domain.Kontaktinfo
 import no.nav.syfo.dkif.domain.PostPersonerResponse
 import no.nav.syfo.exception.DkifRequestFailedException
 import org.springframework.http.HttpStatus
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.module.kotlin.jsonMapper
 import java.util.UUID
 
 const val REST_PATH = "/rest/v1/personer"
@@ -104,11 +101,8 @@ class DkifClientTest :
         },
     )
 
-val objectMapper: ObjectMapper = ObjectMapper().apply {
-    registerKotlinModule()
-    registerModule(JavaTimeModule())
-    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+val objectMapper = jsonMapper {
+    disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 }
 
 fun WireMockServer.stubPersonerResponse(response: PostPersonerResponse, statusCode: HttpStatus = HttpStatus.OK) {
