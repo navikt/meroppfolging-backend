@@ -40,7 +40,7 @@ class DkifClient(
                 PostPersonerResponse::class.java,
             )
         } catch (e: RestClientException) {
-            logAndThrowError("Response did not contain person")
+            logAndThrowError("Failed to make request to Dkif/KRR", e)
         }
         if (response.statusCode != HttpStatus.OK) {
             logAndThrowError("Received response with status code: ${response.statusCode}")
@@ -62,7 +62,12 @@ class DkifClient(
         return HttpEntity(PostPersonerRequest(setOf(fnr)), headers)
     }
 
-    private fun logAndThrowError(message: String): Nothing {
+    private fun logAndThrowError(message: String, e: Exception? = null): Nothing {
+        if (e != null) {
+            logger.error(message, e)
+        } else {
+            logger.error(message)
+        }
         logger.error(message)
         throw DkifRequestFailedException(message)
     }
