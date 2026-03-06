@@ -9,7 +9,7 @@ import java.util.UUID
 
 class FormResponseResultSetExtractor : ResultSetExtractor<List<FormResponse>> {
 
-    override fun extractData(rs: ResultSet): List<FormResponse>? {
+    override fun extractData(rs: ResultSet): List<FormResponse> {
         val formResponses = mutableListOf<FormResponse>()
         var currentFormResponse: FormResponse? = null
 

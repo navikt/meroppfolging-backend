@@ -1,6 +1,6 @@
 package no.nav.syfo.kartlegging.domain.formsnapshot
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.annotation.JsonDeserialize
 import java.io.Serializable
 
 // The kdoc comments are written in regard to FormSnapshot being used in a general context,

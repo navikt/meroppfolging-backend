@@ -1,13 +1,9 @@
 package no.nav.syfo.dkif
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -19,9 +15,10 @@ import no.nav.syfo.dkif.domain.Kontaktinfo
 import no.nav.syfo.dkif.domain.PostPersonerResponse
 import no.nav.syfo.exception.DkifRequestFailedException
 import org.springframework.http.HttpStatus
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.module.kotlin.jsonMapper
 import java.util.UUID
 
-const val BASE_URL = "http://localhost:9000"
 const val REST_PATH = "/rest/v1/personer"
 
 class DkifClientTest :
@@ -29,17 +26,18 @@ class DkifClientTest :
         {
             val azureAdTokenConsumer = mockk<AzureAdClient>()
             val dkifScope = "some-scope"
-            val dkifUrl = "$BASE_URL$REST_PATH"
+            val krrServer = WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort()).also { it.start() }
+            val dkifUrl = "http://localhost:${krrServer.port()}$REST_PATH"
 
             val validFnr = "12345678910"
             val unknownFnr = "01987654321"
             val dkifClient = DkifClient(azureAdClient = azureAdTokenConsumer, dkifScope = dkifScope, dkifUrl = dkifUrl)
-            val krrServer = WireMockServer(9000)
             beforeTest {
-                krrServer.start()
+                krrServer.resetAll()
                 every { azureAdTokenConsumer.getSystemToken(dkifScope) } returns UUID.randomUUID().toString()
             }
-            afterTest {
+            afterSpec {
+                krrServer.resetAll()
                 krrServer.stop()
             }
 
@@ -68,8 +66,15 @@ class DkifClientTest :
             }
 
             test("Throws error with message for unexpected status on response") {
-                krrServer.stubPersonerWithCustomResponse(
-                    response = mapOf("what" to "ever"),
+                val digitalKontaktInfo = Kontaktinfo(
+                    reservert = false,
+                    kanVarsles = true,
+                )
+                krrServer.stubPersonerResponse(
+                    PostPersonerResponse(
+                        personer = mapOf(validFnr to digitalKontaktInfo),
+                        feil = emptyMap(),
+                    ),
                     HttpStatus.ACCEPTED,
                 )
                 val exception = shouldThrow<DkifRequestFailedException> {
@@ -96,18 +101,15 @@ class DkifClientTest :
         },
     )
 
-val objectMapper: ObjectMapper = ObjectMapper().apply {
-    registerKotlinModule()
-    registerModule(JavaTimeModule())
-    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+val objectMapper = jsonMapper {
+    disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 }
 
-fun WireMockServer.stubPersonerResponse(response: PostPersonerResponse) {
+fun WireMockServer.stubPersonerResponse(response: PostPersonerResponse, statusCode: HttpStatus = HttpStatus.OK) {
     this.stubFor(
         WireMock.post(WireMock.urlPathEqualTo(REST_PATH)).willReturn(
             aResponse().withBody(objectMapper.writeValueAsString(response))
-                .withHeader("Content-Type", "application/json").withStatus(200),
+                .withHeader("Content-Type", "application/json").withStatus(statusCode.value()),
         ),
     )
 }

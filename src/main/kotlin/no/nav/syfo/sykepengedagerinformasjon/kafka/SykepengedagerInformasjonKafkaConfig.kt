@@ -14,7 +14,7 @@ import org.springframework.kafka.listener.ContainerProperties
 @Configuration
 class SykepengedagerInformasjonKafkaConfig(private val kafkaConfig: KafkaConfig,) {
     @Bean
-    fun sykepengeDagerConsumerFactory(): ConsumerFactory<String, String?> {
+    fun sykepengeDagerConsumerFactory(): ConsumerFactory<String, String> {
         val config = kafkaConfig.commonKafkaAivenConsumerConfig().toMutableMap().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, "meroppfolging-backend-sykepengedager-02")
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
@@ -24,9 +24,9 @@ class SykepengedagerInformasjonKafkaConfig(private val kafkaConfig: KafkaConfig,
     }
 
     @Bean
-    fun sykepengedagerInformasjonListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String?> {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, String?>()
-        factory.consumerFactory = sykepengeDagerConsumerFactory()
+    fun sykepengedagerInformasjonListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
+        factory.setConsumerFactory(sykepengeDagerConsumerFactory())
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
         return factory
     }
