@@ -39,3 +39,12 @@ Download and install Rancher Desktop from https://rancherdesktop.io/
   ```shell
   sudo ln -s $HOME/.rd/docker.sock /var/run/docker.sock
   ```
+
+## Kjør app lokalt med postgras, kafka og authserver in docker-compose
+Det er laget en config fil for profilen docker i application-docker.yaml
+
+For å kjøre appen lokalt i intellij mot ressursjer i docker-compose, lett til profilene `docker` og `local` i run configuration."
+Man kan også kjøre appen i terminalen med følgende kommando:
+```shell
+mise docker-up && mise start
+```
