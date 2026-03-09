@@ -1,10 +1,5 @@
 package no.nav.syfo.sykepengedagerinformasjon.kafka
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.syfo.logger
 import no.nav.syfo.sykepengedagerinformasjon.domain.SykepengedagerInformasjonDTO
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
@@ -12,6 +7,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.module.kotlin.jsonMapper
+import tools.jackson.module.kotlin.readValue
 import java.io.IOException
 
 const val SPDI_TOPIC = "team-esyfo.sykepengedager-informasjon-topic"
@@ -21,10 +19,8 @@ class SykepengedagerInformasjonConsumer(private val sykepengeDagerService: Sykep
 
     val log = logger()
 
-    val objectMapper = ObjectMapper().apply {
-        registerKotlinModule()
-        registerModule(JavaTimeModule())
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    val objectMapper = jsonMapper {
+        disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     }
 
     @KafkaListener(topics = [SPDI_TOPIC], containerFactory = "sykepengedagerInformasjonListenerContainerFactory")

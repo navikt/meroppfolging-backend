@@ -1,15 +1,11 @@
 package no.nav.syfo.isoppfolgingstilfelle
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -19,13 +15,14 @@ import no.nav.syfo.oppfolgingstilfelle.ISOPPFOLGINGSTILFELLE_PATH
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
 import org.springframework.http.HttpHeaders
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.module.kotlin.jsonMapper
 import java.time.LocalDate
 
 class IsoppfolgingstilfelleClientTest :
     FunSpec(
         {
             val tokendingsClient: TokendingsClient = mockk<TokendingsClient>()
-            val baseUrl = "http://localhost:9000"
             val exchangedToken = "123abc"
             val targetApp = "meroppfolging-backend-test"
             val userToken = "token123"
@@ -33,15 +30,17 @@ class IsoppfolgingstilfelleClientTest :
                 Oppfolgingstilfelle(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
             val oppfolgingstilfelleSykmeldtTidligere =
                 Oppfolgingstilfelle(LocalDate.now().minusDays(10), LocalDate.now().minusDays(2))
+
+            val isoppfolgingstilfelleServer =
+                WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort()).also { it.start() }
+            val baseUrl = "http://localhost:${isoppfolgingstilfelleServer.port()}"
             val isoppfolgingstilfelleClient = IsOppfolgingstilfelleClient(tokendingsClient, baseUrl, targetApp)
 
-            val isoppfolgingstilfelleServer = WireMockServer(9000)
-
             beforeTest {
-                isoppfolgingstilfelleServer.start()
+                isoppfolgingstilfelleServer.resetAll()
                 every { tokendingsClient.exchangeToken(userToken, targetApp) } returns exchangedToken
             }
-            afterTest {
+            afterSpec {
                 isoppfolgingstilfelleServer.stop()
             }
 
@@ -96,10 +95,6 @@ fun WireMockServer.stubOppfolgingstilfelle(token: String, oppfolgingstilfeller: 
     )
 }
 
-val objectMapper: ObjectMapper =
-    ObjectMapper().apply {
-        registerKotlinModule()
-        registerModule(JavaTimeModule())
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-    }
+val objectMapper = jsonMapper {
+    disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+}

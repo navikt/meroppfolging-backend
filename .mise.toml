@@ -24,7 +24,7 @@ run = './gradlew build'
 
 [tasks.start]
 description = "Run app using gradle"
-run = './gradlew bootRun --args="--spring.profiles.active=local"'
+run = './gradlew bootRun --args="--spring.profiles.active=local,docker"'
 
 [tasks.test]
 description = "Run tests with gradle"
