@@ -9,6 +9,7 @@ import io.mockk.mockk
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.syfo.auth.NoAccess
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
+import no.nav.syfo.kartlegging.domain.Skjemavariant
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldOption
 import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
@@ -170,6 +171,7 @@ class KartleggingssporsmalVeilederControllerV1Test :
                         personIdent = fnr,
                         kandidatId = kandidatId,
                         status = no.nav.syfo.kartlegging.domain.KandidatStatus.KANDIDAT,
+                        skjemavariant = Skjemavariant.FLERVALG_V1,
                         createdAt = Instant.now(),
                     )
                 every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns false
@@ -227,6 +229,7 @@ class KartleggingssporsmalVeilederControllerV1Test :
                         personIdent = fnr,
                         kandidatId = kandidatId,
                         status = no.nav.syfo.kartlegging.domain.KandidatStatus.KANDIDAT,
+                        skjemavariant = Skjemavariant.FLERVALG_V1,
                         createdAt = Instant.now(),
                     )
                 every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true

@@ -7,5 +7,6 @@ data class KandidatKafkaEvent(
     val personident: String,
     val kandidatUuid: UUID,
     val status: String,
+    val skjemavariant: String? = null,
     val createdAt: OffsetDateTime,
 )

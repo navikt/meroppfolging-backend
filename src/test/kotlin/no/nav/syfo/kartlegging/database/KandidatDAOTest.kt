@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldNotBe
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
+import no.nav.syfo.kartlegging.domain.Skjemavariant
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.jdbc.core.JdbcTemplate
@@ -41,6 +42,7 @@ class KandidatDAOTest : DescribeSpec() {
                     personIdent = fnr,
                     kandidatId = kandidatId,
                     status = KandidatStatus.KANDIDAT,
+                    skjemavariant = Skjemavariant.FLERVALG_V1,
                     createdAt = createdAt,
                 )
                 kandidatDAO.persistKandidat(kandidat)
@@ -64,6 +66,7 @@ class KandidatDAOTest : DescribeSpec() {
                     personIdent = fnr,
                     kandidatId = kandidatId,
                     status = KandidatStatus.IKKE_KANDIDAT,
+                    skjemavariant = Skjemavariant.FLERVALG_V1,
                     createdAt = createdAt,
                 )
                 kandidatDAO.persistKandidat(kandidat)
@@ -86,12 +89,14 @@ class KandidatDAOTest : DescribeSpec() {
                     personIdent = fnr,
                     kandidatId = UUID.randomUUID(),
                     status = KandidatStatus.KANDIDAT,
+                    skjemavariant = Skjemavariant.FLERVALG_V1,
                     createdAt = Instant.now().minusSeconds(3600),
                 )
                 val new = KartleggingssporsmalKandidat(
                     personIdent = fnr,
                     kandidatId = UUID.randomUUID(),
                     status = KandidatStatus.KANDIDAT,
+                    skjemavariant = Skjemavariant.FLERVALG_V1,
                     createdAt = Instant.now(),
                 )
                 kandidatDAO.persistKandidat(old)
@@ -115,6 +120,7 @@ class KandidatDAOTest : DescribeSpec() {
                     personIdent = "10987654321",
                     kandidatId = kandidatId,
                     status = KandidatStatus.KANDIDAT,
+                    skjemavariant = Skjemavariant.FLERVALG_V1,
                     createdAt = Instant.now().minusSeconds(3600),
                 )
 

@@ -2,6 +2,7 @@ package no.nav.syfo.kartlegging.kafka
 
 import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
+import no.nav.syfo.kartlegging.domain.Skjemavariant
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
@@ -77,6 +78,9 @@ class KandidatConsumer(private val kandidatService: KandidatService, private val
             personIdent = this.personident,
             kandidatId = this.kandidatUuid,
             status = status,
+            skjemavariant = this.skjemavariant
+                ?.let { enumValueOf(it) }
+                ?: Skjemavariant.FLERVALG_V1,
             createdAt = this.createdAt.toInstant(),
         )
     }

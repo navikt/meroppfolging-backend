@@ -16,14 +16,16 @@ class KandidatDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
             kandidat_id,
             fnr,
             status,
+            skjemavariant,
             created_at
-        ) VALUES (:kandidat_id, :fnr, :status, :created_at);
+        ) VALUES (:kandidat_id, :fnr, :status, CAST(:skjemavariant AS SKJEMAVARIANT_ENUM), :created_at);
         """.trimIndent()
 
         val parameters = mapOf(
             "fnr" to kandidat.personIdent,
             "kandidat_id" to kandidat.kandidatId,
             "status" to kandidat.status.name,
+            "skjemavariant" to kandidat.skjemavariant.name,
             "created_at" to Timestamp.from(kandidat.createdAt),
         )
         namedParameterJdbcTemplate.update(insertStatement, parameters)
@@ -35,6 +37,7 @@ class KandidatDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                 kandidat_id,
                 fnr,
                 status,
+                skjemavariant,
                 created_at
             FROM KARTLEGGINGSPORSMAL_KANDIDAT
             WHERE fnr = :fnr
@@ -54,6 +57,7 @@ class KandidatDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
                 kandidat_id,
                 fnr,
                 status,
+                skjemavariant,
                 created_at
             FROM KARTLEGGINGSPORSMAL_KANDIDAT
             WHERE kandidat_id = :kandidat_id
@@ -71,6 +75,7 @@ class KandidatDAO(private val namedParameterJdbcTemplate: NamedParameterJdbcTemp
         personIdent = this.getString("fnr"),
         kandidatId = UUID.fromString(this.getString("kandidat_id")),
         status = enumValueOf(this.getString("status")),
+        skjemavariant = enumValueOf(this.getString("skjemavariant")),
         createdAt = this.getTimestamp("created_at").toInstant(),
     )
 }

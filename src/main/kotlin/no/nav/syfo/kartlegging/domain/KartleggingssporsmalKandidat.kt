@@ -11,10 +11,16 @@ enum class KandidatStatus {
     IKKE_KANDIDAT,
 }
 
+enum class Skjemavariant {
+    FLERVALG_V1,
+    FLERVALG_FRITEKST_V1
+}
+
 data class KartleggingssporsmalKandidat(
     val personIdent: String,
     val kandidatId: UUID,
     val status: KandidatStatus,
+    val skjemavariant: Skjemavariant,
     val createdAt: Instant
 ) {
     fun isKandidat(): Boolean {
