@@ -15,6 +15,7 @@ data class KartleggingssporsmalKandidat(
     val personIdent: String,
     val kandidatId: UUID,
     val status: KandidatStatus,
+    val skjemavariant: String,
     val createdAt: Instant
 ) {
     fun isKandidat(): Boolean {

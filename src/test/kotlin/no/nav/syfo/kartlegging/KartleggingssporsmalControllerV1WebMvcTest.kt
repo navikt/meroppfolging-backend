@@ -147,6 +147,7 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
                 kandidatId = kandidatId,
                 personIdent = fnr,
                 status = KandidatStatus.KANDIDAT,
+                skjemavariant = "FLERVALG_V1",
                 createdAt = Instant.now(),
             )
         }

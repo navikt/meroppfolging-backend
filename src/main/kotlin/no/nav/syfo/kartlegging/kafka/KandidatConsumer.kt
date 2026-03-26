@@ -77,6 +77,7 @@ class KandidatConsumer(private val kandidatService: KandidatService, private val
             personIdent = this.personident,
             kandidatId = this.kandidatUuid,
             status = status,
+            skjemavariant = this.skjemavariant ?: "FLERVALG_V1",
             createdAt = this.createdAt.toInstant(),
         )
     }

@@ -170,6 +170,7 @@ class KartleggingssporsmalVeilederControllerV1Test :
                         personIdent = fnr,
                         kandidatId = kandidatId,
                         status = no.nav.syfo.kartlegging.domain.KandidatStatus.KANDIDAT,
+                        skjemavariant = "FLERVALG_V1",
                         createdAt = Instant.now(),
                     )
                 every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns false
@@ -227,6 +228,7 @@ class KartleggingssporsmalVeilederControllerV1Test :
                         personIdent = fnr,
                         kandidatId = kandidatId,
                         status = no.nav.syfo.kartlegging.domain.KandidatStatus.KANDIDAT,
+                        skjemavariant = "FLERVALG_V1",
                         createdAt = Instant.now(),
                     )
                 every { veilederTilgangClient.hasVeilederTilgangToPerson(any(), any()) } returns true

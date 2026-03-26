@@ -14,6 +14,7 @@ class KartleggingssporsmalKandidatTest :
                     personIdent = "12345678910",
                     kandidatId = UUID.randomUUID(),
                     status = KandidatStatus.KANDIDAT,
+                    skjemavariant = "FLERVALG_V1",
                     createdAt = Instant.now().minus(Duration.ofDays(30)),
                 )
                 kandidat.isKandidat() shouldBe true
@@ -24,6 +25,7 @@ class KartleggingssporsmalKandidatTest :
                     personIdent = "12345678910",
                     kandidatId = UUID.randomUUID(),
                     status = KandidatStatus.KANDIDAT,
+                    skjemavariant = "FLERVALG_V1",
                     createdAt = Instant.now().minus(Duration.ofDays(31)),
                 )
                 kandidat.isKandidat() shouldBe false

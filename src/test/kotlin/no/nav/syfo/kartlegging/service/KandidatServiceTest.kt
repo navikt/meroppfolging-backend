@@ -43,12 +43,14 @@ class KandidatServiceTest : DescribeSpec() {
                     personIdent = firstFnr,
                     kandidatId = firstKandidatId,
                     status = KandidatStatus.KANDIDAT,
+                    skjemavariant = "FLERVALG_V1",
                     createdAt = Instant.now()
                 )
                 val second = KartleggingssporsmalKandidat(
                     personIdent = secondFnr,
                     kandidatId = secondKandidatId,
                     status = KandidatStatus.KANDIDAT,
+                    skjemavariant = "FLERVALG_V1",
                     createdAt = Instant.now()
                 )
 
