@@ -7,7 +7,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.syfo.LocalApplication
 import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
-import no.nav.syfo.kartlegging.domain.Skjemavariant
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -44,14 +43,14 @@ class KandidatServiceTest : DescribeSpec() {
                     personIdent = firstFnr,
                     kandidatId = firstKandidatId,
                     status = KandidatStatus.KANDIDAT,
-                    skjemavariant = Skjemavariant.FLERVALG_V1,
+                    skjemavariant = "FLERVALG_V1",
                     createdAt = Instant.now()
                 )
                 val second = KartleggingssporsmalKandidat(
                     personIdent = secondFnr,
                     kandidatId = secondKandidatId,
                     status = KandidatStatus.KANDIDAT,
-                    skjemavariant = Skjemavariant.FLERVALG_V1,
+                    skjemavariant = "FLERVALG_V1",
                     createdAt = Instant.now()
                 )
 

@@ -17,7 +17,6 @@ import no.nav.security.token.support.spring.test.MockOAuth2ServerAutoConfigurati
 import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
-import no.nav.syfo.kartlegging.domain.Skjemavariant
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldOption
 import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
@@ -148,7 +147,7 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
                 kandidatId = kandidatId,
                 personIdent = fnr,
                 status = KandidatStatus.KANDIDAT,
-                skjemavariant = Skjemavariant.FLERVALG_V1,
+                skjemavariant = "FLERVALG_V1",
                 createdAt = Instant.now(),
             )
         }

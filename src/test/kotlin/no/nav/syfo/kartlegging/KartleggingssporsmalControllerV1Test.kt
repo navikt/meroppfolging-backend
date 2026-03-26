@@ -19,7 +19,6 @@ import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
-import no.nav.syfo.kartlegging.domain.Skjemavariant
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldOption
 import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
@@ -72,7 +71,7 @@ class KartleggingssporsmalControllerV1Test :
                 kandidatId = kandidatId,
                 personIdent = fnr,
                 status = KandidatStatus.KANDIDAT,
-                skjemavariant = Skjemavariant.FLERVALG_V1,
+                skjemavariant = "FLERVALG_V1",
                 createdAt = Instant.now(),
             )
         }
