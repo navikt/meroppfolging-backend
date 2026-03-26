@@ -51,6 +51,7 @@ class KandidatDAOTest : DescribeSpec() {
                 persisted!!.personIdent shouldBe fnr
                 persisted.kandidatId shouldBe kandidatId
                 persisted.status shouldBe KandidatStatus.KANDIDAT
+                persisted.skjemavariant shouldBe "FLERVALG_V1"
                 // createdAt stored with timestamp precision; allow equality check
                 persisted.createdAt.epochSecond shouldBe createdAt.epochSecond
                 persisted.isKandidat() shouldBe true
@@ -130,6 +131,7 @@ class KandidatDAOTest : DescribeSpec() {
                 result?.personIdent shouldBe kandidat.personIdent
                 result?.kandidatId shouldBe kandidat.kandidatId
                 result?.status shouldBe kandidat.status
+                result?.skjemavariant shouldBe "FLERVALG_V1"
             }
         }
     }
