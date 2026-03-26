@@ -8,6 +8,7 @@ import no.nav.syfo.auth.getFnr
 import no.nav.syfo.kartlegging.domain.KandidatStatusResponse
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
+import no.nav.syfo.kartlegging.exception.KandidatNotFoundException
 import no.nav.syfo.kartlegging.exception.NotKandidatException
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
@@ -72,12 +73,15 @@ class KartleggingssporsmalControllerV1(
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
 
         val muligKandidat = kandidatService.getKandidatByFnr(personIdent)
-        if (muligKandidat?.isKandidat() != true) {
+            ?: throw KandidatNotFoundException("Fant ikke kandidat")
+
+        if (!muligKandidat.isKandidat()) {
             return ResponseEntity
                 .ok()
                 .body(
                     KandidatStatusResponse(
                         isKandidat = false,
+                        skjemavariant = muligKandidat.skjemavariant,
                         formResponse = null,
                     ),
                 )
@@ -90,6 +94,7 @@ class KartleggingssporsmalControllerV1(
             .body(
                 KandidatStatusResponse(
                     isKandidat = true,
+                    skjemavariant = muligKandidat.skjemavariant,
                     formResponse = latest,
                 ),
             )
