@@ -20,4 +20,8 @@ data class PersistedKartleggingssporsmal(
     formSnapshot = formSnapshot,
 )
 
-data class KandidatStatusResponse(val isKandidat: Boolean, val formResponse: PersistedKartleggingssporsmal?)
+data class KandidatStatusResponse(
+    val isKandidat: Boolean,
+    val skjemavariant: String?,
+    val formResponse: PersistedKartleggingssporsmal?
+)
