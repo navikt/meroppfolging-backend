@@ -213,18 +213,6 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
                 }
             }
 
-            it("returns 404 when kandidat not found") {
-                every { kandidatService.getKandidatByFnr(fnr) } returns null
-
-                mockMvc.get("/api/v1/kartleggingssporsmal/kandidat-status") {
-                    header(HttpHeaders.AUTHORIZATION, "Bearer ${bearerToken()}")
-                }.andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.reason") { value("Fant ikke kandidat") }
-                }
-            }
-
             it("returns isKandidat false with null formResponse when kandidat is IKKE_KANDIDAT") {
                 every { kandidatService.getKandidatByFnr(fnr) } returns KartleggingssporsmalKandidat(
                     kandidatId = kandidatId,
@@ -241,7 +229,7 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.isKandidat") { value(false) }
                     jsonPath("$.formResponse") { value(null as Any?) }
-                    jsonPath("$.skjemavariant") { value("FLERVALG_V1") }
+                    jsonPath("$.skjemavariant") { value(null as Any?) }
                 }
             }
         }

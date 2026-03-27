@@ -73,15 +73,14 @@ class KartleggingssporsmalControllerV1(
         val personIdent = tokenValidator.validateTokenXClaims().getFnr()
 
         val muligKandidat = kandidatService.getKandidatByFnr(personIdent)
-            ?: throw KandidatNotFoundException("Fant ikke kandidat")
 
-        if (!muligKandidat.isKandidat()) {
+        if (muligKandidat?.isKandidat() != true) {
             return ResponseEntity
                 .ok()
                 .body(
                     KandidatStatusResponse(
                         isKandidat = false,
-                        skjemavariant = muligKandidat.skjemavariant,
+                        skjemavariant = null,
                         formResponse = null,
                     ),
                 )

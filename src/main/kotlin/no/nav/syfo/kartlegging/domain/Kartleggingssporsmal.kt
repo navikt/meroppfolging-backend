@@ -22,6 +22,6 @@ data class PersistedKartleggingssporsmal(
 
 data class KandidatStatusResponse(
     val isKandidat: Boolean,
-    val skjemavariant: String,
+    val skjemavariant: String?,
     val formResponse: PersistedKartleggingssporsmal?
 )
