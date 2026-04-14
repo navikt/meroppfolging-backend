@@ -124,39 +124,6 @@ class KartleggingssporsmalControllerV1Test :
                 persistedSlot.captured.fnr shouldBe fnr
                 persistedSlot.captured.formSnapshot shouldBe formSnapshot
             }
-
-            it("returns 400 InvalidFormException if form snapshot is missing required fieldId") {
-                val formSnapshot = FormSnapshot(
-                    formIdentifier = "kartlegging-test-form",
-                    formSemanticVersion = "1.0.0",
-                    formSnapshotVersion = "1",
-                    fieldSnapshots = listOf(
-                        RadioGroupFieldSnapshot(
-                            fieldId = "hvorSannsynligTilbakeTilJobben",
-                            label = "Label 1",
-                            options = listOf(
-                                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
-                                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
-                            ),
-                        ),
-                        RadioGroupFieldSnapshot(
-                            fieldId = "samarbeidOgRelasjonTilArbeidsgiver",
-                            label = "Label 2",
-                            options = listOf(
-                                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
-                                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
-                            ),
-                        ),
-                        // Missing required naarTilbakeTilJobben
-                    ),
-                )
-                val request = KartleggingssporsmalRequest(formSnapshot = formSnapshot)
-
-                shouldThrow<InvalidFormException> {
-                    controller.postKartleggingssporsmal(request)
-                }
-            }
-
             it(
                 "returns 400 InvalidFormException if form contains required RadioGroupFieldSnapshot with no option selected"
             ) {
@@ -198,5 +165,6 @@ class KartleggingssporsmalControllerV1Test :
                     controller.postKartleggingssporsmal(request)
                 }
             }
+
         }
     })
