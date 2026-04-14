@@ -58,24 +58,7 @@ class KartleggingssporsmalService(
         kartleggingssporsmalDAO.getKartleggingssporsmalByUuid(uuid)
 
     fun validateFormSnapshot(formSnapshot: FormSnapshot) {
-        val requiredFieldIds = listOf(
-            "hvorSannsynligTilbakeTilJobben" to FormSnapshotFieldType.RADIO_GROUP,
-            "samarbeidOgRelasjonTilArbeidsgiver" to FormSnapshotFieldType.RADIO_GROUP,
-            "naarTilbakeTilJobben" to FormSnapshotFieldType.RADIO_GROUP,
-        )
-
         try {
-            for ((requiredFieldId, requiredFieldType) in requiredFieldIds) {
-                val fieldSnapshot: FieldSnapshot? = formSnapshot.fieldSnapshots.find { it.fieldId == requiredFieldId }
-                if (fieldSnapshot == null) {
-                    throw IllegalArgumentException("Missing required field with id: $requiredFieldId")
-                }
-                if (fieldSnapshot.fieldType != requiredFieldType) {
-                    throw IllegalArgumentException(
-                        "Field with id: $requiredFieldId has incorrect type. Expected: $requiredFieldType, Found: ${fieldSnapshot.fieldType}"
-                    )
-                }
-            }
             formSnapshot.validateFields()
         } catch (e: Exception) {
             logger.warn("Invalid form in request body: ${e.message}")
