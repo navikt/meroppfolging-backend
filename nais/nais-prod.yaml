@@ -71,6 +71,7 @@ spec:
         - application: meroppfolging-frontend
         - application: bro-frontend
         - application: esyfo-proxy
+        - application: esyfo-microfrontends
         - application: syfomodiaperson
           namespace: teamsykefravr
     outbound:
