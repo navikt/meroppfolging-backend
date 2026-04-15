@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/mikrofrontend/v1")
 @ProtectedWithClaims(issuer = "tokenx", combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
 class MikrofrontendController(
+    @param:Value("\${MEROPPFOLGING_MICRO_FRONTEND_CLIENT_ID}")
+    private val meroppfolgingMicrofrontendClientId: String,
     @param:Value("\${ESYFO_PROXY_CLIENT_ID}")
     val esyfoProxyClientId: String,
     val tokenValidationContextHolder: TokenValidationContextHolder,
@@ -30,7 +32,7 @@ class MikrofrontendController(
     @PostConstruct
     fun init() {
         tokenValidator =
-            TokenValidator(tokenValidationContextHolder, listOf(esyfoProxyClientId))
+            TokenValidator(tokenValidationContextHolder, listOf(esyfoProxyClientId, meroppfolgingMicrofrontendClientId))
     }
 
     @GetMapping("/status", produces = [MediaType.APPLICATION_JSON_VALUE])
