@@ -70,7 +70,6 @@ spec:
       rules:
         - application: meroppfolging-frontend
         - application: bro-frontend
-        - application: esyfo-proxy
         - application: meroppfolging-microfrontend
         - application: syfomodiaperson
           namespace: teamsykefravr
@@ -94,8 +93,6 @@ spec:
       value: "prod-gcp:team-esyfo:meroppfolging-microfrontend"
     - name: BRO_FRONTEND_CLIENT_ID
       value: "prod-gcp:team-esyfo:bro-frontend"
-    - name: ESYFO_PROXY_CLIENT_ID
-      value: "prod-gcp:team-esyfo:esyfo-proxy"
     - name: ISOPPFOLGINGSTILFELLE_URL
       value: http://isoppfolgingstilfelle.teamsykefravr
     - name: ISOPPFOLGINGSTILFELLE_ID
