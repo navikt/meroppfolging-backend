@@ -165,6 +165,5 @@ class KartleggingssporsmalControllerV1Test :
                     controller.postKartleggingssporsmal(request)
                 }
             }
-
         }
     })

@@ -1,5 +1,6 @@
 package no.nav.syfo.senoppfolging.v2
 
+import com.nimbusds.jwt.JWTClaimsSet
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -8,7 +9,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import junit.framework.TestCase.assertTrue
+import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
+import no.nav.security.token.support.core.jwt.JwtToken
+import no.nav.syfo.auth.NoAccess
 import no.nav.syfo.auth.TokenValidator
 import no.nav.syfo.auth.getFnr
 import no.nav.syfo.besvarelse.database.ResponseDao
@@ -34,6 +38,7 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.BEHOV_FOR_OPPFOLGING
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
+import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
@@ -73,7 +78,6 @@ class SenOppfolgingControllerV2Test :
             val controller =
                 SenOppfolgingControllerV2(
                     merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
-                    esyfoProxyClientId = "esyfoProxyClientId",
                     tokenValidationContextHolder = tokenValidationContextHolder,
                     senOppfolgingService = senOppfolgingService,
                 ).apply {
@@ -106,6 +110,18 @@ class SenOppfolgingControllerV2Test :
 
             val varselUuid = UUID.randomUUID()
             val varselSentAt = LocalDateTime.now().minusDays(20)
+
+            fun tokenValidationContext(clientId: String): TokenValidationContext {
+                val claims =
+                    JWTClaimsSet.Builder()
+                        .claim("client_id", clientId)
+                        .claim("pid", ansattFnr)
+                        .build()
+                val jwtToken = mockk<JwtToken>()
+                every { jwtToken.jwtTokenClaims } returns no.nav.security.token.support.core.jwt.JwtTokenClaims(claims)
+                every { jwtToken.encodedToken } returns "token"
+                return TokenValidationContext(mapOf("tokenx" to jwtToken))
+            }
 
             beforeTest {
                 clearAllMocks()
@@ -239,6 +255,59 @@ class SenOppfolgingControllerV2Test :
                         verify(
                             exactly = 1,
                         ) { dokarkivClient.postDocumentsForsendelseToDokarkiv(ansattFnr, any(), any(), any(), any()) }
+                    }
+                }
+            }
+
+            describe("Auth") {
+                it("accepts meroppfolging frontend client id") {
+                    val authSenOppfolgingService = mockk<SenOppfolgingService>()
+                    val expectedStatus =
+                        SenOppfolgingStatusDTOV2(
+                            NO_RESPONSE,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            true,
+                        )
+                    val authAwareController =
+                        SenOppfolgingControllerV2(
+                            merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
+                            tokenValidationContextHolder = tokenValidationContextHolder,
+                            senOppfolgingService = authSenOppfolgingService,
+                        ).apply {
+                            init()
+                        }
+                    every { tokenValidationContextHolder.getTokenValidationContext() } returns
+                        tokenValidationContext("merOppfolgingFrontendClientId")
+                    every {
+                        authSenOppfolgingService.prepareAndBuildSenOppfolgingStatusDTOV2(ansattFnr, "token")
+                    } returns expectedStatus
+
+                    val status = authAwareController.status()
+
+                    status shouldBe expectedStatus
+                    verify(exactly = 1) {
+                        authSenOppfolgingService.prepareAndBuildSenOppfolgingStatusDTOV2(ansattFnr, "token")
+                    }
+                }
+
+                it("rejects unauthorized client id") {
+                    val authAwareController =
+                        SenOppfolgingControllerV2(
+                            merOppfolgingFrontendClientId = "merOppfolgingFrontendClientId",
+                            tokenValidationContextHolder = tokenValidationContextHolder,
+                            senOppfolgingService = senOppfolgingService,
+                        ).apply {
+                            init()
+                        }
+                    every { tokenValidationContextHolder.getTokenValidationContext() } returns
+                        tokenValidationContext("unauthorizedClientId")
+
+                    shouldThrow<NoAccess> {
+                        authAwareController.status()
                     }
                 }
             }

@@ -31,10 +31,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v2/senoppfolging")
 @ProtectedWithClaims(issuer = "tokenx", combineWithOr = true, claimMap = ["acr=Level4", "acr=idporten-loa-high"])
 class SenOppfolgingControllerV2(
-    @Value("\${MEROPPFOLGING_FRONTEND_CLIENT_ID}")
+    @param:Value("\${MEROPPFOLGING_FRONTEND_CLIENT_ID}")
     val merOppfolgingFrontendClientId: String,
-    @Value("\${ESYFO_PROXY_CLIENT_ID}")
-    val esyfoProxyClientId: String,
     val tokenValidationContextHolder: TokenValidationContextHolder,
     val senOppfolgingService: SenOppfolgingService,
 ) {
@@ -43,8 +41,7 @@ class SenOppfolgingControllerV2(
 
     @PostConstruct
     fun init() {
-        tokenValidator =
-            TokenValidator(tokenValidationContextHolder, listOf(merOppfolgingFrontendClientId, esyfoProxyClientId))
+        tokenValidator = TokenValidator(tokenValidationContextHolder, merOppfolgingFrontendClientId)
     }
 
     @GetMapping("/status", produces = [MediaType.APPLICATION_JSON_VALUE])
