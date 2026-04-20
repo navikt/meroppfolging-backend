@@ -7,9 +7,7 @@ import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
-import no.nav.syfo.kartlegging.domain.formsnapshot.FieldSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
-import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldType
 import no.nav.syfo.kartlegging.domain.formsnapshot.validateFields
 import no.nav.syfo.kartlegging.exception.InvalidFormException
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarEvent

@@ -8,7 +8,6 @@ import no.nav.syfo.auth.getFnr
 import no.nav.syfo.kartlegging.domain.KandidatStatusResponse
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
-import no.nav.syfo.kartlegging.exception.KandidatNotFoundException
 import no.nav.syfo.kartlegging.exception.NotKandidatException
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
