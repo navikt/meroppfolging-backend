@@ -56,21 +56,45 @@ graph LR
 
 ### Innbygger-API (TokenX)
 
-| Metode | Sti                                            | Beskrivelse                           |
-| ------ | ---------------------------------------------- | ------------------------------------- |
-| GET    | `/api/v2/senoppfolging/status`                 | Hent status for sen oppfølging        |
-| POST   | `/api/v2/senoppfolging/submitform`             | Send inn svar på sen oppfølging       |
-| POST   | `/api/v1/kartleggingssporsmal`                 | Send inn kartleggingsspørsmål-svar    |
-| GET    | `/api/v1/kartleggingssporsmal/kandidat-status` | Hent kandidat-status for kartlegging  |
-| GET    | `/api/v1/sykmelding/sykmeldt`                  | Sjekk om bruker er sykmeldt           |
-| GET    | `/api/mikrofrontend/v1/status`                 | Hent status for mikrofrontend-visning |
+#### Sen oppfølging
+
+Status og innsending av svar for sykmeldte som har fått varsel om sen oppfølging.
+
+- **GET** `/api/v2/senoppfolging/status`
+- **POST** `/api/v2/senoppfolging/submitform`
+
+#### Kartleggingsspørsmål
+
+Innsending av kartleggingssvar og kandidat-status for sykmeldte som er kandidat for kartlegging.
+
+- **POST** `/api/v1/kartleggingssporsmal`
+- **GET** `/api/v1/kartleggingssporsmal/kandidat-status`
+
+#### Sykmelding
+
+Sjekk om bruker er i et aktivt oppfølgingstilfelle.
+
+- **GET** `/api/v1/sykmelding/sykmeldt`
+
+#### Mikrofrontend
+
+Status for visning av meroppfølging-mikrofrontend på Min side.
+
+- **GET** `/api/mikrofrontend/v1/status`
 
 ### Veileder-API (Azure AD)
 
-| Metode | Sti                                            | Beskrivelse                      |
-| ------ | ---------------------------------------------- | -------------------------------- |
-| GET    | `/api/v2/internad/senoppfolging/formresponse`  | Hent skjemabesvarelse for person |
-| GET    | `/api/v1/internad/kartleggingssporsmal/{uuid}` | Hent kartleggingsspørsmål        |
+#### Sen oppfølging
+
+Hent skjemabesvarelse for en gitt person.
+
+- **GET** `/api/v2/internad/senoppfolging/formresponse`
+
+#### Kartleggingsspørsmål
+
+Hent kartleggingssvar for en gitt person.
+
+- **GET** `/api/v1/internad/kartleggingssporsmal/{uuid}`
 
 ## Kafka
 
