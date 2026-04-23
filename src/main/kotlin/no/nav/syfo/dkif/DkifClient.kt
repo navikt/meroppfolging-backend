@@ -19,6 +19,10 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 
+/**
+ * Client for Kontakt- og reservasjonsregisteret (KRR) via digdir-krr-proxy.
+ * Henter kontaktinfo og reservasjonsstatus for innbyggere.
+ */
 @Service
 class DkifClient(
     private val azureAdClient: AzureAdClient,
