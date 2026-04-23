@@ -11,7 +11,7 @@ for [meroppfolging-frontend](https://github.com/navikt/meroppfolging-frontend), 
 og [syfomodiaperson](https://github.com/navikt/syfomodiaperson). Håndterer sen oppfølging av sykmeldte,
 kartleggingsspørsmål og varsling.
 
-## Formålet av appen
+## Formålet med appen
 
 Appen betjener to hovedmålgrupper:
 
