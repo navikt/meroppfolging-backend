@@ -95,6 +95,7 @@ Hent skjemabesvarelse for en gitt person.
 Hent kartleggingssvar for en gitt person.
 
 - **GET** `/api/v1/internad/kartleggingssporsmal/{uuid}`
+- **GET** `/api/v1/internad/kartleggingssporsmal/kandidat/{kandidatId}/svar`
 
 ## Kafka
 
