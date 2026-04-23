@@ -17,6 +17,10 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
 
+/**
+ * Client for Persondataløsningen (PDL).
+ * Henter personstatus som alder og om personen er i live.
+ */
 @Component
 class PdlClient(
     private val azureAdClient: AzureAdClient,
