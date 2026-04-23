@@ -63,7 +63,7 @@ Status og innsending av svar for sykmeldte som har fått varsel om sen oppfølgi
 - **GET** `/api/v2/senoppfolging/status`
 - **POST** `/api/v2/senoppfolging/submitform`
 
-#### Kartleggingsspørsmål
+#### Kartlegging (bro-frontend)
 
 Innsending av kartleggingssvar og kandidat-status for sykmeldte som er kandidat for kartlegging.
 
@@ -90,7 +90,7 @@ Hent skjemabesvarelse for en gitt person.
 
 - **GET** `/api/v2/internad/senoppfolging/formresponse`
 
-#### Kartleggingsspørsmål
+#### Kartlegging (syfomodiaperson)
 
 Hent kartleggingssvar for en gitt person.
 
