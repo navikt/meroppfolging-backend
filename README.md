@@ -6,16 +6,22 @@
 ![Ktlint](https://img.shields.io/badge/Ktlint-code%20style-F44336)
 ![Kotest](https://img.shields.io/badge/Kotest-testing-7F52FF?logo=kotlin&logoColor=white)
 
-Backend for [meroppfolging-frontend](https://github.com/navikt/meroppfolging-frontend), [bro-frontend](https://github.com/navikt/bro-frontend), [meroppfolging-microfrontend](https://github.com/navikt/meroppfolging-microfrontend) og [syfomodiaperson](https://github.com/navikt/syfomodiaperson). Håndterer sen oppfølging av sykmeldte, kartleggingsspørsmål og varsling.
+Backend
+for [meroppfolging-frontend](https://github.com/navikt/meroppfolging-frontend), [bro-frontend](https://github.com/navikt/bro-frontend), [meroppfolging-microfrontend](https://github.com/navikt/meroppfolging-microfrontend)
+og [syfomodiaperson](https://github.com/navikt/syfomodiaperson). Håndterer sen oppfølging av sykmeldte,
+kartleggingsspørsmål og varsling.
 
 ## Formålet av appen
 
 Appen betjener to hovedmålgrupper:
 
-- **Sykmeldte** — besvarer spørsmål om behov for mer oppfølging fra Nav (sen oppfølging), fyller ut kartleggingsskjema, og får status om sykmelding og mikrofrontend-visning.
-- **Veiledere (Nav-ansatte)** — henter skjema-besvarelser og kartleggingssvar for oppfølging av sykmeldte via [syfomodiaperson](https://github.com/navikt/syfomodiaperson).
+- **Sykmeldte** — besvarer spørsmål om behov for mer oppfølging fra Nav (sen oppfølging), fyller ut kartleggingsskjema,
+  og får status om sykmelding og mikrofrontend-visning.
+- **Veiledere (Nav-ansatte)** — henter skjema-besvarelser og kartleggingssvar for oppfølging av sykmeldte
+  via [syfomodiaperson](https://github.com/navikt/syfomodiaperson).
 
-Appen mottar sykmeldinger og sykepengedager-informasjon via Kafka, og publiserer svar, varsler og kartleggingsdata videre til andre tjenester.
+Appen mottar sykmeldinger og sykepengedager-informasjon via Kafka, og publiserer svar, varsler og kartleggingsdata
+videre til andre tjenester.
 
 ## Arkitektur
 
@@ -33,16 +39,13 @@ graph LR
 
     MF & BF & MICRO -->|TokenX| APP[meroppfolging-backend]
     MODIA -->|Azure AD| APP
-
     APP -->|OBO| OPPF[isoppfolgingstilfelle]
     APP -->|OBO| TILGANG[istilgangskontroll]
     APP --> PDF[syfooppdfgen]
     APP -->|M2M| DOKARKIV[dokarkiv]
     APP -->|M2M| PDL[pdl-api]
     APP -->|OBO| KRR[digdir-krr-proxy]
-
     APP --- DB[(PostgreSQL)]
-
     SPDI[team-esyfo.sykepengedager-informasjon-topic] -.->|consume| APP
     SYK[teamsykmelding.ok-sykmelding] -.->|consume| APP
     KANDIDAT[teamsykefravr...kartleggingssporsmal-kandidat] -.->|consume| APP
@@ -102,7 +105,7 @@ Hent kartleggingssvar for en gitt person.
 ### Konsumerer
 
 | Topic                                                         | Beskrivelse                               |
-| ------------------------------------------------------------- | ----------------------------------------- |
+|---------------------------------------------------------------|-------------------------------------------|
 | `teamsykmelding.ok-sykmelding`                                | Godkjente sykmeldinger                    |
 | `team-esyfo.sykepengedager-informasjon-topic`                 | Informasjon om gjenstående sykepengedager |
 | `teamsykefravr.ismeroppfolging-kartleggingssporsmal-kandidat` | Kandidater for kartleggingsspørsmål       |
@@ -110,7 +113,7 @@ Hent kartleggingssvar for en gitt person.
 ### Produserer
 
 | Topic                                  | Beskrivelse                            |
-| -------------------------------------- | -------------------------------------- |
+|----------------------------------------|----------------------------------------|
 | `team-esyfo.sen-oppfolging-svar`       | Svar fra sykmeldte om oppfølgingsbehov |
 | `team-esyfo.sen-oppfolging-varsel`     | Varsler om sen oppfølging              |
 | `team-esyfo.kartleggingssporsmal-svar` | Svar på kartleggingsspørsmål           |
@@ -127,4 +130,5 @@ mise tasks              # Vis tilgjengelige oppgaver
 
 ## For Nav-ansatte
 
-Interne henvendelser kan sendes via Slack til **team-esyfo** i kanalen [#esyfo](https://nav-it.slack.com/archives/esyfo).
+Interne henvendelser kan sendes via Slack til **team-esyfo** i
+kanalen [#esyfo](https://nav-it.slack.com/archives/esyfo).
