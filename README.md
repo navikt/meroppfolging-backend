@@ -6,7 +6,7 @@
 ![Ktlint](https://img.shields.io/badge/Ktlint-code%20style-F44336)
 ![Kotest](https://img.shields.io/badge/Kotest-testing-7F52FF?logo=kotlin&logoColor=white)
 
-Backend for [meroppfolging-frontend](https://github.com/navikt/meroppfolging-frontend) og [bro-frontend](https://github.com/navikt/bro-frontend). Håndterer sen oppfølging av sykmeldte, kartleggingsspørsmål og varsling.
+Backend for [meroppfolging-frontend](https://github.com/navikt/meroppfolging-frontend), [bro-frontend](https://github.com/navikt/bro-frontend), [meroppfolging-microfrontend](https://github.com/navikt/meroppfolging-microfrontend) og [syfomodiaperson](https://github.com/navikt/syfomodiaperson). Håndterer sen oppfølging av sykmeldte, kartleggingsspørsmål og varsling.
 
 ## Formålet av appen
 
@@ -56,7 +56,7 @@ graph LR
 
 ### Innbygger-API (TokenX)
 
-#### Sen oppfølging
+#### Sen oppfølging (meroppfolging-frontend)
 
 Status og innsending av svar for sykmeldte som har fått varsel om sen oppfølging.
 
@@ -70,13 +70,13 @@ Innsending av kartleggingssvar og kandidat-status for sykmeldte som er kandidat 
 - **POST** `/api/v1/kartleggingssporsmal`
 - **GET** `/api/v1/kartleggingssporsmal/kandidat-status`
 
-#### Sykmelding
+#### Sykmelding (meroppfolging-frontend)
 
 Sjekk om bruker er i et aktivt oppfølgingstilfelle.
 
 - **GET** `/api/v1/sykmelding/sykmeldt`
 
-#### Mikrofrontend
+#### Mikrofrontend (meroppfolging-microfrontend)
 
 Status for visning av meroppfølging-mikrofrontend på Min side.
 
@@ -84,7 +84,7 @@ Status for visning av meroppfølging-mikrofrontend på Min side.
 
 ### Veileder-API (Azure AD)
 
-#### Sen oppfølging
+#### Sen oppfølging (syfomodiaperson)
 
 Hent skjemabesvarelse for en gitt person.
 
