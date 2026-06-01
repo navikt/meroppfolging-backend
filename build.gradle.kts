@@ -29,7 +29,9 @@ val wiremockVersion = "3.13.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val testcontainersVersion = "1.21.4"
 val springMockkVersion = "5.0.1"
+val tomcatVersion = "11.0.22"
 
+extra["tomcat.version"] = tomcatVersion
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("tools.jackson.module:jackson-module-kotlin")
