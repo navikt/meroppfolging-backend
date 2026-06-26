@@ -22,7 +22,7 @@ repositories {
 
 val tokenSupportVersion = "6.0.10"
 val logstashLogbackEncoderVersion = "9.0"
-val kotestVersion = "6.2.0"
+val kotestVersion = "6.2.1"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val mockkVersion = "1.14.11"
 val wiremockVersion = "3.13.2"
