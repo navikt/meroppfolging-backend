@@ -105,6 +105,7 @@ class VarselRepository(
                        sykmelding.sykmelding_id
                 FROM sykepengedager_informasjon AS spdi
                          JOIN SYKMELDING sykmelding ON spdi.person_ident = sykmelding.employee_identification_number
+                            AND sykmelding.tom > CURRENT_DATE - INTERVAL '1' YEAR
                 -- only consider latest utbetaling
                 WHERE spdi.utbetaling_id =
                       (SELECT spdi2.utbetaling_id
