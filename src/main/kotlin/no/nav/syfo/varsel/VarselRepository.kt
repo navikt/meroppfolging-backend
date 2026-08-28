@@ -10,7 +10,7 @@ import java.util.*
 @Repository
 class VarselRepository(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,) {
     val gjenstaendeSykedagerLimit = 91
-    val nyttVarselLimit = 106
+    val nyttVarselLimit = 128
     val maxDateLimit = 14
 
     fun getUtsendtVarsel(personIdent: String): UtsendtVarsel? {
