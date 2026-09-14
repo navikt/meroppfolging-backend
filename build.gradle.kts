@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.springframework.boot") version "4.1.1"
-    id("io.spring.dependency-management") version "1.1.7"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.spring") version "2.4.10"
@@ -29,10 +28,25 @@ val wiremockVersion = "3.13.2"
 val wiremockKotestExtensionVersion = "3.1.0"
 val testcontainersVersion = "1.21.4"
 val springMockkVersion = "5.0.1"
-val tomcatVersion = "11.0.22"
+val tomcatVersion = "11.0.25"
 
-extra["tomcat.version"] = tomcatVersion
 dependencies {
+    implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+
+    constraints {
+        lockConstraintToVersion(dependencyVersion = springBootVersion(), lockToVersion = "4.1.1") {
+            implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion") {
+                because("CVE in lower versions")
+            }
+            implementation("org.apache.tomcat.embed:tomcat-embed-el:$tomcatVersion") {
+                because("CVE in lower versions")
+            }
+            implementation("org.apache.tomcat.embed:tomcat-embed-websocket:$tomcatVersion") {
+                because("CVE in lower versions")
+            }
+        }
+    }
+
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -90,3 +104,22 @@ tasks {
         useJUnitPlatform()
     }
 }
+
+fun DependencyConstraintHandlerScope.lockConstraintToVersion(
+    dependencyVersion: String,
+    lockToVersion: String,
+    block: DependencyConstraintHandlerScope.() -> Unit
+) {
+    if (dependencyVersion == lockToVersion) {
+        block()
+    } else {
+        throw GradleException(
+            "Dependency locked to: $lockToVersion. " +
+                "Current version: $dependencyVersion. " +
+                "Remove override or bump locked version.",
+        )
+    }
+}
+
+fun springBootVersion(): String = org.springframework.boot.gradle.plugin.SpringBootPlugin::class.java
+    .`package`.implementationVersion
