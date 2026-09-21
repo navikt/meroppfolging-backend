@@ -1,5 +1,7 @@
 package no.nav.syfo.exception
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.security.token.support.core.exceptions.JwtTokenInvalidClaimException
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
@@ -35,9 +37,9 @@ class GlobalExceptionHandler {
         is JwtTokenInvalidClaimException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
         is JwtTokenUnauthorizedException -> createResponseEntity(HttpStatus.UNAUTHORIZED)
         is HttpMediaTypeNotAcceptableException -> createResponseEntity(HttpStatus.NOT_ACCEPTABLE)
-        is AlreadyRespondedException -> createResponseEntity(HttpStatus.CONFLICT, ex)
+        is AlreadyRespondedException -> createResponseEntity(HttpStatus.CONFLICT, ex, "ALREADY_RESPONDED")
         is NoAccessToSenOppfolgingException -> createResponseEntity(HttpStatus.FORBIDDEN, ex)
-        is NoUtsendtVarselException -> createResponseEntity(HttpStatus.CONFLICT, ex)
+        is NoUtsendtVarselException -> createResponseEntity(HttpStatus.CONFLICT, ex, "NO_UTSENDT_VARSEL")
         is InvalidFormException -> createResponseEntity(HttpStatus.BAD_REQUEST, ex)
         is UserResponseNotFoundException -> createResponseEntity(HttpStatus.NOT_FOUND, ex)
         is KandidatNotFoundException -> createResponseEntity(HttpStatus.NOT_FOUND, ex)
@@ -51,10 +53,19 @@ class GlobalExceptionHandler {
 private fun createResponseEntity(status: HttpStatus): ResponseEntity<Any> =
     ResponseEntity(ApiError(status.reasonPhrase), status)
 
-private fun createResponseEntity(status: HttpStatus, ex: RuntimeException): ResponseEntity<Any> =
-    ResponseEntity(ApiError(reason = ex.message ?: HttpStatus.CONFLICT.reasonPhrase), status)
+private fun createResponseEntity(
+    status: HttpStatus,
+    ex: RuntimeException,
+    errorCode: String? = null
+): ResponseEntity<Any> =
+    ResponseEntity(ApiError(reason = ex.message ?: HttpStatus.CONFLICT.reasonPhrase, errorCode = errorCode), status)
 
-private data class ApiError(val reason: String)
+private data class ApiError(
+    val reason: String,
+    @get:JsonProperty("error_code")
+    @get:JsonInclude(JsonInclude.Include.NON_NULL)
+    val errorCode: String? = null,
+)
 
 abstract class AbstractApiError(
     message: String,
