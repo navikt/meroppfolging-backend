@@ -44,10 +44,10 @@ spec:
       runtime: java
   resources:
     limits:
-      memory: 600Mi
+      memory: 1Gi
     requests:
       cpu: 400m
-      memory: 600Mi
+      memory: 1Gi
   vault:
     enabled: false
   kafka:
