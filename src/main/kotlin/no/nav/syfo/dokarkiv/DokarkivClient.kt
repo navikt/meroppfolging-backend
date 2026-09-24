@@ -6,6 +6,7 @@ import no.nav.syfo.NAV_CALL_ID_HEADER
 import no.nav.syfo.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.auth.azuread.AzureAdClient
 import no.nav.syfo.auth.bearerHeader
+import no.nav.syfo.config.kafka.jacksonMapper
 import no.nav.syfo.createCallId
 import no.nav.syfo.dokarkiv.domain.AvsenderMottaker
 import no.nav.syfo.dokarkiv.domain.Distribusjonskanal
@@ -25,12 +26,14 @@ import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
+import tools.jackson.databind.ObjectMapper
 
 @Service
 class DokarkivClient(
     private val azureAdClient: AzureAdClient,
     @Value("\${dokarkiv.url}") private val dokarkivUrl: String,
     @Value("\${dokarkiv.scope}") private val dokarkivScope: String,
+    private val objectMapper: ObjectMapper = jacksonMapper(),
 ) {
     private val journalpostPath = "/rest/journalpostapi/v1/journalpost"
     private val journalpostParamString = "forsoekFerdigstill"
@@ -75,11 +78,6 @@ class DokarkivClient(
                 response.body!!
             }
 
-            HttpStatus.CONFLICT -> {
-                log.info("Sending to dokarkiv successful, journalpost was created before")
-                response.body!!
-            }
-
             HttpStatus.UNAUTHORIZED -> {
                 log.error("Failed to post document to Dokarkiv: Unable to authorize")
                 null
@@ -91,8 +89,12 @@ class DokarkivClient(
             }
         }
     } catch (e: HttpClientErrorException) {
-        log.error("Client error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
-        null
+        if (e.statusCode == HttpStatus.CONFLICT) {
+            handleConflict(e, eksternReferanseId)
+        } else {
+            log.error("Client error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
+            null
+        }
     } catch (e: HttpServerErrorException) {
         log.error("Server error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
 
@@ -108,6 +110,34 @@ class DokarkivClient(
             "Unexpected error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
         )
         null
+    }
+
+    // Dokarkiv returns 409 when a journalpost already exists for the given eksternReferanseId,
+    // which is idempotent behaviour, not an error. Treat it as success if it is actually ferdigstilt.
+    private fun handleConflict(e: HttpClientErrorException, eksternReferanseId: String): DokarkivResponse? {
+        val dokarkivResponse = try {
+            objectMapper.readValue(e.responseBodyAsString, DokarkivResponse::class.java)
+        } catch (parseException: Exception) {
+            log.error(
+                "Failed to parse Dokarkiv conflict response for eksternReferanseId $eksternReferanseId: " +
+                    "${parseException.message}"
+            )
+            null
+        }
+
+        return if (dokarkivResponse != null && dokarkivResponse.journalpostferdigstilt == true) {
+            log.info(
+                "Sending to dokarkiv successful, journalpost was already created and ferdigstilt " +
+                    "for eksternReferanseId $eksternReferanseId"
+            )
+            dokarkivResponse
+        } else {
+            log.error(
+                "Received 409 Conflict from Dokarkiv for eksternReferanseId $eksternReferanseId, " +
+                    "but journalpost was not ferdigstilt, message: ${e.responseBodyAsString}"
+            )
+            null
+        }
     }
 
     fun postSingleDocumentToDokarkiv(
