@@ -128,6 +128,17 @@ mise install            # Installer verktøy
 mise tasks              # Vis tilgjengelige oppgaver
 ```
 
+### Journalføring
+
+Journalføringsjobben forsøker svar uten journalpost-ID på nytt ved neste kjøring.
+`kartlegging_journalforing_failed` viser om feilen oppsto under PDF-generering,
+kall til Dokarkiv eller lagring av journalpost-ID. Loggen beholder tekniske
+unntakstyper og stackposisjoner, men ikke svarinnhold, identifikatorer eller rå
+response-body. HTTP-status ligger i `upstream_status`. PDF-klientens eksisterende
+HTTP-feillogg beholdes i tillegg til journalføringsfeilen; forbindelsesbrudd gir
+bare journalføringshendelsen. Dokarkivs ferdigstilte 409-svar behandles fortsatt
+som vellykket, mens øvrige feil lar journalpost-ID forbli usatt.
+
 ## For Nav-ansatte
 
 Interne henvendelser kan sendes via Slack til **team-esyfo** i
