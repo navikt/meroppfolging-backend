@@ -1,6 +1,8 @@
 package no.nav.syfo.dokarkiv
 
 import SingleDocumentData
+import net.logstash.logback.marker.Markers.appendEntries
+import no.nav.esyfo.observability.validUpstreamStatus
 import no.nav.syfo.MEROPPFOLGING_BACKEND_CONSUMER_ID
 import no.nav.syfo.NAV_CALL_ID_HEADER
 import no.nav.syfo.NAV_CONSUMER_ID_HEADER
@@ -8,6 +10,7 @@ import no.nav.syfo.auth.azuread.AzureAdClient
 import no.nav.syfo.auth.bearerHeader
 import no.nav.syfo.config.kafka.jacksonMapper
 import no.nav.syfo.createCallId
+import no.nav.syfo.documentFailureFields
 import no.nav.syfo.dokarkiv.domain.AvsenderMottaker
 import no.nav.syfo.dokarkiv.domain.Distribusjonskanal
 import no.nav.syfo.dokarkiv.domain.DokarkivRequest
@@ -21,8 +24,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpServerErrorException
-import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -52,92 +53,112 @@ class DokarkivClient(
         eksternReferanseId: String,
         documentsData: List<SingleDocumentData>,
         kanal: Distribusjonskanal?
-    ): DokarkivResponse? = try {
-        val token = azureAdClient.getSystemToken(dokarkivScope)
+    ): DokarkivResponse? {
+        var upstream = "azuread"
+        var operation = "get_system_token"
+        return try {
+            val token = azureAdClient.getSystemToken(dokarkivScope)
 
-        val dokarkivRequest = createDokarkivRequestForDocuments(
-            fnr,
-            forsendelseTittel,
-            eksternReferanseId,
-            documentsData,
-            kanal
-        )
+            val dokarkivRequest = createDokarkivRequestForDocuments(
+                fnr,
+                forsendelseTittel,
+                eksternReferanseId,
+                documentsData,
+                kanal
+            )
 
-        val response = RestTemplate().postForEntity(
-            url,
-            createHttpEntity(
-                token,
-                dokarkivRequest,
-            ),
-            DokarkivResponse::class.java,
-        )
+            upstream = "dokarkiv"
+            operation = "create_journalpost"
+            val response = RestTemplate().postForEntity(
+                url,
+                createHttpEntity(
+                    token,
+                    dokarkivRequest,
+                ),
+                DokarkivResponse::class.java,
+            )
 
-        when (response.statusCode) {
-            HttpStatus.CREATED -> {
-                log.info("Sending to dokarkiv successful, journalpost created")
-                response.body!!
+            when (response.statusCode) {
+                HttpStatus.CREATED -> {
+                    log.info("Sending to dokarkiv successful, journalpost created")
+                    response.body!!
+                }
+
+                HttpStatus.UNAUTHORIZED -> {
+                    logFailure("dokarkiv_request_failed", "Dokarkiv rejected authorization", status = 401)
+                    null
+                }
+
+                else -> {
+                    logFailure(
+                        "dokarkiv_request_failed",
+                        "Dokarkiv returned an unexpected status",
+                        status = response.statusCode.value(),
+                    )
+                    null
+                }
             }
-
-            HttpStatus.UNAUTHORIZED -> {
-                log.error("Failed to post document to Dokarkiv: Unable to authorize")
+        } catch (e: HttpClientErrorException) {
+            if (e.statusCode == HttpStatus.CONFLICT) {
+                handleConflict(e)
+            } else {
+                logFailure("dokarkiv_request_failed", "Document journaling request failed", e, upstream, operation)
                 null
             }
-
-            else -> {
-                log.error("Failed to post document to Dokarkiv: $response")
-                null
-            }
-        }
-    } catch (e: HttpClientErrorException) {
-        if (e.statusCode == HttpStatus.CONFLICT) {
-            handleConflict(e, eksternReferanseId)
-        } else {
-            log.error("Client error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
+        } catch (e: RestClientException) {
+            logFailure("dokarkiv_request_failed", "Document journaling request failed", e, upstream, operation)
             null
         }
-    } catch (e: HttpServerErrorException) {
-        log.error("Server error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}")
-
-        null
-    } catch (e: ResourceAccessException) {
-        log.error(
-            "Resource access error while posting document to Dokarkiv, " +
-                "message: ${e.message}, cause: ${e.cause}"
-        )
-        null
-    } catch (e: RestClientException) {
-        log.error(
-            "Unexpected error while posting document to Dokarkiv, message: ${e.message}, cause: ${e.cause}"
-        )
-        null
     }
 
     // Dokarkiv returns 409 when a journalpost already exists for the given eksternReferanseId,
     // which is idempotent behaviour, not an error. Treat it as success if it is actually ferdigstilt.
-    private fun handleConflict(e: HttpClientErrorException, eksternReferanseId: String): DokarkivResponse? {
+    private fun handleConflict(e: HttpClientErrorException): DokarkivResponse? {
         val dokarkivResponse = try {
             objectMapper.readValue(e.responseBodyAsString, DokarkivResponse::class.java)
         } catch (parseException: Exception) {
-            log.error(
-                "Failed to parse Dokarkiv conflict response for eksternReferanseId $eksternReferanseId: " +
-                    "${parseException.message}"
+            logFailure(
+                "dokarkiv_conflict_response_invalid",
+                "Could not parse Dokarkiv conflict response",
+                parseException,
+                status = e.statusCode.value(),
             )
-            null
+            return null
         }
 
         return if (dokarkivResponse != null && dokarkivResponse.journalpostferdigstilt == true) {
-            log.info(
-                "Sending to dokarkiv successful, journalpost was already created and ferdigstilt " +
-                    "for eksternReferanseId $eksternReferanseId"
-            )
+            log.info("Sending to dokarkiv successful, journalpost was already created and ferdigstilt")
             dokarkivResponse
         } else {
-            log.error(
-                "Received 409 Conflict from Dokarkiv for eksternReferanseId $eksternReferanseId, " +
-                    "but journalpost was not ferdigstilt, message: ${e.responseBodyAsString}"
+            logFailure(
+                "dokarkiv_journalpost_not_finalized",
+                "Dokarkiv conflict response did not confirm a finalized journalpost",
+                status = e.statusCode.value(),
             )
             null
         }
+    }
+
+    private fun logFailure(
+        event: String,
+        message: String,
+        failure: Exception? = null,
+        upstream: String = "dokarkiv",
+        operation: String = "create_journalpost",
+        status: Int? = null,
+    ) {
+        log.error(
+            appendEntries(
+                buildMap {
+                    put("event_type", event)
+                    put("upstream", upstream)
+                    put("operation", operation)
+                    failure?.let { putAll(it.documentFailureFields()) }
+                    validUpstreamStatus(status)?.let { put("upstream_status", it) }
+                },
+            ),
+            message,
+        )
     }
 
     fun postSingleDocumentToDokarkiv(

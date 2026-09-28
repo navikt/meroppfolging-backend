@@ -1,5 +1,7 @@
 package no.nav.syfo.syfoopppdfgen
 
+import net.logstash.logback.marker.Markers.appendEntries
+import no.nav.syfo.documentFailureFields
 import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar
 import no.nav.syfo.senoppfolging.v2.domain.FremtidigSituasjonSvar
 import no.nav.syfo.utils.formatDateForDisplayAndPdf
@@ -37,9 +39,13 @@ class PdfgenClient(
                 ).body!!
         } catch (e: RestClientResponseException) {
             log.error(
-                "Call to get PDF from pdfgen failed " +
-                    "with status: ${e.statusCode} and message: ${e.responseBodyAsString}",
-                e,
+                appendEntries(
+                    e.documentFailureFields() + mapOf(
+                        "event_type" to "pdf_generation_failed",
+                        "upstream" to "syfooppdfgen",
+                    ),
+                ),
+                "PDF generation failed",
             )
             throw e
         }
