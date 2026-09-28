@@ -154,6 +154,11 @@ class DokarkivClientTest :
                         event["upstream"].asText() shouldBe "dokarkiv"
                         event["operation"].asText() shouldBe "create_journalpost"
                         event["upstream_status"].asInt() shouldBe status
+                        if (status == 400) {
+                            event["exception_type"].asText() shouldBe "HttpClientErrorException"
+                        } else if (status == 500) {
+                            event["exception_type"].asText() shouldBe "HttpServerErrorException\$InternalServerError"
+                        }
                         event["event_type"].asText() shouldBe if (status == 409) {
                             "dokarkiv_journalpost_not_finalized"
                         } else {

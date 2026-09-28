@@ -139,6 +139,10 @@ HTTP-feillogg beholdes i tillegg til journalføringsfeilen; forbindelsesbrudd gi
 bare journalføringshendelsen. Dokarkivs ferdigstilte 409-svar behandles fortsatt
 som vellykket, mens øvrige feil lar journalpost-ID forbli usatt.
 
+`esyfo-logger` 0.3.0 normaliserer unntakskategorier og HTTP-status og avgrenser
+årsakskjeden. Appen beholder eksisterende SLF4J/Logstash-oppsett og eier den trygge
+stackvisningen, siden biblioteket ikke fjerner private data fra exceptionmeldinger.
+
 ## For Nav-ansatte
 
 Interne henvendelser kan sendes via Slack til **team-esyfo** i

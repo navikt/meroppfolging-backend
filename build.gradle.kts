@@ -21,6 +21,7 @@ repositories {
 
 val tokenSupportVersion = "6.0.12"
 val logstashLogbackEncoderVersion = "9.0"
+val esyfoLoggerVersion = "0.3.0"
 val kotestVersion = "6.2.5"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val mockkVersion = "1.14.11"
@@ -63,6 +64,7 @@ dependencies {
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
+    implementation("no.nav.esyfo.observability:esyfo-logger:$esyfoLoggerVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-kafka-test")

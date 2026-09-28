@@ -2,6 +2,7 @@ package no.nav.syfo.dokarkiv
 
 import SingleDocumentData
 import net.logstash.logback.marker.Markers.appendEntries
+import no.nav.esyfo.observability.validUpstreamStatus
 import no.nav.syfo.MEROPPFOLGING_BACKEND_CONSUMER_ID
 import no.nav.syfo.NAV_CALL_ID_HEADER
 import no.nav.syfo.NAV_CONSUMER_ID_HEADER
@@ -153,7 +154,7 @@ class DokarkivClient(
                     put("upstream", upstream)
                     put("operation", operation)
                     failure?.let { putAll(it.documentFailureFields()) }
-                    status?.takeIf { it in 100..599 }?.let { put("upstream_status", it) }
+                    validUpstreamStatus(status)?.let { put("upstream_status", it) }
                 },
             ),
             message,
