@@ -164,6 +164,7 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
                     createdAt = Instant.now(),
                 )
 
+                every { kartleggingssporsmalService.getLatestKartleggingssporsmal(kandidatId) } returns null
                 every { kartleggingssporsmalService.validateFormSnapshot(any()) } just Runs
                 every { kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(any(), any()) } returns
                     persisted
@@ -185,6 +186,30 @@ class KartleggingssporsmalControllerV1WebMvcTest : DescribeSpec() {
                     kartleggingssporsmalService.validateFormSnapshot(capture(formSnapshotSlot))
                 }
                 formSnapshotSlot.captured shouldBe formSnapshot
+            }
+
+            it("returns 409 Conflict with error_code ALREADY_RESPONDED when kandidat has already responded") {
+                every { kartleggingssporsmalService.getLatestKartleggingssporsmal(kandidatId) } returns
+                    PersistedKartleggingssporsmal(
+                        uuid = UUID.randomUUID(),
+                        fnr = fnr,
+                        kandidatId = kandidatId,
+                        formSnapshot = formSnapshot(),
+                        createdAt = Instant.now(),
+                    )
+
+                mockMvc.post("/api/v1/kartleggingssporsmal") {
+                    header(HttpHeaders.AUTHORIZATION, "Bearer ${bearerToken()}")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(mapOf("formSnapshot" to formSnapshot()))
+                }.andExpect {
+                    status { isConflict() }
+                    jsonPath("$.error_code") { value("ALREADY_RESPONDED") }
+                }
+
+                verify(exactly = 0) {
+                    kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(any(), any())
+                }
             }
         }
 

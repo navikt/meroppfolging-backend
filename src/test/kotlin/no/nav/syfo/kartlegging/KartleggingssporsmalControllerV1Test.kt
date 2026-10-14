@@ -19,10 +19,12 @@ import no.nav.syfo.kartlegging.domain.KandidatStatus
 import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalKandidat
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
+import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshot
 import no.nav.syfo.kartlegging.domain.formsnapshot.FormSnapshotFieldOption
 import no.nav.syfo.kartlegging.domain.formsnapshot.RadioGroupFieldSnapshot
 import no.nav.syfo.kartlegging.exception.InvalidFormException
+import no.nav.syfo.kartlegging.exception.KartleggingAlreadyRespondedException
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
@@ -31,6 +33,26 @@ import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.http.HttpStatus
 import java.time.Instant
 import java.util.UUID
+
+private fun validFormSnapshot() = FormSnapshot(
+    formIdentifier = "kartlegging-test-form",
+    formSemanticVersion = "1.0.0",
+    formSnapshotVersion = "1",
+    fieldSnapshots = listOf(
+        "hvorSannsynligTilbakeTilJobben",
+        "samarbeidOgRelasjonTilArbeidsgiver",
+        "naarTilbakeTilJobben",
+    ).map { fieldId ->
+        RadioGroupFieldSnapshot(
+            fieldId = fieldId,
+            label = "Label",
+            options = listOf(
+                FormSnapshotFieldOption("opt1", "Option 1", wasSelected = true),
+                FormSnapshotFieldOption("opt2", "Option 2", wasSelected = false),
+            ),
+        )
+    },
+)
 
 class KartleggingssporsmalControllerV1Test :
     DescribeSpec({
@@ -67,6 +89,7 @@ class KartleggingssporsmalControllerV1Test :
         beforeTest {
             clearAllMocks()
             every { tokenValidator.validateTokenXClaims().getFnr() } returns fnr
+            every { kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(any()) } returns null
             every { kandidatDAO.findKandidatByFnr(fnr) } returns KartleggingssporsmalKandidat(
                 kandidatId = kandidatId,
                 personIdent = fnr,
@@ -164,6 +187,25 @@ class KartleggingssporsmalControllerV1Test :
                 shouldThrow<InvalidFormException> {
                     controller.postKartleggingssporsmal(request)
                 }
+            }
+            it("throws KartleggingAlreadyRespondedException and does not persist if kandidat has already responded") {
+                every { kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(kandidatId) } returns
+                    PersistedKartleggingssporsmal(
+                        uuid = UUID.randomUUID(),
+                        fnr = fnr,
+                        kandidatId = kandidatId,
+                        formSnapshot = validFormSnapshot(),
+                        createdAt = Instant.now(),
+                    )
+                val request = KartleggingssporsmalRequest(formSnapshot = validFormSnapshot())
+
+                shouldThrow<KartleggingAlreadyRespondedException> {
+                    controller.postKartleggingssporsmal(request)
+                }
+
+                verify(exactly = 0) { kartleggingssporsmalDAO.persistKartleggingssporsmal(any(), any()) }
+                verify(exactly = 0) { kafkaProducer.publishResponse(any()) }
+                verify(exactly = 0) { metric.countKartleggingssporsmalSubmitted() }
             }
         }
     })
