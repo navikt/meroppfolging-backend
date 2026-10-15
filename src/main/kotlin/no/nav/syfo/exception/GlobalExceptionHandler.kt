@@ -7,6 +7,7 @@ import no.nav.security.token.support.core.exceptions.JwtTokenInvalidClaimExcepti
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import no.nav.syfo.kartlegging.exception.InvalidFormException
 import no.nav.syfo.kartlegging.exception.KandidatNotFoundException
+import no.nav.syfo.kartlegging.exception.KartleggingAlreadyRespondedException
 import no.nav.syfo.kartlegging.exception.UserResponseNotFoundException
 import no.nav.syfo.logger
 import no.nav.syfo.senoppfolging.exception.AlreadyRespondedException
@@ -43,6 +44,8 @@ class GlobalExceptionHandler {
         is InvalidFormException -> createResponseEntity(HttpStatus.BAD_REQUEST, ex)
         is UserResponseNotFoundException -> createResponseEntity(HttpStatus.NOT_FOUND, ex)
         is KandidatNotFoundException -> createResponseEntity(HttpStatus.NOT_FOUND, ex)
+        is KartleggingAlreadyRespondedException ->
+            createResponseEntity(HttpStatus.CONFLICT, ex, "ALREADY_RESPONDED")
         else -> {
             log.error("Internal server error - ${ex.message} - ${request.method}: ${request.requestURI}", ex)
             createResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)

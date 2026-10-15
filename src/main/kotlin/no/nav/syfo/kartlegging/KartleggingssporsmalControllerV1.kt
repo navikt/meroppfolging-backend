@@ -8,6 +8,7 @@ import no.nav.syfo.auth.getFnr
 import no.nav.syfo.kartlegging.domain.KandidatStatusResponse
 import no.nav.syfo.kartlegging.domain.KartleggingssporsmalRequest
 import no.nav.syfo.kartlegging.domain.PersistedKartleggingssporsmal
+import no.nav.syfo.kartlegging.exception.KartleggingAlreadyRespondedException
 import no.nav.syfo.kartlegging.exception.NotKandidatException
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
@@ -54,6 +55,9 @@ class KartleggingssporsmalControllerV1(
         val muligKandidat = kandidatService.getKandidatByFnr(personIdent)
         if (muligKandidat == null || !muligKandidat.isKandidat()) {
             throw NotKandidatException("Personen er ikke kandidat for kartlegging")
+        }
+        if (kartleggingssporsmalService.getLatestKartleggingssporsmal(muligKandidat.kandidatId) != null) {
+            throw KartleggingAlreadyRespondedException()
         }
         kartleggingssporsmalService.validateFormSnapshot(kartleggingssporsmal.formSnapshot)
         val persisted = kartleggingssporsmalService.persistAndPublishKartleggingssporsmal(
