@@ -28,6 +28,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 import java.io.IOException
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -56,7 +57,7 @@ class JournalforingDiagnosticsTest :
             val dao = mockk<KartleggingssporsmalDAO>(relaxed = true)
             val dokarkiv = mockk<DokarkivClient>()
             val restTemplate = mockk<RestTemplate>()
-            val pdfClient = PdfgenClient("http://syfooppdfgen", restTemplate)
+            val pdfClient = PdfgenClient("http://syfooppdfgen", "http://esyfo-pdfgen", restTemplate)
             val pdfService = PdfgenService(pdfClient, mockk())
             val service = KartleggingssporsmalService(dao, mockk(), pdfService, dokarkiv)
             val leader = mockk<LeaderElectionClient>()
@@ -68,7 +69,7 @@ class JournalforingDiagnosticsTest :
             )
             var attempts = 0
             every {
-                restTemplate.exchange(any<String>(), HttpMethod.POST, any<HttpEntity<*>>(), ByteArray::class.java)
+                restTemplate.exchange<ByteArray>(any<String>(), HttpMethod.POST, any<HttpEntity<*>>())
             } answers {
                 if (attempts++ == 0) throw failure
                 ResponseEntity(byteArrayOf(1, 2), HttpStatus.OK)
@@ -117,10 +118,10 @@ class JournalforingDiagnosticsTest :
             val dao = mockk<KartleggingssporsmalDAO>(relaxed = true)
             val dokarkiv = mockk<DokarkivClient>()
             val restTemplate = mockk<RestTemplate>()
-            val pdfClient = PdfgenClient("http://syfooppdfgen", restTemplate)
+            val pdfClient = PdfgenClient("http://syfooppdfgen", "http://esyfo-pdfgen", restTemplate)
             val service = KartleggingssporsmalService(dao, mockk(), PdfgenService(pdfClient, mockk()), dokarkiv)
             every {
-                restTemplate.exchange(any<String>(), HttpMethod.POST, any<HttpEntity<*>>(), ByteArray::class.java)
+                restTemplate.exchange<ByteArray>(any<String>(), HttpMethod.POST, any<HttpEntity<*>>())
             } throws HttpServerErrorException.create(
                 HttpStatus.BAD_GATEWAY,
                 "PRIVATE_STATUS_TEXT",
