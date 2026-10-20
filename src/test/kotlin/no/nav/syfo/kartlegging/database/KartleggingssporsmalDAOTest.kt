@@ -1,5 +1,6 @@
 package no.nav.syfo.kartlegging.database
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
@@ -11,6 +12,7 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.kafka.test.context.EmbeddedKafka
 import java.util.UUID
@@ -90,6 +92,65 @@ class KartleggingssporsmalDAOTest : DescribeSpec() {
                 persisted.formSnapshot shouldBe snapshot
                 persisted.uuid shouldNotBe null
                 persisted.createdAt shouldNotBe null
+            }
+
+            it("rejects a second response for the same kandidatId even with a different fnr") {
+                val kandidatId = UUID.randomUUID()
+                val snapshot = FormSnapshot(
+                    formIdentifier = "kartlegging_skjematype",
+                    formSemanticVersion = "1.0.0",
+                    formSnapshotVersion = "1",
+                    fieldSnapshots = emptyList()
+                )
+                val persisted = kartleggingssporsmalDAO.persistKartleggingssporsmal(
+                    Kartleggingssporsmal(
+                        fnr = "12345678910",
+                        kandidatId = kandidatId,
+                        formSnapshot = snapshot
+                    )
+                )
+
+                shouldThrow<DuplicateKeyException> {
+                    kartleggingssporsmalDAO.persistKartleggingssporsmal(
+                        Kartleggingssporsmal(
+                            fnr = "10987654321",
+                            kandidatId = kandidatId,
+                            formSnapshot = snapshot
+                        )
+                    )
+                }
+
+                kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(kandidatId) shouldBe persisted
+                kartleggingssporsmalDAO.getKartleggingssporsmalByUuid(persisted.uuid) shouldBe persisted
+            }
+
+            it("allows responses for different kandidatId values with the same fnr") {
+                val fnr = "12345678910"
+                val firstKandidatId = UUID.randomUUID()
+                val secondKandidatId = UUID.randomUUID()
+                val snapshot = FormSnapshot(
+                    formIdentifier = "kartlegging_skjematype",
+                    formSemanticVersion = "1.0.0",
+                    formSnapshotVersion = "1",
+                    fieldSnapshots = emptyList()
+                )
+                val first = kartleggingssporsmalDAO.persistKartleggingssporsmal(
+                    Kartleggingssporsmal(
+                        fnr = fnr,
+                        kandidatId = firstKandidatId,
+                        formSnapshot = snapshot
+                    )
+                )
+                val second = kartleggingssporsmalDAO.persistKartleggingssporsmal(
+                    Kartleggingssporsmal(
+                        fnr = fnr,
+                        kandidatId = secondKandidatId,
+                        formSnapshot = snapshot
+                    )
+                )
+
+                kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(firstKandidatId) shouldBe first
+                kartleggingssporsmalDAO.getLatestKartleggingssporsmalByKandidatId(secondKandidatId) shouldBe second
             }
         }
         describe("KartleggingssporsmalDAO.getKartleggingssporsmalByUuid") {

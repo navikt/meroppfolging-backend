@@ -1,0 +1,2 @@
+ALTER TABLE KARTLEGGINGSPORSMAL
+    ADD CONSTRAINT kartleggingssporsmal_kandidat_id_unique UNIQUE (KANDIDAT_ID);
