@@ -1,0 +1,8 @@
+DELETE FROM KARTLEGGINGSPORSMAL
+WHERE UUID IN (
+    '4ba11579-d76c-49df-ba82-dafa39f1d885',
+    'e9969bd1-3173-4d6e-8c86-7b176078bc45',
+    'a80c938b-02ec-4bf0-9c12-5cba16d7486c',
+    '9e5976cb-58da-45c0-b9c1-aaa736d0f52e',
+    '7ec64a0e-3f12-4063-b570-2b6e5b877689'
+);
