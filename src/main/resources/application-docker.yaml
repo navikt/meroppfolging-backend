@@ -54,6 +54,7 @@ MEROPPFOLGING_MICRO_FRONTEND_CLIENT_ID: 'meroppfolging-microfrontend-client-id'
 
 BRO_FRONTEND_CLIENT_ID: 'bro-frontend'
 SYFOOPPDFGEN_URL: 'http://syfooppdfgenurl'
+ESYFO_PDFGEN_URL: 'http://esyfo-pdfgen'
 NAIS_CLUSTER_NAME: 'local'
 ELECTOR_GET_URL: 'http://elector-get-url'
 
