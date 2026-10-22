@@ -1,4 +1,4 @@
-package no.nav.syfo.syfoopppdfgen
+package no.nav.syfo.pdfgen
 
 import no.nav.syfo.kartlegging.domain.formsnapshot.FieldSnapshot
 import no.nav.syfo.senoppfolging.v2.domain.BehovForOppfolgingSvar

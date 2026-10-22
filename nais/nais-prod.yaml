@@ -75,7 +75,6 @@ spec:
           namespace: teamsykefravr
     outbound:
       rules:
-        - application: syfooppdfgen
         - application: esyfo-pdfgen
         - application: isoppfolgingstilfelle
           namespace: teamsykefravr
@@ -102,8 +101,6 @@ spec:
       value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_ID
       value: prod-gcp.teamsykefravr.istilgangskontroll
-    - name: SYFOOPPDFGEN_URL
-      value: http://syfooppdfgen
     - name: ESYFO_PDFGEN_URL
       value: http://esyfo-pdfgen
     - name: DOKARKIV_URL

@@ -24,6 +24,7 @@ import no.nav.syfo.domain.PersonIdentNumber
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
+import no.nav.syfo.pdfgen.PdfgenService
 import no.nav.syfo.senoppfolging.exception.AlreadyRespondedException
 import no.nav.syfo.senoppfolging.exception.NoAccessToSenOppfolgingException
 import no.nav.syfo.senoppfolging.exception.NoUtsendtVarselException
@@ -40,7 +41,6 @@ import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionTypeV2.FREMTIDIG
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingQuestionV2
 import no.nav.syfo.senoppfolging.v2.domain.SenOppfolgingStatusDTOV2
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
-import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import no.nav.syfo.varsel.UtsendtVarselEsyfovarselCopy
 import no.nav.syfo.varsel.VarselService
@@ -59,7 +59,7 @@ class SenOppfolgingControllerV2Test :
             val responseDao = mockk<ResponseDao>(relaxed = true)
             val senOppfolgingSvarKafkaProducer = mockk<SenOppfolgingSvarKafkaProducer>(relaxed = true)
             val sykepengedagerInformasjonService = mockk<SykepengedagerInformasjonService>(relaxed = true)
-            val syfoopfpdfgenService = mockk<PdfgenService>(relaxed = true)
+            val pdfgenService = mockk<PdfgenService>(relaxed = true)
             val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
             val isOppfolgingstilfelleClient = mockk<IsOppfolgingstilfelleClient>(relaxed = true)
 
@@ -72,7 +72,7 @@ class SenOppfolgingControllerV2Test :
                     metric = metric,
                     senOppfolgingSvarKafkaProducer = senOppfolgingSvarKafkaProducer,
                     dokarkivClient = dokarkivClient,
-                    syfoopfpdfgenService = syfoopfpdfgenService,
+                    pdfgenService = pdfgenService,
                 )
 
             val controller =
@@ -242,7 +242,7 @@ class SenOppfolgingControllerV2Test :
 
                     it("should archive (dokarkiv) submitted answers for all users") {
                         every {
-                            syfoopfpdfgenService.getSenOppfolgingReceiptPdf(ansattFnr, any(), any())
+                            pdfgenService.getSenOppfolgingReceiptPdf(ansattFnr, any(), any())
                         } returns ByteArray(1)
 
                         controller.submitForm(

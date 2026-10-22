@@ -29,7 +29,7 @@ import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import no.nav.syfo.kartlegging.service.KandidatService
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.metric.Metric
-import no.nav.syfo.syfoopppdfgen.PdfgenService
+import no.nav.syfo.pdfgen.PdfgenService
 import org.springframework.http.HttpStatus
 import java.time.Instant
 import java.util.UUID

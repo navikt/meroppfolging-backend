@@ -15,10 +15,10 @@ import no.nav.syfo.LocalApplication
 import no.nav.syfo.dkif.DkifClient
 import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.DokarkivResponse
+import no.nav.syfo.pdfgen.PdfgenService
 import no.nav.syfo.pdl.PdlClient
 import no.nav.syfo.pdl.stubHentPerson
 import no.nav.syfo.pdl.stubHentPersonError
-import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.database.SykepengedagerInformasjonDAO
 import no.nav.syfo.sykepengedagerinformasjon.domain.SykepengedagerInformasjonDTO
 import no.nav.syfo.sykmelding.database.SykmeldingDao
