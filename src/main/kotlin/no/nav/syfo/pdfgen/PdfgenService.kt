@@ -1,4 +1,4 @@
-package no.nav.syfo.syfoopppdfgen
+package no.nav.syfo.pdfgen
 
 import no.nav.syfo.kartlegging.domain.Kartleggingssporsmal
 import no.nav.syfo.logger
@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter
 
 @Component
 class PdfgenService(
-    val syfooppfpdfgenClient: PdfgenClient,
+    val pdfgenClient: PdfgenClient,
     val sykepengedagerInformasjonService: SykepengedagerInformasjonService,
 ) {
     private val log = logger()
@@ -28,7 +28,7 @@ class PdfgenService(
             personIdent,
         )
 
-        return syfooppfpdfgenClient.createSenOppfolgingLandingPdf(
+        return pdfgenClient.createSenOppfolgingLandingPdf(
             daysLeft = sykepengerInformasjon?.gjenstaendeSykedager.toString(),
             utbetaltTom = sykepengerInformasjon?.utbetaltTomFormatted(),
             maxDateFormatted = sykepengerInformasjon?.forelopigBeregnetSluttFormatted(),
@@ -50,7 +50,7 @@ class PdfgenService(
         }
 
         try {
-            return syfooppfpdfgenClient.createSenOppfolgingFormStepsPdf(
+            return pdfgenClient.createSenOppfolgingFormStepsPdf(
                 fremtidigSituasjonSvar,
                 behovForOppfolgingSvar,
             )
@@ -74,7 +74,7 @@ class PdfgenService(
         )
 
         try {
-            return syfooppfpdfgenClient.createSenOppfolgingReceiptPdf(
+            return pdfgenClient.createSenOppfolgingReceiptPdf(
                 behovForOppfolging = behovForOppfolging,
                 questionTextFremtidigSituasjon = answersToQuestions.firstOrNull
                     { it.questionType == SenOppfolgingQuestionTypeV2.FREMTIDIG_SITUASJON }?.questionText,
@@ -103,7 +103,7 @@ class PdfgenService(
 
     fun getKartleggingsPdf(kartleggingssporsmal: Kartleggingssporsmal, createdAt: Instant): ByteArray? {
         val request = kartleggingssporsmal.toKartleggingPdfgenRequest(createdAt)
-        return syfooppfpdfgenClient.getKartleggingPdf(request)
+        return pdfgenClient.getKartleggingPdf(request)
     }
 
     fun Kartleggingssporsmal.toKartleggingPdfgenRequest(createdAt: Instant): KartleggingPdfgenRequest {

@@ -15,7 +15,7 @@ import no.nav.syfo.kartlegging.exception.InvalidFormException
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarEvent
 import no.nav.syfo.kartlegging.kafka.KartleggingssvarKafkaProducer
 import no.nav.syfo.logger
-import no.nav.syfo.syfoopppdfgen.PdfgenService
+import no.nav.syfo.pdfgen.PdfgenService
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -73,7 +73,7 @@ class KartleggingssporsmalService(
         val uuid = kartleggingssporsmal.uuid
         val createdAt = kartleggingssporsmal.createdAt
         var operation = "generate_kartlegging_pdf"
-        var upstream: String? = "syfooppdfgen"
+        var upstream: String? = "esyfo-pdfgen"
         try {
             val pdf = pdfgenService.getKartleggingsPdf(kartleggingssporsmal, createdAt)
                 ?: throw IllegalStateException("Failed to generate PDF for kartleggingssporsmal")
