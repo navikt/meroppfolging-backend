@@ -11,6 +11,7 @@ import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
 import no.nav.syfo.oppfolgingstilfelle.IsOppfolgingstilfelleClient
 import no.nav.syfo.oppfolgingstilfelle.Oppfolgingstilfelle
+import no.nav.syfo.pdfgen.PdfgenService
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingSvarDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingSvarKafkaProducer
 import no.nav.syfo.senoppfolging.v2.domain.ResponseStatus
@@ -20,7 +21,6 @@ import no.nav.syfo.senoppfolging.v2.domain.behovForOppfolging
 import no.nav.syfo.senoppfolging.v2.domain.sortForMeroppfolgingFrontend
 import no.nav.syfo.senoppfolging.v2.domain.toQuestionResponse
 import no.nav.syfo.senoppfolging.v2.domain.toResponseStatus
-import no.nav.syfo.syfoopppdfgen.PdfgenService
 import no.nav.syfo.sykepengedagerinformasjon.service.SykepengedagerInformasjonService
 import no.nav.syfo.varsel.Varsel
 import no.nav.syfo.varsel.VarselService
@@ -38,7 +38,7 @@ class SenOppfolgingService(
     val metric: Metric,
     val senOppfolgingSvarKafkaProducer: SenOppfolgingSvarKafkaProducer,
     val dokarkivClient: DokarkivClient,
-    val syfoopfpdfgenService: PdfgenService,
+    val pdfgenService: PdfgenService,
 ) {
     private val log = logger()
 
@@ -112,11 +112,11 @@ class SenOppfolgingService(
     ) {
         val documentsData = mutableListOf<SingleDocumentData>()
 
-        val formStepsPdf = syfoopfpdfgenService.getSenOppfolgingFormStepsPdf(
+        val formStepsPdf = pdfgenService.getSenOppfolgingFormStepsPdf(
             formResponse.senOppfolgingFormV2,
         )
 
-        val receiptPdf = syfoopfpdfgenService.getSenOppfolgingReceiptPdf(
+        val receiptPdf = pdfgenService.getSenOppfolgingReceiptPdf(
             personident,
             formResponse.senOppfolgingFormV2,
             submissionDate

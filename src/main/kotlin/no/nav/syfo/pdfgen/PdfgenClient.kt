@@ -1,4 +1,4 @@
-package no.nav.syfo.syfoopppdfgen
+package no.nav.syfo.pdfgen
 
 import net.logstash.logback.marker.Markers.appendEntries
 import no.nav.syfo.documentFailureFields
@@ -19,24 +19,20 @@ import java.time.LocalDate
 
 @Component
 class PdfgenClient(
-    @Value("\${SYFOOPPDFGEN_URL}")
-    syfooppdfgenUrl: String,
     @Value("\${ESYFO_PDFGEN_URL}")
     esyfoPdfgenUrl: String,
     private val restTemplate: RestTemplate,
 ) {
     private val log = LoggerFactory.getLogger(PdfgenClient::class.java)
 
-    private val syfooppdfgen = "$syfooppdfgenUrl/api/v1/genpdf"
     private val esyfoPdfgen = "$esyfoPdfgenUrl/api/v1/genpdf"
 
-    // PDFs are moving from syfooppdfgen to esyfo-pdfgen; switch one by changing its prefix when pdf is ready.
-    private val senOppfolgingLandingUrl = "$syfooppdfgen/senoppfolging/landing"
+    private val senOppfolgingLandingUrl = "$esyfoPdfgen/senoppfolging/landing"
     private val senOppfolgingSnartSluttPaaSykepengerUrl =
         "$esyfoPdfgen/senoppfolging/snart_slutt_paa_sykepenger_reservert"
-    private val senOppfolgingFormStepsUrl = "$syfooppdfgen/senoppfolging/form_steps"
-    private val senOppfolgingReceiptUrl = "$syfooppdfgen/senoppfolging/receipt"
-    private val kartleggingReceiptUrl = "$syfooppdfgen/kartlegging/receipt"
+    private val senOppfolgingFormStepsUrl = "$esyfoPdfgen/senoppfolging/form_steps"
+    private val senOppfolgingReceiptUrl = "$esyfoPdfgen/senoppfolging/receipt"
+    private val kartleggingReceiptUrl = "$esyfoPdfgen/kartlegging/receipt"
 
     fun createSenOppfolgingLandingPdf(
         daysLeft: String?,
@@ -106,7 +102,7 @@ class PdfgenClient(
                 appendEntries(
                     e.documentFailureFields() + mapOf(
                         "event_type" to "pdf_generation_failed",
-                        "upstream" to if (url.startsWith(esyfoPdfgen)) "esyfo-pdfgen" else "syfooppdfgen",
+                        "upstream" to "esyfo-pdfgen",
                     ),
                 ),
                 "PDF generation failed",
@@ -115,7 +111,7 @@ class PdfgenClient(
         }
     }
 
-    private fun createRequestEntity(brevdata: Brevdata,): HttpEntity<PdfgenRequest> {
+    private fun createRequestEntity(brevdata: Brevdata): HttpEntity<PdfgenRequest> {
         val headers = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_JSON
             accept = listOf(MediaType.APPLICATION_JSON)

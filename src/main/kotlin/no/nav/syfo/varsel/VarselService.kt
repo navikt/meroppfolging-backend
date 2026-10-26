@@ -5,10 +5,10 @@ import no.nav.syfo.dokarkiv.DokarkivClient
 import no.nav.syfo.dokarkiv.domain.Distribusjonskanal
 import no.nav.syfo.logger
 import no.nav.syfo.metric.Metric
+import no.nav.syfo.pdfgen.PdfgenService
 import no.nav.syfo.pdl.PdlClient
 import no.nav.syfo.senoppfolging.kafka.KSenOppfolgingVarselDTO
 import no.nav.syfo.senoppfolging.kafka.SenOppfolgingVarselKafkaProducer
-import no.nav.syfo.syfoopppdfgen.PdfgenService
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*

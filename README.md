@@ -41,7 +41,7 @@ graph LR
     MODIA -->|Azure AD| APP
     APP -->|OBO| OPPF[isoppfolgingstilfelle]
     APP -->|OBO| TILGANG[istilgangskontroll]
-    APP --> PDF[syfooppdfgen]
+    APP --> PDF[esyfo-pdfgen]
     APP -->|M2M| DOKARKIV[dokarkiv]
     APP -->|M2M| PDL[pdl-api]
     APP -->|OBO| KRR[digdir-krr-proxy]

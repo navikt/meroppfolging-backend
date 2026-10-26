@@ -18,8 +18,8 @@ import no.nav.syfo.kartlegging.domain.formsnapshot.TextFieldSnapshot
 import no.nav.syfo.kartlegging.job.JournalforingJob
 import no.nav.syfo.kartlegging.service.KartleggingssporsmalService
 import no.nav.syfo.leaderelection.LeaderElectionClient
-import no.nav.syfo.syfoopppdfgen.PdfgenClient
-import no.nav.syfo.syfoopppdfgen.PdfgenService
+import no.nav.syfo.pdfgen.PdfgenClient
+import no.nav.syfo.pdfgen.PdfgenService
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -57,7 +57,7 @@ class JournalforingDiagnosticsTest :
             val dao = mockk<KartleggingssporsmalDAO>(relaxed = true)
             val dokarkiv = mockk<DokarkivClient>()
             val restTemplate = mockk<RestTemplate>()
-            val pdfClient = PdfgenClient("http://syfooppdfgen", "http://esyfo-pdfgen", restTemplate)
+            val pdfClient = PdfgenClient("http://esyfo-pdfgen", restTemplate)
             val pdfService = PdfgenService(pdfClient, mockk())
             val service = KartleggingssporsmalService(dao, mockk(), pdfService, dokarkiv)
             val leader = mockk<LeaderElectionClient>()
@@ -95,7 +95,7 @@ class JournalforingDiagnosticsTest :
                 val event = logs.events().single()
                 event["event_type"].asText() shouldBe "kartlegging_journalforing_failed"
                 event["operation"].asText() shouldBe "generate_kartlegging_pdf"
-                event["upstream"].asText() shouldBe "syfooppdfgen"
+                event["upstream"].asText() shouldBe "esyfo-pdfgen"
                 event["exception_type"].asText() shouldBe ResourceAccessException::class.java.simpleName
                 event["cause_type"].asText() shouldBe SocketException::class.java.simpleName
                 exceptionCategory.matches(event["exception_type"].asText()) shouldBe true
@@ -118,7 +118,7 @@ class JournalforingDiagnosticsTest :
             val dao = mockk<KartleggingssporsmalDAO>(relaxed = true)
             val dokarkiv = mockk<DokarkivClient>()
             val restTemplate = mockk<RestTemplate>()
-            val pdfClient = PdfgenClient("http://syfooppdfgen", "http://esyfo-pdfgen", restTemplate)
+            val pdfClient = PdfgenClient("http://esyfo-pdfgen", restTemplate)
             val service = KartleggingssporsmalService(dao, mockk(), PdfgenService(pdfClient, mockk()), dokarkiv)
             every {
                 restTemplate.exchange<ByteArray>(any<String>(), HttpMethod.POST, any<HttpEntity<*>>())
