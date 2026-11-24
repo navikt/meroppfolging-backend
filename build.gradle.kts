@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "4.1.1"
+    id("org.springframework.boot") version "4.1.2"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     kotlin("jvm") version "2.4.21"
     kotlin("plugin.spring") version "2.4.21"
@@ -35,7 +35,7 @@ dependencies {
     implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
 
     constraints {
-        lockConstraintToVersion(dependencyVersion = springBootVersion(), lockToVersion = "4.1.1") {
+        lockConstraintToVersion(dependencyVersion = springBootVersion(), lockToVersion = "4.1.2") {
             implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion") {
                 because("CVE in lower versions")
             }
